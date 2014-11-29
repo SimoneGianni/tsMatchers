@@ -55,14 +55,14 @@ Matchers.assert(x).is(Matchers.equalTo(y));
 
 You could prefer to download also the tsMatchersGlobal.ts that redeclares all the useful matching functions in the global
 scope to use them easier. While this is technically "polluting your global namespace", it is intended to be used only
-during tests, and names are chosen not to conflict with anything usually in the glocal scope, so should not be a real problem at all.
+during tests, and names are chosen not to conflict with anything usually in the global scope, so should not be a real problem.
 
-The use it inside your favorite unit test engine, a failed assertion will throw a runtime exception.
+Then use it inside your favorite unit test engine, a failed assertion will throw a runtime exception.
 
 How can I help
 ==============
 
-This project is in very early stages, I wrote it because I'm so used to Hamcrest matchers in Junit that couldn't live without
+This project is in its very early stages, I wrote it because I'm so used to Hamcrest matchers in Junit that couldn't live without
 something similar in TypeScript.
 
 Feel free to report bugs, wrong documentation, or your ideas on how to improve it in the GitHub issues. Feel also free
@@ -94,13 +94,13 @@ equalTo(val)
 
 `equalTo` is probably the most basic matcher, so basic you usually don't need to write it at all.
 
-It checks if the value to be checked is *loosely* equal to the given value. For example :
+It checks if the value to be checked is (loosely) equal to the given value. For example :
 
 ```javascript
 assert(10).is(equalTo(10));
 ```
 
-As said, it is so common that if you don't specify it and simply use the value, it is used by default.
+As said, it is so common that if you don't specify it and simply use the value, `equalTo` is used by default.
 
 ```javascript
 assert(10).is(10); // Totally equivalent to the previous example
@@ -109,15 +109,15 @@ assert(10).is(10); // Totally equivalent to the previous example
 it is TypeScript type checked, so the following will give compile errors :
 
 ```javascript
-assert(10).is(equalTo('10'));
-assert(true).is(equalTo(1));
+assert(10).is(equalTo('10')); // Error, x=10 (number) and val='10' (string)
+assert(true).is(equalTo(1)); // Error, x=true (boolean) and val=1 (number)
 ```
 
 If you need to perform untyped assertions like above, you can use `looselyEqualTo` :
 
 ```javascript
-assert(10).is(looselyEqualTo('10'));
-assert(true).is(looselyEqualTo(1));
+assert(10).is(looselyEqualTo('10')); // Will pass, because '10'==10 is actually ok in JS
+assert(true).is(looselyEqualTo(1)); // Will pass, because true==1 is actually ok in JS
 ```
 
 If instead you need a strict comparison even at runtime, you can use `exactly`, that uses the strict comparison
@@ -129,8 +129,8 @@ var x:any;
 assert(x).is(exactly(true)); // Will check that it is a boolean and it's true
 ```
 
-aXXXX
------
+aString, aNumber, aBoolean ...
+------------------------------
 
 If you don't want to check for a specific value, but only to check that something is a number or a string, you can use
 the various `aXXXX` :
@@ -166,7 +166,15 @@ Will all pass.
 Others are less specific but still very useful :
  * `definedValue` : will match anything defined
  * `undefinedValue` : will match anything undefined
- * `aNaN` : will match a number with value NaN
+ * `aNaN` : will match a number with value NaN, useful mostly as `not(aNaN)`
+
+```javascript
+var x = 1;
+assert(x).is(definedValue);
+var y:any = 'ciao';
+x = x*y;
+assert(x).is(aNaN);
+```
 
 not(rule)
 ---------
