@@ -146,6 +146,21 @@ var Matchers;
         return Truthy;
     })(BaseMatcher);
     Matchers.Truthy = Truthy;
+    var isNan = (function (_super) {
+        __extends(isNan, _super);
+        function isNan() {
+            _super.apply(this, arguments);
+        }
+        isNan.prototype.matches = function (obj) {
+            return isNaN(obj);
+        };
+        isNan.prototype.describe = function (obj, msg) {
+            msg.append(" a NaN value");
+            _super.prototype.describe.call(this, obj, msg);
+        };
+        return isNan;
+    })(BaseMatcher);
+    Matchers.isNan = isNan;
     var Equals = (function (_super) {
         __extends(Equals, _super);
         function Equals(value) {
@@ -513,7 +528,7 @@ var Matchers;
     Matchers.aTrue = exactly(true);
     Matchers.aFalse = exactly(false);
     Matchers.anArray = instanceOf(Array);
-    Matchers.aNaN = equalTo(NaN);
+    Matchers.aNaN = new Matchers.isNan();
     function equalTo(value) {
         return new Matchers.Equals(value);
     }

@@ -136,6 +136,17 @@ module Matchers {
 			super.describe(obj,msg);
 		}
 	}
+
+	export class isNan extends BaseMatcher<number> implements Matcher<number> {
+		matches(obj) {
+			return isNaN(obj);
+		}
+		
+		describe(obj,msg) {
+			msg.append(" a NaN value");
+			super.describe(obj,msg);
+		}
+	}
 	
 	export class Equals<T> extends BaseMatcher<any> implements Matcher<any> {
 		constructor(private value:T) {super();}
@@ -457,7 +468,7 @@ module Matchers {
 	
 	export var anArray = instanceOf(Array);
 	
-	export var aNaN = equalTo(NaN);
+	export var aNaN = new Matchers.isNan();
 	
 	export function equalTo<T>(value:T):Matchers.Equals<T> {
 		return new Matchers.Equals<T>(value);
