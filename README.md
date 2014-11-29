@@ -12,24 +12,7 @@ Why should i use it?
 When developing TypeScript, you often need to write some tests, mostly unit tests. There are currently a number of 
 frameworks to write those tests, with tsUnit being a known one, and many others from the JavaScript world.
 
-However, the assertions in most of those frameworks are not very descriptive nor easy to use. For example, suppose
-we want to make sure that in our test a given Person has a specific nickname, in tsUnit we can write :
-
-```javascript
-this.areIdentical("Nick", person.nickname, "Wrong nickname");
-```
-
-And, if they are not, tsUnit will simply tell us :
-
-> areIdentical failed when given Nick and Nock. Wrong nickname 
-
-Moreover, there is no type check, so we can make a mistake and write :
-
-```javascript
-this.areIdentical("Nick", person.friends);
-this.areIdentical("Nick", person.age);
-// etc..
-```
+However, the assertions in most of those frameworks are not very descriptive nor easy to use. 
 
 Instead, with tsMatchers, assertions are more readable and produce better error messages :
 
@@ -37,7 +20,7 @@ Instead, with tsMatchers, assertions are more readable and produce better error 
 assert("Right nickname").when(person.nickname).is("Nick");
 ```
 
-As you can see, length of the statement is the same, but it is type checked and reports a better error message :
+It is type checked, more readable, and reports a better error message :
 
 > Was expecting "Nick" but was "Nock" when asserting 'Right nickname'
 
@@ -53,6 +36,7 @@ assert("Person matches").when(person).is(matchingObject({
 ```
 
 Moreover, it's totally extensible, so that you can write your own matchers to use in your tests.
+
 
 How to install
 ==============
@@ -273,7 +257,7 @@ Objects
 
 Other than `anObject` matcher, you can check the properties of an object with `objectMatching` :
 
-```
+```javascript
 // Will use an inline object, but any javascript object will work
 var x = {a:10,b:'Test',c: {c1:100,c2:20}, d:'Other'};
 
@@ -303,7 +287,7 @@ To check if `x` is an instance of a specific class, use the `instanceOf(val)` ru
 ```javascript
 var x = new Person();
 assert(x).is(instanceOf(Person));
-
+```
 
 
 
