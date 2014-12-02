@@ -277,6 +277,7 @@ module Matchers {
 		
 		matches(obj) {
 			if (!anObject.matches(obj)) return false;
+			var founds:{[key:string]:boolean} = {};
 			for (var k in obj) {
 				var matcher = this.def[k];
 				if (!matcher) {
@@ -284,6 +285,10 @@ module Matchers {
 					continue;
 				}
 				if (!matcher.matches(obj[k])) return false;
+				founds[k] = true;
+			}
+			for (var k in this.def) {
+				if (!founds[k]) return false;
 			}
 			return true;
 		}
@@ -321,11 +326,12 @@ module Matchers {
 		constructor(private len:number) {super();}
 	
 		matches(obj) {
-			return (typeof obj.length !== 'undefined') && obj.length == this.len;
+			return (obj && (typeof obj.length !== 'undefined') && obj.length) == this.len;
 		}
 		
 		describe(obj,msg) {
-			msg.append(" something with length " + this.len + " (found has " + obj.length + ")");
+			msg.append(" something with length " + this.len);
+			if (obj && (typeof obj.length !== 'undefined')) msg.append(" (found has " + obj.length + ")");
 			super.describe(obj,msg);
 		}
 	}

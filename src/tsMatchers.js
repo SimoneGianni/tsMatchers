@@ -316,6 +316,7 @@ var Matchers;
         MatchObject.prototype.matches = function (obj) {
             if (!Matchers.anObject.matches(obj))
                 return false;
+            var founds = {};
             for (var k in obj) {
                 var matcher = this.def[k];
                 if (!matcher) {
@@ -324,6 +325,11 @@ var Matchers;
                     continue;
                 }
                 if (!matcher.matches(obj[k]))
+                    return false;
+                founds[k] = true;
+            }
+            for (var k in this.def) {
+                if (!founds[k])
                     return false;
             }
             return true;
@@ -366,10 +372,12 @@ var Matchers;
             this.len = len;
         }
         WithLength.prototype.matches = function (obj) {
-            return (typeof obj.length !== 'undefined') && obj.length == this.len;
+            return (obj && (typeof obj.length !== 'undefined') && obj.length) == this.len;
         };
         WithLength.prototype.describe = function (obj, msg) {
-            msg.append(" something with length " + this.len + " (found has " + obj.length + ")");
+            msg.append(" something with length " + this.len);
+            if (obj && (typeof obj.length !== 'undefined'))
+                msg.append(" (found has " + obj.length + ")");
             _super.prototype.describe.call(this, obj, msg);
         };
         return WithLength;
