@@ -37,13 +37,7 @@ var Matchers;
             return ret;
         };
         ToMatch.prototype.is = function (val) {
-            var matcher = null;
-            if (val instanceof BaseMatcher) {
-                matcher = val;
-            }
-            else {
-                matcher = equalTo(val);
-            }
+            var matcher = matcherOrEquals(val);
             if (!matcher.matches(this.obj)) {
                 var app = new Appendable("Assert failure, expecting");
                 matcher.describe(this.obj, app);
@@ -301,15 +295,12 @@ var Matchers;
             this.def = {};
             for (var k in defu) {
                 var m = defu[k];
-                if (!(m instanceof BaseMatcher)) {
-                    if (typeof m === 'object') {
-                        m = new MatchObject(m, strict);
-                    }
-                    else {
-                        m = equalTo(m);
-                    }
+                if (!(m instanceof BaseMatcher) && typeof m === 'object') {
+                    this.def[k] = new MatchObject(m, strict);
                 }
-                this.def[k] = m;
+                else {
+                    this.def[k] = matcherOrEquals(defu[k]);
+                }
             }
             this.strict = strict;
         }
@@ -365,6 +356,7 @@ var Matchers;
         return MatchObject;
     })(BaseMatcher);
     Matchers.MatchObject = MatchObject;
+    // TODO make this more flexible, accepting a sub, like withLength(greaterThat(10)) etc..
     var WithLength = (function (_super) {
         __extends(WithLength, _super);
         function WithLength(len) {
@@ -436,16 +428,16 @@ var Matchers;
                 return this.nextAnd.matches(obj);
             return this.sub.matches(obj);
         };
-        CombineEither.prototype.or = function (other) {
+        CombineEither.prototype.or = function (x) {
             this.nextOr = new CombineOr();
             this.nextOr.add(this.sub);
-            this.nextOr.add(other);
+            this.nextOr.add(matcherOrEquals(x));
             return this.nextOr;
         };
-        CombineEither.prototype.and = function (other) {
+        CombineEither.prototype.and = function (x) {
             this.nextAnd = new CombineAnd();
             this.nextAnd.add(this.sub);
-            this.nextAnd.add(other);
+            this.nextAnd.add(matcherOrEquals(x));
             return this.nextAnd;
         };
         CombineEither.prototype.describe = function (obj, msg) {
@@ -516,6 +508,11 @@ var Matchers;
         return CombineOr;
     })(CombineList);
     Matchers.CombineOr = CombineOr;
+    function matcherOrEquals(x) {
+        if (x instanceof BaseMatcher)
+            return x;
+        return equalTo(x);
+    }
     function ofType(type) {
         return new Matchers.OfType(type);
     }
@@ -549,20 +546,20 @@ var Matchers;
         return new Matchers.Equals(value);
     }
     Matchers.looselyEqualTo = looselyEqualTo;
-    function not(sub) {
-        return new Matchers.Not(sub);
+    function not(x) {
+        return new Matchers.Not(matcherOrEquals(x));
     }
     Matchers.not = not;
-    function either(sub) {
-        return new Matchers.CombineEither(sub);
+    function either(x) {
+        return new Matchers.CombineEither(matcherOrEquals(x));
     }
     Matchers.either = either;
     function withLength(len) {
         return new Matchers.WithLength(len);
     }
     Matchers.withLength = withLength;
-    function arrayContaining(sub) {
-        return new Matchers.ArrayContaining(sub);
+    function arrayContaining(x) {
+        return new Matchers.ArrayContaining(matcherOrEquals(x));
     }
     Matchers.arrayContaining = arrayContaining;
     function stringContaining(sub) {

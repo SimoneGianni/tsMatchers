@@ -298,4 +298,9 @@ assert(x).is(instanceOf(Person));
 ```
 
 
-
+Release notes
+=============
+ * r4 : overloaded all main functions to work like ".is()", accepting both a matcher and a simple value that will be converted to an "equalTo".
+ * r3 : Fix an undefined in WithLength, fix a bug on ObjectMatcher that was not checking all matchers 
+ * r2 : Fix on "aNaN", use specific matcher cause typeof is not reliable
+ * r1 : Initial commit

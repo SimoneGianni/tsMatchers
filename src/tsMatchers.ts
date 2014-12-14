@@ -42,12 +42,7 @@ module Matchers {
 		is(matcher :Matcher<T>)
 		is(val:T)
 		is(val:any) {
-			var matcher:Matcher<T> = null;
-			if (val instanceof BaseMatcher) {
-				matcher = <Matcher<T>>val;
-			} else {
-				matcher = equalTo(val);
-			}
+			var matcher:Matcher<T> = matcherOrEquals(val);
 			if (!matcher.matches(this.obj)) {
 				var app = new Appendable("Assert failure, expecting");
 				matcher.describe(this.obj,app);
@@ -263,14 +258,11 @@ module Matchers {
 			super();
 			for (var k in defu) {
 				var m = defu[k];
-				if (!(m instanceof BaseMatcher)) {
-					if (typeof m === 'object') {
-						m = new MatchObject(m,strict);
-					} else {
-						m = equalTo(m);
-					}
+				if (!(m instanceof BaseMatcher) && typeof m === 'object') {
+					this.def[k] = new MatchObject(m,strict);
+				} else {
+					this.def[k] = matcherOrEquals(defu[k]);
 				}
-				this.def[k] = m;
 			}
 			this.strict = strict;
 		}
@@ -322,6 +314,7 @@ module Matchers {
 		}
 	}
 	
+	// TODO make this more flexible, accepting a sub, like withLength(greaterThat(10)) etc..
 	export class WithLength extends BaseMatcher<any> implements Matcher<any> {
 		constructor(private len:number) {super();}
 	
@@ -379,16 +372,20 @@ module Matchers {
 			return this.sub.matches(obj);
 		}
 		
-		or(other:Matcher<T>):CombineOr<T> {
+		or(other:Matcher<T>):CombineOr<T>;
+		or(val:T):CombineOr<T>;
+		or(x:any):CombineOr<T> {
 			this.nextOr = new CombineOr<T>();
 			this.nextOr.add(this.sub);
-			this.nextOr.add(other);
+			this.nextOr.add(matcherOrEquals(x));
 			return this.nextOr;
 		}
-		and(other:Matcher<T>):CombineAnd<T> {
+		and(other:Matcher<T>):CombineAnd<T>;
+		and(val:T):CombineAnd<T>;
+		and(x:any):CombineAnd<T> {
 			this.nextAnd = new CombineAnd<T>();
 			this.nextAnd.add(this.sub);
-			this.nextAnd.add(other);
+			this.nextAnd.add(matcherOrEquals(x));
 			return this.nextAnd;
 		}
 		describe(obj,msg) {
@@ -442,6 +439,13 @@ module Matchers {
 		}
 	}
 	
+	function matcherOrEquals<T>(mtch:Matcher<T>):Matcher<T>;
+	function matcherOrEquals<T>(val:T):Matcher<T>;
+	function matcherOrEquals<T>(x:any):Matcher<T> {
+		if (x instanceof BaseMatcher) return <Matcher<T>>x;
+		return equalTo(x); 
+	}
+	
 	export function ofType(type :string):Matchers.OfType {
 		return new Matchers.OfType(type);
 	}
@@ -488,20 +492,26 @@ module Matchers {
 		return new Matchers.Equals<any>(value);
 	}
 	
-	export function not<T>(sub :Matchers.Matcher<T>) :Matchers.Not<T> {
-		return new Matchers.Not<T>(sub);
+	export function not<T>(sub :Matchers.Matcher<T>) :Matchers.Not<T>;
+ 	export function not<T>(val :T) :Matchers.Not<T>; 
+	export function not<T>(x:any) :Matchers.Not<T> {
+		return new Matchers.Not<T>(matcherOrEquals(x));
 	}
 	
-	export function either<T>(sub :Matchers.Matcher<T>) :Matchers.CombineEither<T> {
-		return new Matchers.CombineEither<T>(sub);
+	export function either<T>(sub :Matchers.Matcher<T>) :Matchers.CombineEither<T>;
+	export function either<T>(val :T) :Matchers.CombineEither<T>;
+	export function either<T>(x:any) :Matchers.CombineEither<T> {
+		return new Matchers.CombineEither<T>(matcherOrEquals(x));
 	}
 	
 	export function withLength(len:number) :Matchers.WithLength {
 		return new Matchers.WithLength(len);
 	}
 	
-	export function arrayContaining<T>(sub :Matchers.Matcher<T>) :Matchers.ArrayContaining<T> {
-		return new Matchers.ArrayContaining<T>(sub);
+	export function arrayContaining<T>(sub :Matchers.Matcher<T>) :Matchers.ArrayContaining<T>;
+	export function arrayContaining<T>(val :T) :Matchers.ArrayContaining<T>;
+	export function arrayContaining<T>(x:any) :Matchers.ArrayContaining<T> {
+		return new Matchers.ArrayContaining<T>(matcherOrEquals(x));
 	}
 	
 	export function stringContaining(sub:string) :Matchers.StringContaining {
