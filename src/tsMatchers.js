@@ -7,6 +7,7 @@ var __extends = this.__extends || function (d, b) {
 var Matchers;
 (function (Matchers) {
     var serveLater = false;
+    Matchers.consoleDump = true;
     var exceptions = [];
     function later() {
         serveLater = true;
@@ -44,8 +45,10 @@ var Matchers;
                 if (this.addMsg)
                     app.append(" when asserting '" + this.addMsg + "'");
                 var e = new Error(app.msg);
-                if (console && console.error) {
-                    console.error(e);
+                if (Matchers.consoleDump) {
+                    if (console && console.error) {
+                        console.error(e);
+                    }
                 }
                 if (serveLater) {
                     exceptions.push(app.msg);
@@ -395,6 +398,31 @@ var Matchers;
         return ArrayContaining;
     })(BaseMatcher);
     Matchers.ArrayContaining = ArrayContaining;
+    var ArrayEquals = (function (_super) {
+        __extends(ArrayEquals, _super);
+        function ArrayEquals(value) {
+            _super.call(this);
+            this.value = value;
+        }
+        ArrayEquals.prototype.matches = function (obj) {
+            if (obj === this.value)
+                return true;
+            if (obj.length != this.value.length)
+                return false;
+            for (var i = 0; i < this.value.length; ++i) {
+                if (this.value[i] !== obj[i])
+                    return false;
+            }
+            return true;
+        };
+        ArrayEquals.prototype.describe = function (obj, msg) {
+            msg.append(" an array of length " + this.value.length + " equal to ");
+            dump(this.value, msg);
+            _super.prototype.describe.call(this, obj, msg);
+        };
+        return ArrayEquals;
+    })(BaseMatcher);
+    Matchers.ArrayEquals = ArrayEquals;
     var StringContaining = (function (_super) {
         __extends(StringContaining, _super);
         function StringContaining(sub) {
@@ -409,7 +437,7 @@ var Matchers;
             return obj.indexOf(this.sub) > -1;
         };
         StringContaining.prototype.describe = function (obj, msg) {
-            msg.append(" a a string containing \"" + this.sub + "\"");
+            msg.append(" a string containing \"" + this.sub + "\"");
             _super.prototype.describe.call(this, obj, msg);
         };
         return StringContaining;
@@ -511,8 +539,11 @@ var Matchers;
     function matcherOrEquals(x) {
         if (x instanceof BaseMatcher)
             return x;
+        if (Array.isArray(x))
+            return arrayEquals(x);
         return equalTo(x);
     }
+    Matchers.matcherOrEquals = matcherOrEquals;
     function ofType(type) {
         return new Matchers.OfType(type);
     }
@@ -562,6 +593,10 @@ var Matchers;
         return new Matchers.ArrayContaining(matcherOrEquals(x));
     }
     Matchers.arrayContaining = arrayContaining;
+    function arrayEquals(val) {
+        return new Matchers.ArrayEquals(val);
+    }
+    Matchers.arrayEquals = arrayEquals;
     function stringContaining(sub) {
         return new Matchers.StringContaining(sub);
     }

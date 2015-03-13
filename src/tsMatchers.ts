@@ -1,6 +1,7 @@
 
 module Matchers {
 	var serveLater:boolean = false;
+	export var consoleDump:boolean = true;
 	var exceptions: string[] = [];
 
 	export function later():void {
@@ -48,8 +49,10 @@ module Matchers {
 				matcher.describe(this.obj,app);
 				if (this.addMsg) app.append(" when asserting '" + this.addMsg + "'");
 				var e = new Error(app.msg);
-				if (console && console.error) {
-					console.error(e);
+				if (consoleDump) {
+					if (console && console.error) {
+						console.error(e);
+					}
 				}
 				if (serveLater) {
 					exceptions.push(app.msg);
@@ -344,6 +347,27 @@ module Matchers {
 			this.sub.describe(obj,msg);
 		}
 	}
+	
+	export class ArrayEquals<T> extends BaseMatcher<T[]> implements Matcher<T[]> {
+		constructor(private value:T[]) { super(); }
+		
+		matches(obj:T[]) {
+			if (obj === this.value) return true;
+			if (obj.length != this.value.length) return false;
+			
+			for (var i = 0; i < this.value.length; ++i) {
+				if (this.value[i] !== obj[i]) return false;
+			}
+			return true;
+		}
+		
+		describe(obj,msg) {
+			msg.append(" an array of length " + this.value.length + " equal to ");
+			dump(this.value, msg);
+			super.describe(obj,msg);
+		}
+		
+	}
 
 	export class StringContaining extends BaseMatcher<string> implements Matcher<string> {
 		constructor(private sub:string) {super();}
@@ -355,7 +379,7 @@ module Matchers {
 		}
 		
 		describe(obj,msg) {
-			msg.append(" a a string containing \"" + this.sub + "\"");
+			msg.append(" a string containing \"" + this.sub + "\"");
 			super.describe(obj,msg);
 		}
 	}
@@ -439,10 +463,11 @@ module Matchers {
 		}
 	}
 	
-	function matcherOrEquals<T>(mtch:Matcher<T>):Matcher<T>;
-	function matcherOrEquals<T>(val:T):Matcher<T>;
-	function matcherOrEquals<T>(x:any):Matcher<T> {
+	export function matcherOrEquals<T>(mtch:Matcher<T>):Matcher<T>;
+	export function matcherOrEquals<T>(val:T):Matcher<T>;
+	export function matcherOrEquals<T>(x:any):Matcher<any> {
 		if (x instanceof BaseMatcher) return <Matcher<T>>x;
+		if (Array.isArray(x)) return arrayEquals(x);
 		return equalTo(x); 
 	}
 	
@@ -512,6 +537,10 @@ module Matchers {
 	export function arrayContaining<T>(val :T) :Matchers.ArrayContaining<T>;
 	export function arrayContaining<T>(x:any) :Matchers.ArrayContaining<T> {
 		return new Matchers.ArrayContaining<T>(matcherOrEquals(x));
+	}
+	
+	export function arrayEquals<T>(val :T[]) :Matchers.ArrayEquals<T> {
+		return new Matchers.ArrayEquals<T>(val);
 	}
 	
 	export function stringContaining(sub:string) :Matchers.StringContaining {

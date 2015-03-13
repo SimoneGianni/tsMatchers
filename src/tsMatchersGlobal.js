@@ -21,6 +21,7 @@ var not = Matchers.not;
 var either = Matchers.either;
 var withLength = Matchers.withLength;
 var arrayContaining = Matchers.arrayContaining;
+var arrayEquals = Matchers.arrayEquals;
 var stringContaining = Matchers.stringContaining;
 var objectMatching = Matchers.objectMatching;
 var objectMatchingStrictly = Matchers.objectMatchingStrictly;
