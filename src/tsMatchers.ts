@@ -1,5 +1,5 @@
 
-module Matchers {
+export module Matchers {
 	var serveLater:boolean = false;
 	export var consoleDump:boolean = true;
 	var exceptions: string[] = [];
@@ -10,6 +10,7 @@ module Matchers {
 	}
 	
 	export function check():void {
+		serveLater = false;
 		if (exceptions.length == 0) return;
 		throw new Error(exceptions.join("\n"));
 	}
@@ -63,7 +64,7 @@ module Matchers {
 		}
 	}
 	
-	class Appendable {
+	export class Appendable {
 		msg :string = "";
 		
 		constructor(init :string = "") {
@@ -275,6 +276,7 @@ module Matchers {
 			var founds:{[key:string]:boolean} = {};
 			for (var k in obj) {
 				var matcher = this.def[k];
+				if (!(matcher instanceof BaseMatcher)) continue; 
 				if (!matcher) {
 					if (this.strict) return false;
 					continue;
@@ -283,7 +285,11 @@ module Matchers {
 				founds[k] = true;
 			}
 			for (var k in this.def) {
-				if (!founds[k]) return false;
+				if (!founds[k]) {
+					var matcher = this.def[k];
+					if (!matcher.matches(obj[k])) return false;
+					founds[k] = true;
+				}
 			}
 			return true;
 		}

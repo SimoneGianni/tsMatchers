@@ -1,0 +1,34 @@
+{
+	"name": "tsMatchers",
+	"version": "1.0.0",
+	"description": "tsMatchers",
+	"main": "js/tsMatchersGlobal.js",
+	"scripts": 
+	{
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+
+	"repository": 
+	{
+		"type": "git",
+		"url": "https://github.com/SimoneGianni/tsMatchers.git"
+	},
+
+	"author": "Simone Gianni",
+	"license": "ASL 2.0",
+	"bugs": 
+	{
+		"url": "https://github.com/SimoneGianni/tsMatchers/issues"
+	},
+
+	"homepage": "https://github.com/SimoneGianni/tsMatchers",
+	"typescript": 
+	{
+		"definitions": 
+		[
+			"js/tsMatchers.d.ts",
+			"js/tsMatchersGlobal.d.ts",
+			"module.d.ts"
+		]
+	}
+}
