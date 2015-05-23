@@ -1,9 +1,41 @@
-import MatchersMod = require('./tsMatchers');
-var Matchers = MatchersMod.Matchers;
+import Matchers = require('./tsMatchers');
 
 declare var global:any;
 
 var gl = global || window;
+
+var ofType = Matchers.ofType;
+var instanceOf = Matchers.instanceOf;
+var definedValue = Matchers.definedValue;
+var undefinedValue = Matchers.undefinedValue;
+var aString = Matchers.aString;
+var aNumber = Matchers.aNumber;
+var aBoolean = Matchers.aBoolean;
+var anObject = Matchers.anObject;
+var aFunction = Matchers.aFunction;
+var aTruthy = Matchers.aTruthy;
+var aFalsey = Matchers.aFalsey;
+var aTrue = Matchers.aTrue;
+var aFalse = Matchers.aFalse;
+var anArray = Matchers.anArray;
+var aNaN = Matchers.aNaN;
+var equalTo = Matchers.equalTo;
+var exactly = Matchers.exactly;
+var looselyEqualTo = Matchers.looselyEqualTo;
+var not = Matchers.not;
+var either = Matchers.either;
+var withLength = Matchers.withLength;
+var arrayContaining = Matchers.arrayContaining;
+var arrayEquals = Matchers.arrayEquals;
+var stringContaining = Matchers.stringContaining;
+var objectMatching = Matchers.objectMatching;
+var objectMatchingStrictly = Matchers.objectMatchingStrictly;
+var closeTo = Matchers.closeTo;
+var greaterThan = Matchers.greaterThan;
+var lessThan = Matchers.lessThan;
+var between = Matchers.between;
+var assert = Matchers.assert;
+
 
 gl.ofType = Matchers.ofType;
 gl.instanceOf = Matchers.instanceOf;

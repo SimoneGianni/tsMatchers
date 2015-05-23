@@ -1,4 +1,4 @@
-import tsmg = require('./tsMatchersGlobal');
+import tsmg = require('js/tsMatchers');
 declare module "tsMatchers" {
   export = tsmg;
 }

@@ -1,1 +1,4 @@
-/js/
+.project
+.settings/
+npm-debug.log
+

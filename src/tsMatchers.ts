@@ -1,5 +1,5 @@
 
-export module Matchers {
+
 	var serveLater:boolean = false;
 	export var consoleDump:boolean = true;
 	var exceptions: string[] = [];
@@ -477,12 +477,12 @@ export module Matchers {
 		return equalTo(x); 
 	}
 	
-	export function ofType(type :string):Matchers.OfType {
-		return new Matchers.OfType(type);
+	export function ofType(type :string):OfType {
+		return new OfType(type);
 	}
 	
-	export function instanceOf(type :any):Matchers.InstanceOf {
-		return new Matchers.InstanceOf(type);
+	export function instanceOf(type :any):InstanceOf {
+		return new InstanceOf(type);
 	}
 	
 	export var definedValue = not(ofType('undefined'));
@@ -499,7 +499,7 @@ export module Matchers {
 	
 	export var aFunction = ofType('function');
 	
-	export var aTruthy = new Matchers.Truthy();
+	export var aTruthy = new Truthy();
 	
 	export var aFalsey = not(aTruthy);
 	
@@ -509,84 +509,83 @@ export module Matchers {
 	
 	export var anArray = instanceOf(Array);
 	
-	export var aNaN = new Matchers.isNan();
+	export var aNaN = new isNan();
 	
-	export function equalTo<T>(value:T):Matchers.Equals<T> {
-		return new Matchers.Equals<T>(value);
+	export function equalTo<T>(value:T):Equals<T> {
+		return new Equals<T>(value);
 	}
 	
-	export function exactly<T>(value:T):Matchers.Exactly<T> {
-		return new Matchers.Exactly<T>(value);
+	export function exactly<T>(value:T):Exactly<T> {
+		return new Exactly<T>(value);
 	}
 	
-	export function looselyEqualTo(value:any):Matchers.Matcher<any> {
-		return new Matchers.Equals<any>(value);
+	export function looselyEqualTo(value:any):Matcher<any> {
+		return new Equals<any>(value);
 	}
 	
-	export function not<T>(sub :Matchers.Matcher<T>) :Matchers.Not<T>;
- 	export function not<T>(val :T) :Matchers.Not<T>; 
-	export function not<T>(x:any) :Matchers.Not<T> {
-		return new Matchers.Not<T>(matcherOrEquals(x));
+	export function not<T>(sub :Matcher<T>) :Not<T>;
+ 	export function not<T>(val :T) :Not<T>; 
+	export function not<T>(x:any) :Not<T> {
+		return new Not<T>(matcherOrEquals(x));
 	}
 	
-	export function either<T>(sub :Matchers.Matcher<T>) :Matchers.CombineEither<T>;
-	export function either<T>(val :T) :Matchers.CombineEither<T>;
-	export function either<T>(x:any) :Matchers.CombineEither<T> {
-		return new Matchers.CombineEither<T>(matcherOrEquals(x));
+	export function either<T>(sub :Matcher<T>) :CombineEither<T>;
+	export function either<T>(val :T) :CombineEither<T>;
+	export function either<T>(x:any) :CombineEither<T> {
+		return new CombineEither<T>(matcherOrEquals(x));
 	}
 	
-	export function withLength(len:number) :Matchers.WithLength {
-		return new Matchers.WithLength(len);
+	export function withLength(len:number) :WithLength {
+		return new WithLength(len);
 	}
 	
-	export function arrayContaining<T>(sub :Matchers.Matcher<T>) :Matchers.ArrayContaining<T>;
-	export function arrayContaining<T>(val :T) :Matchers.ArrayContaining<T>;
-	export function arrayContaining<T>(x:any) :Matchers.ArrayContaining<T> {
-		return new Matchers.ArrayContaining<T>(matcherOrEquals(x));
+	export function arrayContaining<T>(sub :Matcher<T>) :ArrayContaining<T>;
+	export function arrayContaining<T>(val :T) :ArrayContaining<T>;
+	export function arrayContaining<T>(x:any) :ArrayContaining<T> {
+		return new ArrayContaining<T>(matcherOrEquals(x));
 	}
 	
-	export function arrayEquals<T>(val :T[]) :Matchers.ArrayEquals<T> {
-		return new Matchers.ArrayEquals<T>(val);
+	export function arrayEquals<T>(val :T[]) :ArrayEquals<T> {
+		return new ArrayEquals<T>(val);
 	}
 	
-	export function stringContaining(sub:string) :Matchers.StringContaining {
-		return new Matchers.StringContaining(sub);
+	export function stringContaining(sub:string) :StringContaining {
+		return new StringContaining(sub);
 	}
 	
-	export function objectMatching(def:any) :Matchers.MatchObject {
-		return new Matchers.MatchObject(def, false);
+	export function objectMatching(def:any) :MatchObject {
+		return new MatchObject(def, false);
 	}
-	export function objectMatchingStrictly(def:any) :Matchers.MatchObject {
-		return new Matchers.MatchObject(def, true);
-	}
-	
-	export function closeTo(value :number, range:number = 0.1):Matchers.CloseTo {
-		return new Matchers.CloseTo(value,range);
+	export function objectMatchingStrictly(def:any) :MatchObject {
+		return new MatchObject(def, true);
 	}
 	
-	export function greaterThan(value:number, inclusive:boolean=false):Matchers.Between {
-		var ret = new Matchers.Between();
+	export function closeTo(value :number, range:number = 0.1):CloseTo {
+		return new CloseTo(value,range);
+	}
+	
+	export function greaterThan(value:number, inclusive:boolean=false):Between {
+		var ret = new Between();
 		ret.min = value;
 		ret.minInc = inclusive;
 		return ret;
 	}
-	export function lessThan(value:number, inclusive:boolean=false):Matchers.Between {
-		var ret = new Matchers.Between();
+	export function lessThan(value:number, inclusive:boolean=false):Between {
+		var ret = new Between();
 		ret.max = value;
 		ret.maxInc = inclusive;
 		return ret;
 	}
-	export function between(min:number,max:number):Matchers.Between {
-		var ret = new Matchers.Between();
+	export function between(min:number,max:number):Between {
+		var ret = new Between();
 		ret.min = min;
 		ret.max = max;
 		return ret;
 	}
 	
 	
-	export function assert<T>(obj? :T):Matchers.ToMatch<T> {
-		return new Matchers.ToMatch<T>(obj);
+	export function assert<T>(obj? :T):ToMatch<T> {
+		return new ToMatch<T>(obj);
 	}
 	
-}
 
