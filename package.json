@@ -2,7 +2,7 @@
 	"name": "tsMatchers",
 	"version": "1.0.0",
 	"description": "tsMatchers",
-	"main": "js/tsMatchersGlobal.js",
+	"main": "js/tsMatchers.js",
 	"scripts": 
 	{
 		"test": "echo \"Error: no test specified\" && exit 1"
