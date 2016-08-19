@@ -1,5 +1,7 @@
+/**
+ * Version : VERSION_TAG
+ */
 
-module Matchers {
 	var serveLater:boolean = false;
 	export var consoleDump:boolean = true;
 	var exceptions: string[] = [];
@@ -17,7 +19,7 @@ module Matchers {
 	
 	export interface Matcher<T> {
 		matches(obj :T):boolean;
-		describe(obj :any, msg :Appendable);
+		describe(obj :any, msg :Appendable) :void;
 	}
 	
 	export class ToMatch<T> {
@@ -40,9 +42,9 @@ module Matchers {
 			return ret;
 		}
 		
-		is(matcher :Matcher<T>)
-		is(val:T)
-		is(val:any) {
+		is(matcher :Matcher<T>) :void
+		is(val:T) :void
+		is(val:any) :void {
 			var matcher:Matcher<T> = matcherOrEquals(val);
 			if (!matcher.matches(this.obj)) {
 				var app = new Appendable("Assert failure, expecting");
@@ -63,7 +65,7 @@ module Matchers {
 		}
 	}
 	
-	class Appendable {
+	export class Appendable {
 		msg :string = "";
 		
 		constructor(init :string = "") {
@@ -89,7 +91,10 @@ module Matchers {
 	
 
 	
-	export class BaseMatcher<T> {
+	export abstract class BaseMatcher<T> implements Matcher<T> {
+
+		abstract matches(obj :T) :boolean;
+
 		describe(obj :any, msg :Appendable) {
 			if (!(<Matcher<T>>this).matches(obj)) {
 				msg.append(" but was ");
@@ -101,11 +106,11 @@ module Matchers {
 	export class OfType extends BaseMatcher<any> implements Matcher<any> {
 		constructor(private type:string) { super(); }
 	
-		matches(obj) {
+		matches(obj :any) {
 			return typeof obj === this.type;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any,msg :Appendable) {
 			msg.append(" a " + this.type + " value");
 			super.describe(obj,msg);
 		}
@@ -114,33 +119,33 @@ module Matchers {
 	export class InstanceOf extends BaseMatcher<any> implements Matcher<any> {
 		constructor(private type:any) { super(); }
 	
-		matches(obj) {
+		matches(obj :any) {
 			return obj instanceof this.type;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" an instance of " + this.type);
 			super.describe(obj,msg);
 		}
 	}
 	
 	export class Truthy extends BaseMatcher<any> implements Matcher<any> {
-		matches(obj) {
+		matches(obj :any) {
 			return !!obj;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" a truthy value");
 			super.describe(obj,msg);
 		}
 	}
 
 	export class isNan extends BaseMatcher<number> implements Matcher<number> {
-		matches(obj) {
+		matches(obj :number) {
 			return isNaN(obj);
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" a NaN value");
 			super.describe(obj,msg);
 		}
@@ -153,7 +158,7 @@ module Matchers {
 			return obj == this.value;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any,msg :Appendable) {
 			msg.append(" something equals to " + (typeof this.value) + " ");
 			dump(this.value, msg);
 			super.describe(obj,msg);
@@ -163,11 +168,11 @@ module Matchers {
 	export class Exactly<T> extends BaseMatcher<any> implements Matcher<any> {
 		constructor(private value:T) {super();}
 	
-		matches(obj:T) {
+		matches(obj :T) {
 			return obj === this.value;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" something exactly equal to " + (typeof this.value) + " ");
 			dump(this.value, msg);
 			super.describe(obj,msg);
@@ -180,7 +185,7 @@ module Matchers {
 		matches(num:number) {
 			return Math.abs(num - this.value) <= this.range;
 		}
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" a value within " + this.range + " of " + this.value);
 			super.describe(obj,msg);
 		}
@@ -221,7 +226,7 @@ module Matchers {
 				msg.append(" (inclusive)");
 			}
 		}
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" a number ");
 			if (this.min != Number.NEGATIVE_INFINITY && this.max != Number.POSITIVE_INFINITY) {
 				msg.append("between ");
@@ -247,7 +252,7 @@ module Matchers {
 			return !this.sub.matches(obj);
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" not");
 			this.sub.describe(obj,msg);
 		}
@@ -270,7 +275,7 @@ module Matchers {
 			this.strict = strict;
 		}
 		
-		matches(obj) {
+		matches(obj :any) {
 			if (!anObject.matches(obj)) return false;
 			var founds:{[key:string]:boolean} = {};
 			for (var k in obj) {
@@ -288,7 +293,7 @@ module Matchers {
 			return true;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" an object");
 			if (this.strict) {
 				msg.append(" strictly");
@@ -321,11 +326,11 @@ module Matchers {
 	export class WithLength extends BaseMatcher<any> implements Matcher<any> {
 		constructor(private len:number) {super();}
 	
-		matches(obj) {
+		matches(obj :any) {
 			return (obj && (typeof obj.length !== 'undefined') && obj.length) == this.len;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" something with length " + this.len);
 			if (obj && (typeof obj.length !== 'undefined')) msg.append(" (found has " + obj.length + ")");
 			super.describe(obj,msg);
@@ -342,7 +347,7 @@ module Matchers {
 			return false;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" an array containing");
 			this.sub.describe(obj,msg);
 		}
@@ -361,7 +366,7 @@ module Matchers {
 			return true;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" an array of length " + this.value.length + " equal to ");
 			dump(this.value, msg);
 			super.describe(obj,msg);
@@ -378,7 +383,7 @@ module Matchers {
 			return obj.indexOf(this.sub) > -1;
 		}
 		
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" a string containing \"" + this.sub + "\"");
 			super.describe(obj,msg);
 		}
@@ -412,7 +417,7 @@ module Matchers {
 			this.nextAnd.add(matcherOrEquals(x));
 			return this.nextAnd;
 		}
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			if (this.nextAnd) {
 				this.nextAnd.describe(obj,msg);
 			} else if (this.nextOr) {
@@ -423,14 +428,14 @@ module Matchers {
 		}
 	}
 	
-	export class CombineList<T> extends BaseMatcher<T> {
+	export abstract class CombineList<T> extends BaseMatcher<T> {
 		list :Matcher<T>[] = [];
 		expl :string = "";
 		
 		add(other :Matcher<T>) {
 			this.list.push(other);
 		}
-		describe(obj,msg) {
+		describe(obj :any, msg :Appendable) {
 			msg.append(" something matching:\n ");
 			for (var i = 0; i < this.list.length; i++) {
 				this.list[i].describe(obj,msg);
@@ -444,7 +449,7 @@ module Matchers {
 	export class CombineAnd<T> extends CombineList<T> implements Matcher<T> {
 		expl:string = " and";
 	
-		matches(obj:T) {
+		matches(obj :T) {
 			for (var i = 0; i < this.list.length; i++) {
 				if (!this.list[i].matches(obj)) return false;
 			}
@@ -471,12 +476,12 @@ module Matchers {
 		return equalTo(x); 
 	}
 	
-	export function ofType(type :string):Matchers.OfType {
-		return new Matchers.OfType(type);
+	export function ofType(type :string):OfType {
+		return new OfType(type);
 	}
 	
-	export function instanceOf(type :any):Matchers.InstanceOf {
-		return new Matchers.InstanceOf(type);
+	export function instanceOf(type :any):InstanceOf {
+		return new InstanceOf(type);
 	}
 	
 	export var definedValue = not(ofType('undefined'));
@@ -493,7 +498,7 @@ module Matchers {
 	
 	export var aFunction = ofType('function');
 	
-	export var aTruthy = new Matchers.Truthy();
+	export var aTruthy = new Truthy();
 	
 	export var aFalsey = not(aTruthy);
 	
@@ -503,84 +508,82 @@ module Matchers {
 	
 	export var anArray = instanceOf(Array);
 	
-	export var aNaN = new Matchers.isNan();
+	export var aNaN = new isNan();
 	
-	export function equalTo<T>(value:T):Matchers.Equals<T> {
-		return new Matchers.Equals<T>(value);
+	export function equalTo<T>(value:T):Equals<T> {
+		return new Equals<T>(value);
 	}
 	
-	export function exactly<T>(value:T):Matchers.Exactly<T> {
-		return new Matchers.Exactly<T>(value);
+	export function exactly<T>(value:T):Exactly<T> {
+		return new Exactly<T>(value);
 	}
 	
-	export function looselyEqualTo(value:any):Matchers.Matcher<any> {
-		return new Matchers.Equals<any>(value);
+	export function looselyEqualTo(value:any):Matcher<any> {
+		return new Equals<any>(value);
 	}
 	
-	export function not<T>(sub :Matchers.Matcher<T>) :Matchers.Not<T>;
- 	export function not<T>(val :T) :Matchers.Not<T>; 
-	export function not<T>(x:any) :Matchers.Not<T> {
-		return new Matchers.Not<T>(matcherOrEquals(x));
+	export function not<T>(sub :Matcher<T>) :Not<T>;
+ 	export function not<T>(val :T) :Not<T>; 
+	export function not<T>(x:any) :Not<T> {
+		return new Not<T>(matcherOrEquals(x));
 	}
 	
-	export function either<T>(sub :Matchers.Matcher<T>) :Matchers.CombineEither<T>;
-	export function either<T>(val :T) :Matchers.CombineEither<T>;
-	export function either<T>(x:any) :Matchers.CombineEither<T> {
-		return new Matchers.CombineEither<T>(matcherOrEquals(x));
+	export function either<T>(sub :Matcher<T>) :CombineEither<T>;
+	export function either<T>(val :T) :CombineEither<T>;
+	export function either<T>(x:any) :CombineEither<T> {
+		return new CombineEither<T>(matcherOrEquals(x));
 	}
 	
-	export function withLength(len:number) :Matchers.WithLength {
-		return new Matchers.WithLength(len);
+	export function withLength(len:number) :WithLength {
+		return new WithLength(len);
 	}
 	
-	export function arrayContaining<T>(sub :Matchers.Matcher<T>) :Matchers.ArrayContaining<T>;
-	export function arrayContaining<T>(val :T) :Matchers.ArrayContaining<T>;
-	export function arrayContaining<T>(x:any) :Matchers.ArrayContaining<T> {
-		return new Matchers.ArrayContaining<T>(matcherOrEquals(x));
+	export function arrayContaining<T>(sub :Matcher<T>) :ArrayContaining<T>;
+	export function arrayContaining<T>(val :T) :ArrayContaining<T>;
+	export function arrayContaining<T>(x:any) :ArrayContaining<T> {
+		return new ArrayContaining<T>(matcherOrEquals(x));
 	}
 	
-	export function arrayEquals<T>(val :T[]) :Matchers.ArrayEquals<T> {
-		return new Matchers.ArrayEquals<T>(val);
+	export function arrayEquals<T>(val :T[]) :ArrayEquals<T> {
+		return new ArrayEquals<T>(val);
 	}
 	
-	export function stringContaining(sub:string) :Matchers.StringContaining {
-		return new Matchers.StringContaining(sub);
+	export function stringContaining(sub:string) :StringContaining {
+		return new StringContaining(sub);
 	}
 	
-	export function objectMatching(def:any) :Matchers.MatchObject {
-		return new Matchers.MatchObject(def, false);
+	export function objectMatching(def:any) :MatchObject {
+		return new MatchObject(def, false);
 	}
-	export function objectMatchingStrictly(def:any) :Matchers.MatchObject {
-		return new Matchers.MatchObject(def, true);
-	}
-	
-	export function closeTo(value :number, range:number = 0.1):Matchers.CloseTo {
-		return new Matchers.CloseTo(value,range);
+	export function objectMatchingStrictly(def:any) :MatchObject {
+		return new MatchObject(def, true);
 	}
 	
-	export function greaterThan(value:number, inclusive:boolean=false):Matchers.Between {
-		var ret = new Matchers.Between();
+	export function closeTo(value :number, range:number = 0.1):CloseTo {
+		return new CloseTo(value,range);
+	}
+	
+	export function greaterThan(value:number, inclusive:boolean=false):Between {
+		var ret = new Between();
 		ret.min = value;
 		ret.minInc = inclusive;
 		return ret;
 	}
-	export function lessThan(value:number, inclusive:boolean=false):Matchers.Between {
-		var ret = new Matchers.Between();
+	export function lessThan(value:number, inclusive:boolean=false):Between {
+		var ret = new Between();
 		ret.max = value;
 		ret.maxInc = inclusive;
 		return ret;
 	}
-	export function between(min:number,max:number):Matchers.Between {
-		var ret = new Matchers.Between();
+	export function between(min:number,max:number):Between {
+		var ret = new Between();
 		ret.min = min;
 		ret.max = max;
 		return ret;
 	}
 	
 	
-	export function assert<T>(obj? :T):Matchers.ToMatch<T> {
-		return new Matchers.ToMatch<T>(obj);
+	export function assert<T>(obj? :T):ToMatch<T> {
+		return new ToMatch<T>(obj);
 	}
-	
-}
 

@@ -1,0 +1,19 @@
+{
+    "name": "tsmatchers",
+    "version": "2.0.0",
+    "devDependencies": {
+        "mocha": "^2.5.3",
+        "typescript": "2.0.0",
+        "gulp": "3.9.1",
+        "gulp-ext-replace": "^0.3.0",
+        "gulp-istanbul": "^1.0.0",
+        "gulp-mocha": "^2.2.0",
+        "gulp-replace": "^0.5.4",
+        "gulp-sourcemaps": "^1.6.0",
+        "gulp-spawn-mocha": "^2.2.2",
+        "gulp-typedoc": "^2.0.0",
+        "gulp-typescript": "2.13.6",
+        "gulp-util": "^3.0.7",
+        "merge2": "^1.0.2"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "declaration": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "umd",
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "outDir": "../js/",
+        "sourceMap": true,
+        "target": "es5"
+    }
+}
