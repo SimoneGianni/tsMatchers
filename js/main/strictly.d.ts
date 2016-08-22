@@ -1,4 +1,5 @@
 import { MatcherContainer, exactly } from './tsMatchers';
+import './not';
 export interface StrictlyInterface extends MatcherContainer {
     equal: typeof exactly;
 }

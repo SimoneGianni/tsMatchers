@@ -8,12 +8,13 @@ var __extends = (this && this.__extends) || function (d, b) {
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", './tsMatchers', './typing'], factory);
+        define(["require", "exports", './tsMatchers', './typing', './strictly'], factory);
     }
 })(function (require, exports) {
     "use strict";
     var tsMatchers_1 = require('./tsMatchers');
     var typing_1 = require('./typing');
+    require('./strictly'); // Need this not to make declare module below to fail in .d.ts
     var MatchObject = (function (_super) {
         __extends(MatchObject, _super);
         function MatchObject(defu, strict) {

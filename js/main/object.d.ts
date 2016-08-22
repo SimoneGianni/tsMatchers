@@ -1,5 +1,6 @@
 import { BaseMatcher, Matcher, Appendable, MatcherContainer } from './tsMatchers';
 import { anObject } from './typing';
+import './strictly';
 export declare class MatchObject extends BaseMatcher<any> implements Matcher<any> {
     private def;
     private originalDef;
