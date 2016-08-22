@@ -51,8 +51,13 @@ var __extends = (this && this.__extends) || function (d, b) {
                 founds[k] = true;
             }
             for (var k in this.def) {
-                if (!founds[k])
-                    return false;
+                //if (!founds[k]) return false;
+                if (!founds[k]) {
+                    var matcher = this.def[k];
+                    if (!matcher.matches(obj[k]))
+                        return false;
+                    founds[k] = true;
+                }
             }
             return true;
         };

@@ -56,6 +56,7 @@ describe("Object >", () => {
         tsMatchers_1.assert("simple values", { a: 1 }, tsMatchers_1.is.object.matching({ a: tsMatchers_1.is.number }));
         tsMatchers_1.assert("ignore additional", { a: 1, b: 2 }, tsMatchers_1.is.object.matching({ a: tsMatchers_1.is.number }));
         tsMatchers_1.assert("nested values", { a: { b: 1 } }, tsMatchers_1.is.object.matching({ a: { b: tsMatchers_1.is.number } }));
+        tsMatchers_1.assert("undefined check", { a: 1 }, tsMatchers_1.is.object.matching({ b: tsMatchers_1.is.undefined }));
     });
     it('Should obey strictly', () => {
         tsMatchers_1.assert("simple values", { a: 1 }, tsMatchers_1.is.strictly.object.matching({ a: tsMatchers_1.is.number }));
