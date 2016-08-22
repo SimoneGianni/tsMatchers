@@ -16,6 +16,7 @@
         "gulp-util": "^3.0.7",
         "merge2": "^1.0.2"
     },
+    "main" : "js/main/index.js",
     "typescript": {
         "definitions": 
         [
