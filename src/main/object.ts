@@ -3,6 +3,9 @@ import {StrictlyInterface} from './strictly';
 import {anObject, definedValue} from './typing';
 import {not} from './not';
 
+import './strictly'; // Need this not to make declare module below to fail in .d.ts
+
+
 export class MatchObject extends BaseMatcher<any> implements Matcher<any> {
     private def: { [key: string]: Matcher<any> } = {};
     private originalDef :any;

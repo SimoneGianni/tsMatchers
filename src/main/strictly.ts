@@ -1,5 +1,6 @@
 import {BaseMatcher, Matcher, Appendable, MatcherContainer, isContainer, ContainerObj, exactly} from './tsMatchers';
 import {NotInterface, not} from './not';
+import './not'; // Need this not to make declare module below to fail in .d.ts
 
 export interface StrictlyInterface extends MatcherContainer {
     equal :typeof exactly;
@@ -7,7 +8,7 @@ export interface StrictlyInterface extends MatcherContainer {
 
 export interface OuterStrictly extends StrictlyInterface {
 
-}	
+}
 
 var strictlyContainer = new ContainerObj();
 isContainer.registerSub('strictly', strictlyContainer);
