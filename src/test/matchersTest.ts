@@ -63,6 +63,7 @@ describe("Object >", ()=>{
         assert("simple values", {a:1}, is.object.matching({a:is.number}));
         assert("ignore additional", {a:1,b:2}, is.object.matching({a:is.number}));
         assert("nested values", {a:{b:1}}, is.object.matching({a:{b:is.number}}));
+        assert("undefined check", {a:1}, is.object.matching({b:is.undefined}));
     });
     it('Should obey strictly', ()=>{
         assert("simple values", {a:1}, is.strictly.object.matching({a:is.number}));
