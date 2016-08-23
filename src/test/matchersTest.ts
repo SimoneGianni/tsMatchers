@@ -46,6 +46,11 @@ describe("Call test >", ()=>{
         assert("ofType","a string", is.ofType('string'));
         assert("number",5,is.number());
     });
+
+    it('Should work correctly on nulls and undefineds', ()=>{
+        assert('is null', null, is.falsey);
+        assert('is undefined', undefined, is.undefined);
+    });
 });
 
 describe("Object >", ()=>{

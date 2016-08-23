@@ -128,10 +128,10 @@
 	export function assert<T>(msgOrObj :T|string, objOrMatcher? :T|Matcher<T>, matcher? :T|Matcher<T>):void|ToMatch<T> {
 		if (arguments.length == 1) {
 			return new ToMatch<T>(<T>msgOrObj);
-		} else if (!!(<any>objOrMatcher)['matches'] && !!(<any>objOrMatcher)['describe']) {
-			new ToMatch<T>(<T>msgOrObj).is(<Matcher<any>>objOrMatcher);
 		} else if (matcher) {
 			new ToMatch<T>(<T>msgOrObj).when(<T>objOrMatcher).is(<Matcher<any>>matcher);
+		} else if (!!(<any>objOrMatcher)['matches'] && !!(<any>objOrMatcher)['describe']) {
+			new ToMatch<T>(<T>msgOrObj).is(<Matcher<any>>objOrMatcher);
 		} else {
 			return new ToMatch<T>(<T>msgOrObj).when(<T>objOrMatcher);
 		}

@@ -40,6 +40,10 @@ describe("Call test >", () => {
         tsMatchers_1.assert("ofType", "a string", tsMatchers_1.is.ofType('string'));
         tsMatchers_1.assert("number", 5, tsMatchers_1.is.number());
     });
+    it('Should work correctly on nulls and undefineds', () => {
+        tsMatchers_1.assert('is null', null, tsMatchers_1.is.falsey);
+        tsMatchers_1.assert('is undefined', undefined, tsMatchers_1.is.undefined);
+    });
 });
 describe("Object >", () => {
     it('Should simply match that it is an object', () => {

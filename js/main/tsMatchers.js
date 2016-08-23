@@ -1,5 +1,5 @@
 /**
- * Version : 20160822_142805_master_2.0.0_de9d421
+ * Version : 20160823_052755_master_2.0.0_f09440b
  */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -125,11 +125,11 @@ var __extends = (this && this.__extends) || function (d, b) {
         if (arguments.length == 1) {
             return new ToMatch(msgOrObj);
         }
-        else if (!!objOrMatcher['matches'] && !!objOrMatcher['describe']) {
-            new ToMatch(msgOrObj).is(objOrMatcher);
-        }
         else if (matcher) {
             new ToMatch(msgOrObj).when(objOrMatcher).is(matcher);
+        }
+        else if (!!objOrMatcher['matches'] && !!objOrMatcher['describe']) {
+            new ToMatch(msgOrObj).is(objOrMatcher);
         }
         else {
             return new ToMatch(msgOrObj).when(objOrMatcher);
