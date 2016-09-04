@@ -7,6 +7,7 @@ import '../main/typing';
 import '../main/strictly';
 import '../main/object';
 import '../main/array';
+import '../main/string';
 
 dumpInConsole(false);
 
@@ -152,6 +153,20 @@ describe("Not tests >", ()=>{
         assert("on plain array", {}, is.not.array());
         assert("on length", ['a'], is.not.array.withLength(5));
     });
+});
+
+describe('String tests >', ()=>{
+    it('Should match regexp', ()=>{
+        assert("Checks a string", 'ciao', is.string());
+        assert("match pattern", 'ciao', is.string.matching('^c.*'));
+        assert("match re", 'ciao', is.string.matching(/^c.*/));
+    });
+    it('Should match length', ()=>{
+        assert("Length", 'ciao', is.string.withLength(4));
+    });
+    it('Should match containing', ()=>{
+        assert("containing", 'ciao', is.string.containing('ia'));
+    })
 });
 
 /*

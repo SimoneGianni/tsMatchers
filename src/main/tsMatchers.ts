@@ -384,21 +384,6 @@
 	isContainer.registerMatcher('exactly', exactly);
 
 	
-	export class StringContaining extends BaseMatcher<string> implements Matcher<string> {
-		constructor(private sub:string) {super();}
-	
-		matches(obj:string) {
-			if (!obj) return false;
-			if (typeof obj !== 'string') return false;
-			return obj.indexOf(this.sub) > -1;
-		}
-		
-		describe(obj :any, msg :Appendable) {
-			msg.append(" a string containing \"" + this.sub + "\"");
-			super.describe(obj,msg);
-		}
-	}
-	
 	export class CombineEither<T> extends BaseMatcher<T> implements Matcher<T> {
 		private nextOr:CombineOr<T>;
 		private nextAnd:CombineAnd<T>;
@@ -485,6 +470,3 @@
 		return new CombineEither<T>(matcherOrEquals(x));
 	}
 	
-	export function stringContaining(sub:string) :StringContaining {
-		return new StringContaining(sub);
-	}

@@ -50,7 +50,6 @@ export function instanceOf(type: any): InstanceOf {
 export var definedValue: Matcher<any> = not(ofType('undefined'));
 export var undefinedValue = ofType('undefined');
 
-export var aString = ofType('string');
 export var aNumber = ofType('number');
 export var aBoolean = ofType('boolean');
 export var anObject = ofType('object');
@@ -68,7 +67,6 @@ export var aFalse: Matcher<boolean> = exactly(false);
 isContainer.registerMatcher("defined", definedValue);
 isContainer.registerMatcher("undefined", undefinedValue);
 
-isContainer.registerMatcher("string", ofType('string'));
 isContainer.registerMatcher("number", ofType('number'));
 isContainer.registerMatcher("boolean", ofType('boolean'));
 isContainer.registerMatcher("function", ofType('function'));
@@ -86,7 +84,6 @@ declare module './tsMatchers' {
 		defined: () => typeof definedValue;
 		undefined: () => typeof undefinedValue;
 
-		string: () => OfType;
 		number: () => OfType;
 		boolean: () => OfType;
 		function: () => OfType;
