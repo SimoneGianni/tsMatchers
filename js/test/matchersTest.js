@@ -6,6 +6,7 @@ require('../main/typing');
 require('../main/strictly');
 require('../main/object');
 require('../main/array');
+require('../main/string');
 tsMatchers_1.dumpInConsole(false);
 class DummyTest {
     constructor() {
@@ -146,6 +147,19 @@ describe("Not tests >", () => {
     it('Should support not array', () => {
         tsMatchers_1.assert("on plain array", {}, tsMatchers_1.is.not.array());
         tsMatchers_1.assert("on length", ['a'], tsMatchers_1.is.not.array.withLength(5));
+    });
+});
+describe('String tests >', () => {
+    it('Should match regexp', () => {
+        tsMatchers_1.assert("Checks a string", 'ciao', tsMatchers_1.is.string());
+        tsMatchers_1.assert("match pattern", 'ciao', tsMatchers_1.is.string.matching('^c.*'));
+        tsMatchers_1.assert("match re", 'ciao', tsMatchers_1.is.string.matching(/^c.*/));
+    });
+    it('Should match length', () => {
+        tsMatchers_1.assert("Length", 'ciao', tsMatchers_1.is.string.withLength(4));
+    });
+    it('Should match containing', () => {
+        tsMatchers_1.assert("containing", 'ciao', tsMatchers_1.is.string.containing('ia'));
     });
 });
 /*

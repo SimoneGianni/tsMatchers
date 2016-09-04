@@ -88,12 +88,6 @@ export declare function equalTo<T>(value: T): Equals<T>;
 export declare function exactly<T>(value: T): Exactly<T>;
 export declare function looselyEqualTo(value: any): Matcher<any>;
 export declare function arrayEquals<T>(val: T[]): ArrayEquals<T>;
-export declare class StringContaining extends BaseMatcher<string> implements Matcher<string> {
-    private sub;
-    constructor(sub: string);
-    matches(obj: string): boolean;
-    describe(obj: any, msg: Appendable): void;
-}
 export declare class CombineEither<T> extends BaseMatcher<T> implements Matcher<T> {
     private sub;
     private nextOr;
@@ -122,4 +116,3 @@ export declare class CombineOr<T> extends CombineList<T> implements Matcher<T> {
 }
 export declare function either<T>(sub: Matcher<T>): CombineEither<T>;
 export declare function either<T>(val: T): CombineEither<T>;
-export declare function stringContaining(sub: string): StringContaining;

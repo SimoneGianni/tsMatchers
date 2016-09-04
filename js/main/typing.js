@@ -71,7 +71,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     exports.instanceOf = instanceOf;
     exports.definedValue = not_1.not(ofType('undefined'));
     exports.undefinedValue = ofType('undefined');
-    exports.aString = ofType('string');
     exports.aNumber = ofType('number');
     exports.aBoolean = ofType('boolean');
     exports.anObject = ofType('object');
@@ -83,7 +82,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     exports.aFalse = tsMatchers_1.exactly(false);
     tsMatchers_1.isContainer.registerMatcher("defined", exports.definedValue);
     tsMatchers_1.isContainer.registerMatcher("undefined", exports.undefinedValue);
-    tsMatchers_1.isContainer.registerMatcher("string", ofType('string'));
     tsMatchers_1.isContainer.registerMatcher("number", ofType('number'));
     tsMatchers_1.isContainer.registerMatcher("boolean", ofType('boolean'));
     tsMatchers_1.isContainer.registerMatcher("function", ofType('function'));

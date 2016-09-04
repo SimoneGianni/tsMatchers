@@ -19,7 +19,6 @@ export declare function ofType(type: string): OfType;
 export declare function instanceOf(type: any): InstanceOf;
 export declare var definedValue: Matcher<any>;
 export declare var undefinedValue: OfType;
-export declare var aString: OfType;
 export declare var aNumber: OfType;
 export declare var aBoolean: OfType;
 export declare var anObject: OfType;
@@ -33,7 +32,6 @@ declare module './tsMatchers' {
     interface IsInterface {
         defined: () => typeof definedValue;
         undefined: () => typeof undefinedValue;
-        string: () => OfType;
         number: () => OfType;
         boolean: () => OfType;
         function: () => OfType;

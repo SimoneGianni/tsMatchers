@@ -1,5 +1,5 @@
 /**
- * Version : 20160823_052755_master_2.0.0_f09440b
+ * Version : 20160905_000534_master_2.0.0_6f95a5b
  */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -369,26 +369,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     exports.arrayEquals = arrayEquals;
     exports.isContainer.registerMatcher('equal', equalTo);
     exports.isContainer.registerMatcher('exactly', exactly);
-    var StringContaining = (function (_super) {
-        __extends(StringContaining, _super);
-        function StringContaining(sub) {
-            _super.call(this);
-            this.sub = sub;
-        }
-        StringContaining.prototype.matches = function (obj) {
-            if (!obj)
-                return false;
-            if (typeof obj !== 'string')
-                return false;
-            return obj.indexOf(this.sub) > -1;
-        };
-        StringContaining.prototype.describe = function (obj, msg) {
-            msg.append(" a string containing \"" + this.sub + "\"");
-            _super.prototype.describe.call(this, obj, msg);
-        };
-        return StringContaining;
-    }(BaseMatcher));
-    exports.StringContaining = StringContaining;
     var CombineEither = (function (_super) {
         __extends(CombineEither, _super);
         function CombineEither(sub) {
@@ -486,10 +466,6 @@ var __extends = (this && this.__extends) || function (d, b) {
         return new CombineEither(matcherOrEquals(x));
     }
     exports.either = either;
-    function stringContaining(sub) {
-        return new StringContaining(sub);
-    }
-    exports.stringContaining = stringContaining;
 });
 
 //# sourceMappingURL=tsMatchers.js.map
