@@ -4,3 +4,4 @@ import '../main/typing';
 import '../main/strictly';
 import '../main/object';
 import '../main/array';
+import '../main/string';

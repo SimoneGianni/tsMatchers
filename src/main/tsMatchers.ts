@@ -12,6 +12,8 @@
  * - When a sub is added to a MatcherContainer, it is added also to wrappers, chaining the wrapping functions
  */
 
+	declare var require :Function;
+
 	var serveLater:boolean = false;
 	var consoleDump:boolean = true;
 	var exceptions: string[] = [];
@@ -22,6 +24,7 @@
 	}
 	
 	export function check():void {
+		serveLater = false;
 		if (exceptions.length == 0) return;
 		throw new Error(exceptions.join("\n"));
 	}
@@ -96,12 +99,17 @@
 	
 	export function dump(obj:any,msg:Appendable) {
 		try {
-			var json = JSON.stringify(obj);
-			msg.append(json);
+			var utils = require('utils');
+			utils.inspect(obj, {depth:5});
 		} catch (e) {
-			msg.append(typeof obj);
-			msg.append(' ');
-			msg.append(obj);
+			try {
+				var json = JSON.stringify(obj);
+				msg.append(json);
+			} catch (e) {
+				msg.append(typeof obj);
+				msg.append(' ');
+				msg.append(obj);
+			}
 		}
 	}
 	
@@ -128,9 +136,9 @@
 	export function assert<T>(msgOrObj :T|string, objOrMatcher? :T|Matcher<T>, matcher? :T|Matcher<T>):void|ToMatch<T> {
 		if (arguments.length == 1) {
 			return new ToMatch<T>(<T>msgOrObj);
-		} else if (matcher) {
+		} else if (typeof(matcher) !== 'undefined') {
 			new ToMatch<T>(<T>msgOrObj).when(<T>objOrMatcher).is(<Matcher<any>>matcher);
-		} else if (!!(<any>objOrMatcher)['matches'] && !!(<any>objOrMatcher)['describe']) {
+		} else if (objOrMatcher !== null && !!(<any>objOrMatcher)['matches'] && !!(<any>objOrMatcher)['describe']) {
 			new ToMatch<T>(<T>msgOrObj).is(<Matcher<any>>objOrMatcher);
 		} else {
 			return new ToMatch<T>(<T>msgOrObj).when(<T>objOrMatcher);
@@ -350,7 +358,9 @@
 	export function matcherOrEquals<T>(val:T):Matcher<T>;
 	export function matcherOrEquals<T>(x:any):Matcher<any> {
 		var ret :any = null; 
-		if (x instanceof BaseMatcher) {
+		if (x === null) {
+			ret = equalTo(null);
+		} else if (x instanceof BaseMatcher) {
 			ret = <Matcher<T>>x;
 		} else if (Array.isArray(x)) {
 			ret = arrayEquals(x);

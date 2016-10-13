@@ -3,7 +3,7 @@
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", '../main/tsMatchers', '../main/numbers', '../main/typing', '../main/strictly', '../main/object', '../main/array'], factory);
+        define(["require", "exports", '../main/tsMatchers', '../main/numbers', '../main/typing', '../main/strictly', '../main/object', '../main/array', '../main/string'], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -16,6 +16,7 @@
     require('../main/strictly');
     require('../main/object');
     require('../main/array');
+    require('../main/string');
 });
 
 //# sourceMappingURL=index.js.map

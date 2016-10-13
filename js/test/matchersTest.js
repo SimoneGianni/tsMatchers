@@ -45,6 +45,13 @@ describe("Call test >", () => {
         tsMatchers_1.assert('is null', null, tsMatchers_1.is.falsey);
         tsMatchers_1.assert('is undefined', undefined, tsMatchers_1.is.undefined);
     });
+    it('Should work correctly with nulls', () => {
+        //assert('null is falsey', null, is.falsey);
+        tsMatchers_1.assert('null is null', null, null);
+        tsMatchers_1.assert('null is null, medium', null).is(null);
+        tsMatchers_1.assert('null is null, long').when(null).is(null);
+        tsMatchers_1.assert(null, null);
+    });
 });
 describe("Object >", () => {
     it('Should simply match that it is an object', () => {
@@ -84,6 +91,22 @@ describe("Object >", () => {
         try {
             tsMatchers_1.assert("complain on extra keys", { a: 1, b: 1 }, tsMatchers_1.is.strictly.object.withKeys('a'));
             throw new Error("Should complain on extra keys");
+        }
+        catch (e) {
+            if (e.message.substr(0, 14) != 'Assert failure')
+                throw e;
+        }
+    });
+    it('Should not complain on undefined values', () => {
+        var obj = {
+            a: 1,
+            b: null,
+            c: undefined
+        };
+        tsMatchers_1.assert("Should not complain", obj, tsMatchers_1.is.strictly.object.matching({ a: 1, b: null }));
+        try {
+            tsMatchers_1.assert("still complain on null", obj, tsMatchers_1.is.strictly.object.matching({ a: 1 }));
+            throw new Error("Should still complain on null");
         }
         catch (e) {
             if (e.message.substr(0, 14) != 'Assert failure')

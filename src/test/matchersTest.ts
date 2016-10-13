@@ -52,6 +52,14 @@ describe("Call test >", ()=>{
         assert('is null', null, is.falsey);
         assert('is undefined', undefined, is.undefined);
     });
+
+    it('Should work correctly with nulls', ()=>{
+        //assert('null is falsey', null, is.falsey);
+        assert('null is null', null, null);
+        assert('null is null, medium', null).is(null);
+        assert('null is null, long').when(null).is(null);
+        assert(null,null);
+    });
 });
 
 describe("Object >", ()=>{
@@ -91,8 +99,20 @@ describe("Object >", ()=>{
         } catch (e) {
             if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
         }
-
-        
+    });
+    it('Should not complain on undefined values', ()=>{
+        var obj = {
+            a:1,
+            b:null,
+            c:undefined
+        };
+        assert("Should not complain", obj, is.strictly.object.matching({a:1,b:null}));
+        try {
+            assert("still complain on null", obj, is.strictly.object.matching({a:1}));
+            throw new Error("Should still complain on null");
+        } catch (e) {
+            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
+        }
     });
 });
 

@@ -1,5 +1,5 @@
 /**
- * Version : 20160905_000534_master_2.0.0_6f95a5b
+ * Version : 20160926_213501_master_2.0.0_3d90d47
  */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -15,15 +15,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     }
 })(function (require, exports) {
     "use strict";
-    /**
-     * - Matchers are arranged in MatcherContainer, which are objects with functions that return properly initialized matchers
-     * - MatcherContainer can also contain other MatcherContainers, called subs
-     * - Some subs are actually wrappers fo another MatcherContainer, they are MatcherContainers containing the same mathers but wrapped by a function
-     *
-     * - When a new matcher is added to a MatcherContainer, it is automatically added also to the wrappers of that MatcherContainer
-     *
-     * - When a sub is added to a MatcherContainer, it is added also to wrappers, chaining the wrapping functions
-     */
     var serveLater = false;
     var consoleDump = true;
     var exceptions = [];
@@ -33,6 +24,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     }
     exports.later = later;
     function check() {
+        serveLater = false;
         if (exceptions.length == 0)
             return;
         throw new Error(exceptions.join("\n"));
@@ -99,13 +91,19 @@ var __extends = (this && this.__extends) || function (d, b) {
     exports.Appendable = Appendable;
     function dump(obj, msg) {
         try {
-            var json = JSON.stringify(obj);
-            msg.append(json);
+            var utils = require('utils');
+            utils.inspect(obj, { depth: 5 });
         }
         catch (e) {
-            msg.append(typeof obj);
-            msg.append(' ');
-            msg.append(obj);
+            try {
+                var json = JSON.stringify(obj);
+                msg.append(json);
+            }
+            catch (e) {
+                msg.append(typeof obj);
+                msg.append(' ');
+                msg.append(obj);
+            }
         }
     }
     exports.dump = dump;
@@ -125,10 +123,10 @@ var __extends = (this && this.__extends) || function (d, b) {
         if (arguments.length == 1) {
             return new ToMatch(msgOrObj);
         }
-        else if (matcher) {
+        else if (typeof (matcher) !== 'undefined') {
             new ToMatch(msgOrObj).when(objOrMatcher).is(matcher);
         }
-        else if (!!objOrMatcher['matches'] && !!objOrMatcher['describe']) {
+        else if (objOrMatcher !== null && !!objOrMatcher['matches'] && !!objOrMatcher['describe']) {
             new ToMatch(msgOrObj).is(objOrMatcher);
         }
         else {
@@ -336,7 +334,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     exports.is = exports.isContainer;
     function matcherOrEquals(x) {
         var ret = null;
-        if (x instanceof BaseMatcher) {
+        if (x === null) {
+            ret = equalTo(null);
+        }
+        else if (x instanceof BaseMatcher) {
             ret = x;
         }
         else if (Array.isArray(x)) {

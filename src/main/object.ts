@@ -36,9 +36,16 @@ export class MatchObject extends BaseMatcher<any> implements Matcher<any> {
         for (var k in obj) {
             var matcher = this.def[k];
             if (!matcher) {
-                if (this.strict) return false;
+                if (this.strict) {
+                    try {
+                        if (typeof(obj[k]) === 'undefined') continue;
+                    } catch (e) {}
+                    return false;
+                }
                 continue;
             }
+            // Avoid stuff like "constructor" and similar
+            if (!matcher.matches) continue;
             if (!matcher.matches(obj[k])) return false;
             founds[k] = true;
         }

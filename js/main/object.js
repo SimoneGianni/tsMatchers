@@ -43,10 +43,19 @@ var __extends = (this && this.__extends) || function (d, b) {
             for (var k in obj) {
                 var matcher = this.def[k];
                 if (!matcher) {
-                    if (this.strict)
+                    if (this.strict) {
+                        try {
+                            if (typeof (obj[k]) === 'undefined')
+                                continue;
+                        }
+                        catch (e) { }
                         return false;
+                    }
                     continue;
                 }
+                // Avoid stuff like "constructor" and similar
+                if (!matcher.matches)
+                    continue;
                 if (!matcher.matches(obj[k]))
                     return false;
                 founds[k] = true;
