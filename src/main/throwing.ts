@@ -21,10 +21,11 @@ export class Throwing extends BaseMatcher<Function> implements Matcher<Function>
 	describe(obj: any, msg: Appendable) {
 		msg.append(" a function throwing");
 		if (typeof(this.submatch) !== 'undefined') {
-			msg.append(" and exception is");
+			msg.append(", and thrown exception is");
 			this.submatch.describe(this.found, msg);
+		} else {
+			super.describe(obj, msg);
 		}
-		super.describe(obj, msg);
 	}
 }
 

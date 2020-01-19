@@ -370,6 +370,7 @@ npm test
 
 Release notes
 =============
+ * 3.0.6 : improved throwing error message
  * 3.0.5 : improved packaging and exports
  * 3.0.4 : added throwing
  * 3.0.3 : improved packaging
@@ -378,3 +379,40 @@ Release notes
  * r3 : Fix an undefined in WithLength, fix a bug on ObjectMatcher that was not checking all matchers 
  * r2 : Fix on "aNaN", use specific matcher cause typeof is not reliable
  * r1 : Initial commit
+
+ TODO
+ ====
+
+Change all Matchers to accept a promise
+---------------------------------------
+
+This would allow to write
+
+```javascript
+assert(obj.getX()).is(equalto(that));
+assert(obj.getX(null)).is(throwing(/.*null.*/));
+```
+
+where `getX()` is an `async` method.
+
+Implement retry
+---------------
+
+Once async functions are accepted, they could be retried to support ongoing activities in E2E tests:
+
+```javascript
+assert(() => obj.getX()).retry().until(equalTo(that));
+```
+
+the `retry` could expose some more methods to tweak the retry policy, like:
+
+```javascript
+assert(() => obj.getX()).retry()
+  .upTo(5, "seconds")
+  .upTo(10, "times")
+  .every(100, "ms")
+  .wait(1, "second")
+  .until(..);
+```
+
+And can also offer the opposite check, `.while` which is a synonim of `.until(not(...))`.
