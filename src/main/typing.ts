@@ -1,4 +1,4 @@
-import {BaseMatcher, Matcher, Appendable, IsInterface, isContainer, exactly} from './tsMatchers';
+import {BaseMatcher, Matcher, Appendable, isContainer, exactly} from './tsMatchers';
 import {not} from './not';
 
 export class OfType extends BaseMatcher<any> implements Matcher<any> {

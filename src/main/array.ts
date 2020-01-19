@@ -1,7 +1,5 @@
-import {BaseMatcher, Matcher, Appendable, IsInterface, is, isContainer, ContainerObj, MatcherContainer, matcherOrEquals, dump, arrayEquals} from './tsMatchers';
-import {StrictlyInterface} from './strictly';
-import {anArray, definedValue} from './typing';
-import {not} from './not';
+import {BaseMatcher, Matcher, Appendable, isContainer, ContainerObj, MatcherContainer, matcherOrEquals, arrayEquals} from './tsMatchers';
+import {anArray} from './typing';
 
 
 	// TODO make this more flexible, accepting a sub, like withLength(greaterThat(10)) etc..
@@ -74,7 +72,7 @@ declare module './strictly' {
 */
 
 var arrayContainer = ContainerObj.fromFunction(function () { return anArray; });
-var objectImpl :ArrayInterface = <any>arrayContainer;
+//var objectImpl :ArrayInterface = <any>arrayContainer;
 
 arrayContainer.registerMatcher('equals', arrayEquals);
 arrayContainer.registerMatcher('containing', arrayContaining);

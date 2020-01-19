@@ -1,13 +1,13 @@
-/// <reference path="../../typings/tsd.d.ts" />
-import * as mocha from 'mocha';
-import { assert, is, dumpInConsole } from '../main/tsMatchers';
-import {lessThan} from '../main/numbers';
-import '../main/numbers';
-import '../main/typing';
-import '../main/strictly';
-import '../main/object';
-import '../main/array';
-import '../main/string';
+import { assert, is, dumpInConsole, either } from '../tsMatchers';
+import {lessThan} from '../numbers';
+import '../numbers';
+import '../typing';
+import '../strictly';
+import '../object';
+import '../array';
+import '../string';
+import '../throwing';
+import { throwing } from '../throwing';
 
 dumpInConsole(false);
 
@@ -21,12 +21,13 @@ class DummyTest {
 }
 
 describe("Call test >", ()=>{
-    it('Should equal a number, all syntaxes', ()=>{
+    test('Should equal a number, all syntaxes', ()=>{
         assert("plain long").when(1).is(1);
         assert("one arg",1).is(1);
         assert("two args", 1, 1);
         assert(1).is(1);
         assert(1,1);
+        assert(1, is.equal(1));
     });
 
     it('Should use passed matcher', ()=>{
@@ -183,23 +184,24 @@ describe('String tests >', ()=>{
     });
     it('Should match length', ()=>{
         assert("Length", 'ciao', is.string.withLength(4));
+        assert("Length with lessThan", 'ciao', is.string.withLength(is.lessThan(10)));
+        assert("Length with greaterThan", 'ciao', is.string.withLength(is.greaterThan(2)));
     });
     it('Should match containing', ()=>{
         assert("containing", 'ciao', is.string.containing('ia'));
     })
 });
 
-/*
-        assert("done").when(X).is(lessThan(5));
-        assert("done").when(X).lessThan(5);
+describe('Throwing tests >', () => {
+    it('Should match thowing error', () => {
+        assert("Check without any spec", () => {throw new Error("test")}, is.throwing());
+        assert("Check with type check", () => {throw new Error("test")}, is.throwing(Error));
+        assert("Check with object check", () => {throw new Error("test")}, is.throwing(is.object.matching({message: "test"})));
+        assert("Check with message string", () => {throw new Error("test")}, is.throwing("test"));
+        assert("Check with message regexp", () => {throw new Error("test")}, is.throwing(/te.*/));
+        assert("Check with type and object check", () => {throw new Error("test")}, is.throwing(either(is.instanceOf(Error)).and(is.object.matching({message: "test"}))));
 
-        assert("done", X).is(1);
-        assert("done", X).lessThan(5);
-        assert("done", X, is.lessThan(5));
-
-        assert("done", X, is.lessThan(5).or.moreThan(100));
-        assert(list).withLength(10);
-        assert(list).array();
-        assert(X).number();
-
-*/
+        assert("Alternative syntax").when(() => {throw new Error("test")}).is(throwing(Error));
+        assert(() => {throw new Error("test")}).is(throwing(Error));
+    })
+});

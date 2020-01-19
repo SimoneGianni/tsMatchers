@@ -343,16 +343,8 @@
 		}
 	}
 
-	export interface IsInterface extends MatcherContainer {
-		equal :typeof equalTo;
-	}
-
-	export interface OuterIs extends IsInterface {
-	}
 
 	export var isContainer = new ContainerObj();
-	export var is :OuterIs = <OuterIs><any>isContainer;
-
 
 	export function matcherOrEquals<T>(mtch:Matcher<T>):Matcher<T>;
 	export function matcherOrEquals<T>(val:T):Matcher<T>;
@@ -391,6 +383,8 @@
 
 	
 	isContainer.registerMatcher('equal', equalTo);
+	isContainer.registerMatcher('equalTo', equalTo);
+	isContainer.registerMatcher('looselyEqualTo', looselyEqualTo);
 	isContainer.registerMatcher('exactly', exactly);
 
 	
@@ -480,3 +474,16 @@
 		return new CombineEither<T>(matcherOrEquals(x));
 	}
 	
+	isContainer.registerMatcher('either', either);
+
+	export interface IsInterface extends MatcherContainer {
+		equal :typeof equalTo;
+		exactly :typeof exactly;
+		equalTo :typeof equalTo;
+		either :typeof either;
+		looselyEqualTo :typeof looselyEqualTo;
+	}
+
+	export interface OuterIs extends IsInterface {
+	}
+	export var is :OuterIs = <OuterIs><any>isContainer;

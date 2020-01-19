@@ -1,21 +1,36 @@
 {
     "name": "tsmatchers",
-    "version": "2.0.0",
+    "version": "3.0.5",
     "devDependencies": {
-        "mocha": "^2.5.3",
-        "typescript": "2.0.0",
-        "gulp": "3.9.1",
-        "gulp-ext-replace": "^0.3.0",
-        "gulp-istanbul": "^1.0.0",
-        "gulp-mocha": "^2.2.0",
-        "gulp-replace": "^0.5.4",
-        "gulp-sourcemaps": "^1.6.0",
-        "gulp-spawn-mocha": "^2.2.2",
-        "gulp-typedoc": "^2.0.0",
-        "gulp-typescript": "2.13.6",
-        "gulp-util": "^3.0.7",
-        "merge2": "^1.0.2"
+        "@types/jest": "^24.9.0",
+        "jest": "^24.9.0",
+        "ts-jest": "^24.3.0",
+        "typescript": "^3.7.5"
     },
-    "main" : "js/main/index.js",
-    "typings" : "js/main/index.d.ts" 
+    "scripts": {
+        "build": "tsc",
+        "test": "jest"
+    },
+    "license": "ASL 2.0",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:SimoneGianni/tsMatchers.git"
+    },
+    "main": "js/index.js",
+    "typings": "js/index.d.ts",
+    "files": [
+        "js/**/*"
+    ],
+    "jest": {
+        "preset": "ts-jest",
+        "testEnvironment": "node",
+        "globals": {
+            "ts-jest": {
+                "diagnostics": false
+            }
+        },
+        "testMatch": [
+            "**/__tests__/*.(ts|tsx|js)"
+        ]
+    }
 }

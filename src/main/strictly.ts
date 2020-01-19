@@ -1,5 +1,4 @@
-import {BaseMatcher, Matcher, Appendable, MatcherContainer, isContainer, ContainerObj, exactly} from './tsMatchers';
-import {NotInterface, not} from './not';
+import {MatcherContainer, isContainer, ContainerObj, exactly} from './tsMatchers';
 import './not'; // Need this not to make declare module below to fail in .d.ts
 
 export interface StrictlyInterface extends MatcherContainer {

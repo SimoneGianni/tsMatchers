@@ -4,13 +4,13 @@ tsMatchers
 What is it?
 -----------
 
-A set of typesafe typescript matchers inspired by Hamcrest matchers for junit, to be used for easier and more descriptive APIs and test assertions.
+A set of typesafe typescript matchers inspired by Hamcrest matchers for junit, to be used for easier and more descriptive test assertions.
 
 Why should i use it?
 --------------------
 
 When developing TypeScript, you often need to write some tests, mostly unit tests. There are currently a number of 
-frameworks to write those tests, with tsUnit being a known one, and many others from the JavaScript world.
+frameworks to write those tests, like Mocha, Jest, TsUnit just to name a few.
 
 However, the assertions in most of those frameworks are not very descriptive nor easy to use. 
 
@@ -41,16 +41,22 @@ Moreover, it's totally extensible, so that you can write your own matchers to us
 How to install
 ==============
 
-I had no time to package this in any specific way, if you happen to need it packaged somehow, feel free to do it
-and contribute back a pull request.
+Use npm or yarn:
 
-Otherwise, grab the tsMatchers.ts script from the src folder and place it in your project where you prefer.
+```
+npm i -D tsmatchers
+```
 
-tsMatcher.ts contains a module named Matchers that contains all the classes and the matching functions to use in 
-your tests. However, to avoid prefixing everything with `Matchers.` like in the following example :
+```
+yarn add --dev tsmatcher
+```
+
+Then import and use it into your tests:
 
 ```javascript
-Matchers.assert(x).is(Matchers.equalTo(y));
+import { assert, equalTo } from 'tsmatchers';
+
+assert(x).is(equalTo(y));
 ```
 
 You could prefer to download also the tsMatchersGlobal.ts that redeclares all the useful matching functions in the global
@@ -62,12 +68,8 @@ Then use it inside your favorite unit test engine, a failed assertion will throw
 How can I help
 ==============
 
-This project is in its very early stages, I wrote it because I'm so used to Hamcrest matchers in Junit that couldn't live without
-something similar in TypeScript.
-
 Feel free to report bugs, wrong documentation, or your ideas on how to improve it in the GitHub issues. Feel also free
 to fork it and send me pull requests with your changes. 
-
 
 Using assertions
 ================
@@ -87,6 +89,18 @@ While having a message is a good practice, if you don't have it you can skip it 
 
 ```javascript
 assert(x).is(rule);
+```
+
+And it also supports a different syntax to avoid polluting with tons of imports:
+
+```javascript
+
+import { assert, is } from 'tsmatchers';
+
+//....
+
+assert("This this is true", x, is.equalTo(y));
+
 ```
 
 equalTo(val)
@@ -127,6 +141,14 @@ operator and passes if `x === val` :
 var x:any;
 // some value goes in x, but since it's :any TypeScript can't check at compile time
 assert(x).is(exactly(true)); // Will check that it is a boolean and it's true
+```
+
+And remember these all work also with the alternate syntax:
+
+```
+assert(x, is.equalTo(y));
+assert(x, is.looselyEqualTo(z));
+assert(x, is.exactly(w));
 ```
 
 aString, aNumber, aBoolean ...
@@ -194,6 +216,11 @@ More complex expressions can be created using the `either(rule).or(rule).and(rul
 ```javascript
 assert(x).is(either(aNumber).or(aBoolean));
 assert(x).is(either(aNumber).and(equalTo(10));
+```
+
+This works also with the alternative syntax but it's bit more convoluted:
+```
+assert(x, is.either(is.aNumber).or(is.aBoolean));
 ```
 
 Numbers
@@ -297,9 +324,56 @@ var x = new Person();
 assert(x).is(instanceOf(Person));
 ```
 
+Checking exceptions
+-------------------
+
+To check if a call throws an exception use "throwing", usually together with a fat arrow function:
+
+```javascript
+assert(() => object.call(null)).is(throwing());
+```
+
+In addition to that you cal test that the message is the expected one, using specific string or regular expression:
+
+```javascript
+assert(() => object.call(null)).is(throwing("Must specify an argument"));
+assert(() => object.call(null)).is(throwing(/Must.*/));
+```
+
+In more complex applications, it's useful not to throw simple Error but to throw specific instances:
+
+```javascript
+assert(() => object.call(null)).is(throwing(ErrorType));
+```
+
+And eventually it's also possible to test that these objects have the excepted structure:
+
+```javascript
+assert(() => object.call(null)).is(throwing(objectMatching({statusCode: 500, message: withLength(greaterThan(0))}))));
+```
+
+Building locally
+================
+
+Clone the repo and then run 
+
+```
+npm run build
+```
+
+To run tests run
+
+```
+npm test
+```
+
 
 Release notes
 =============
+ * 3.0.5 : improved packaging and exports
+ * 3.0.4 : added throwing
+ * 3.0.3 : improved packaging
+ * 3.0.2 : bumped all versions, updated to use proper packaging, published on npm
  * r4 : overloaded all main functions to work like ".is()", accepting both a matcher and a simple value that will be converted to an "equalTo".
  * r3 : Fix an undefined in WithLength, fix a bug on ObjectMatcher that was not checking all matchers 
  * r2 : Fix on "aNaN", use specific matcher cause typeof is not reliable

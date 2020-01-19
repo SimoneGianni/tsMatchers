@@ -1,7 +1,5 @@
-import {BaseMatcher, Matcher, Appendable, IsInterface, is, isContainer, ContainerObj, MatcherContainer, matcherOrEquals} from './tsMatchers';
-import {StrictlyInterface} from './strictly';
+import {BaseMatcher, Matcher, Appendable, is, isContainer, ContainerObj, MatcherContainer, matcherOrEquals} from './tsMatchers';
 import {anObject, definedValue} from './typing';
-import {not} from './not';
 
 import './strictly'; // Need this not to make declare module below to fail in .d.ts
 
@@ -127,7 +125,7 @@ declare module './strictly' {
 }
 
 var objectContainer = ContainerObj.fromFunction(function () { return anObject; });
-var objectImpl :ObjectInterface = <any>objectContainer;
+//var objectImpl :ObjectInterface = <any>objectContainer;
 
 objectContainer.registerMatcher('matching', objectMatching);
 objectContainer.registerMatcher('withKeys', objectWithKeys);

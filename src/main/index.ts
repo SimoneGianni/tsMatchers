@@ -1,7 +1,8 @@
-export { assert, is, dumpInConsole } from '../main/tsMatchers';
-import '../main/numbers';
-import '../main/typing';
-import '../main/strictly';
-import '../main/object';
-import '../main/array';
-import '../main/string';
+export { assert, is, dumpInConsole, either, equalTo, exactly, looselyEqualTo, later, check } from './tsMatchers';
+export * from './numbers';
+export * from './typing';
+export * from './strictly';
+export * from './object';
+export * from './array';
+export * from './string';
+export * from './throwing';

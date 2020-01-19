@@ -1,4 +1,4 @@
-import {BaseMatcher, Matcher, Appendable, IsInterface, isContainer} from './tsMatchers';
+import {BaseMatcher, Matcher, Appendable, isContainer} from './tsMatchers';
 
 
 export class CloseTo extends BaseMatcher<number> implements Matcher<number> {

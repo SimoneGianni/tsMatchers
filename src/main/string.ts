@@ -1,7 +1,5 @@
-import {BaseMatcher, Matcher, Appendable, IsInterface, is, isContainer, ContainerObj, MatcherContainer, matcherOrEquals} from './tsMatchers';
-import {StrictlyInterface} from './strictly';
-import {ofType, OfType, definedValue} from './typing';
-import {not} from './not';
+import {BaseMatcher, Matcher, Appendable, isContainer, ContainerObj, MatcherContainer} from './tsMatchers';
+import {ofType} from './typing';
 
 import './strictly'; // Need this not to make declare module below to fail in .d.ts
 
@@ -36,17 +34,26 @@ export class StringMatching extends BaseMatcher<string> implements Matcher<strin
 }
 
 export class StringLength extends BaseMatcher<string> implements Matcher<string> {
-    constructor(private len:number) {super();}
+    constructor(private len:number | Matcher<number>) {super();}
 
     matches(obj:string) {
         if (!obj) return false;
         if (typeof obj !== 'string') return false;
-        return obj.length == this.len;
+        if (typeof(this.len) === 'number') {
+            return obj.length == this.len;
+        } else {
+            return this.len.matches(obj.length);
+        }
     }
     
     describe(obj :any, msg :Appendable) {
-        msg.append(" a string with length \"" + this.len + "\"");
-        super.describe(obj,msg);
+        if (typeof(this.len) === 'number') {
+            msg.append(" a string with length \"" + this.len + "\"");
+            super.describe(obj,msg);
+        } else {
+            msg.append(" a string with length");
+            this.len.describe(obj ? obj.length : obj, msg);
+        }
     }
 }
 
@@ -55,7 +62,7 @@ export function stringContaining(sub:string) :StringContaining {
     return new StringContaining(sub);
 }
 
-export function stringLength(len:number) :StringLength {
+export function stringLength(len:number|Matcher<number>) :StringLength {
     return new StringLength(len);
 }
 
@@ -92,7 +99,7 @@ declare module './strictly' {
 */
 
 var stringContainer = ContainerObj.fromFunction(function () { return aString; });
-var objectImpl :StringInterface = <any>stringContainer;
+//var objectImpl :StringInterface = <any>stringContainer;
 
 stringContainer.registerMatcher('matching', stringMatching);
 stringContainer.registerMatcher('containing', stringContaining);
