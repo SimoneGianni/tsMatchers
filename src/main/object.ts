@@ -1,10 +1,35 @@
-import {BaseMatcher, Matcher, Appendable, is, isContainer, ContainerObj, MatcherContainer, matcherOrEquals} from './tsMatchers';
+import {BaseMatcher, Matcher, Appendable, is, isContainer, ContainerObj, MatcherContainer, MatcherFactory, matcherOrEquals} from './tsMatchers';
 import {anObject, definedValue} from './typing';
 
 import './strictly'; // Need this not to make declare module below to fail in .d.ts
 
 
-export class MatchObject extends BaseMatcher<any> implements Matcher<any> {
+// This version would be better, as it describes the matching object in terms of the original one,
+// however there is no way to force typescript to infer the original type, so in a number of cases
+// it does not, and fails with strange errors.
+
+//type ObjMatch<T> = { [P in keyof T]?: (ObjMatch<T[P]>|Matcher<T[P]>|MatcherFactory<T[P]>|T[P]) };
+/*
+type ObjMatch<T> = { 
+    [P in keyof T]?: (
+        T[P] extends object ? ObjMatch<T[P]> :
+        T[P] extends Function ? MatcherFactory<T[P]> : T[P]|Matcher<T[P]>) 
+    };
+*/
+
+// This approach defines the requirements of the original object based on the matching object given.
+// It raises the opposite error (the original object is missing a property, instead of the matching 
+// object having too many properties) and does not trigger code completion, but works in most cases.
+type OrigObj<T> = {
+    [P in keyof T]: (
+        T[P] extends Matcher<infer S> ? S :
+        T[P] extends MatcherFactory<infer S> ? S :
+        T[P] extends object ? OrigObj<T[P]> :
+        T[P]
+    );
+}
+
+export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
     private def: { [key: string]: Matcher<any> } = {};
     private originalDef :any;
     private strict: boolean;
@@ -23,16 +48,16 @@ export class MatchObject extends BaseMatcher<any> implements Matcher<any> {
         this.strict = strict;
     }
 
-    asStrict() :MatchObject {
+    asStrict() :MatchObject<T> {
         return new MatchObject(this.originalDef, true);
     }
 
-    matches(obj: any) {
+    matches(obj: T) {
         // TODO reenable
         if (!anObject.matches(obj)) return false;
         var founds: { [key: string]: boolean } = {};
-        for (var k in obj) {
-            var matcher = this.def[k];
+        for (let k in obj) {
+            let matcher = this.def[k];
             if (!matcher) {
                 if (this.strict) {
                     try {
@@ -47,10 +72,10 @@ export class MatchObject extends BaseMatcher<any> implements Matcher<any> {
             if (!matcher.matches(obj[k])) return false;
             founds[k] = true;
         }
-        for (var k in this.def) {
+        for (let k in this.def) {
             //if (!founds[k]) return false;
             if (!founds[k]) {
-                var matcher = this.def[k];
+                let matcher = this.def[k];
                 if (!matcher.matches(obj[k])) return false;
                 founds[k] = true;
             }
@@ -89,19 +114,19 @@ export class MatchObject extends BaseMatcher<any> implements Matcher<any> {
 
 
 
-export function objectMatching(def: any): MatchObject {
+export function objectMatching<T>(def: T): Matcher<OrigObj<T>> {
     return new MatchObject(def, false);
 }
-export function objectMatchingStrictly(def: any): MatchObject {
+export function objectMatchingStrictly<T>(def: T): Matcher<OrigObj<T>> {
     return new MatchObject(def, true);
 }
 
-export function objectWithKeys(...keys :string[]) :MatchObject {
+export function objectWithKeys<T>(...keys :string[]) :Matcher<OrigObj<T>> {
     var def :{[index:string]:Matcher<any>} = {};
     for (var i = 0; i < keys.length; i++) {
         def[keys[i]] = definedValue;
     }
-    return objectMatching(def);
+    return objectMatching<T>(<any>def);
 }
 
 
@@ -132,7 +157,7 @@ objectContainer.registerMatcher('withKeys', objectWithKeys);
 
 isContainer.registerSub('object', objectContainer);
 
-(<ContainerObj><any>is.strictly).registerSub('object', objectContainer.createWrapper((m)=>(<MatchObject>m).asStrict()));
+(<ContainerObj><any>is.strictly).registerSub('object', objectContainer.createWrapper((m)=>(<MatchObject<any>>m).asStrict()));
 
 //registerWrapper(is.strictly, 'object', makeWrapper(objectImpl, (m)=>(<MatchObject>m).asStrict()));
 

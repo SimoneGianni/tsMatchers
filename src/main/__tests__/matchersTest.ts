@@ -64,32 +64,37 @@ describe("Call test >", ()=>{
 });
 
 describe("Object >", ()=>{
+    let objA = {a:1};
+    let objB = {b:2};
+    let objAB = {a:1, b:2};
+    let objBinA = {a:objB};
+    let objBCinA = {a:{c:1,b:2}};
     it('Should simply match that it is an object', ()=>{
         assert("simple is type", {}, is.object);
         assert("simple is type", {}, is.object());
     });
     it('Should match plain object structure', ()=>{
         assert("simple values", {a:1}, is.object.matching({a:1}));
-        assert("ignore additional", {a:1,b:2}, is.object.matching({a:1}));
+        assert("ignore additional",  objAB, is.object.matching({a:1}));
         assert("nested values", {a:{b:1}}, is.object.matching({a:{b:1}}));
         assert("keys check", {a:1,b:1}, is.object.withKeys('a'));
     });
     it('Should match structure with matchers', ()=>{
-        assert("simple values", {a:1}, is.object.matching({a:is.number}));
-        assert("ignore additional", {a:1,b:2}, is.object.matching({a:is.number}));
-        assert("nested values", {a:{b:1}}, is.object.matching({a:{b:is.number}}));
-        assert("undefined check", {a:1}, is.object.matching({b:is.undefined}));
+        assert("simple values", objA, is.object.matching({a:is.number()}));
+        assert("ignore additional", objAB, is.object.matching({a:is.number}));
+        assert("nested values with any matcher", objBinA, is.object.matching({a:{b: is.truthy()}}));
+        assert("nested values with specific matcher", objBinA, is.object.matching({a:{b:is.number()}}));
     });
     it('Should obey strictly', ()=>{
         assert("simple values", {a:1}, is.strictly.object.matching({a:is.number}));
         try {
-            assert("complain on additional", {a:1,b:2}, is.strictly.object.matching({a:is.number}));
+            assert("complain on additional", objAB, is.strictly.object.matching({a:is.number}));
             throw new Error("Should complain on additional");
         } catch (e) {
             if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
         }
         try {
-            assert("complain on nested additional", {a:{c:1,b:2}}, is.strictly.object.matching({a:{b:is.number}}));
+            assert("complain on nested additional", objBCinA, is.strictly.object.matching({a:{b:3}}));
             throw new Error("Should complain on nested additional");
         } catch (e) {
             if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
