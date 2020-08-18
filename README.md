@@ -63,6 +63,8 @@ You could prefer to download also the tsMatchersGlobal.ts that redeclares all th
 scope to use them easier. While this is technically "polluting your global namespace", it is intended to be used only
 during tests, and names are chosen not to conflict with anything usually in the global scope, so should not be a real problem.
 
+Moreover, is what some testing frameworks, like jest, are doing.
+
 Then use it inside your favorite unit test engine, a failed assertion will throw a runtime exception.
 
 How can I help
@@ -81,7 +83,7 @@ assert("This thing is true").when(x).is(rule);
 ```
 
 Where :
-1. "this this is true" is the message you'll see if the assertion fails
+1. "this thing is true" is the message you'll see if the assertion fails
 2. `x` is the value to be checked, and can be anything
 3. `rule` is a rule to match, can be a raw value or a matcher obtained using matching functions explained below
 
@@ -309,10 +311,19 @@ assert(x).is(objectMatching({
 Formally, `objectMatching` accepts as a parameter an inline object with rules as values, and applies the rules
 to the corresponding `x` properties. If one of the values is an object, it goes the same way recursively.
 
-`objectMatching` is not strict : in the previsous example there was an `x['d']` for which there was no rule, and the assertion passed.
+`objectMatching` is not strict : in the previous example there was an `x['d']` for which there was no rule, and the assertion passed.
 
 If you instead want to be strict, and make the assertion fail if `x` contains a property for which there is no specified
 rule, you can use `objectMatchingStrictly`.
+
+Type safety between the given object and the matchers is checked, an will raise an error in case properties don't match:
+
+```javascript
+var x = {a:10};
+
+assert(x).is(objectMatching({b:5})); // Compile error, x does not have a "b" property
+assert(x).is(objectMatching({a:"ciao"})); // Compile error, x.a is a number, not a string
+```
 
 instanceOf
 ----------
@@ -370,6 +381,7 @@ npm test
 
 Release notes
 =============
+ * 3.0.7 : type checks on object matching
  * 3.0.6 : improved throwing error message
  * 3.0.5 : improved packaging and exports
  * 3.0.4 : added throwing
@@ -389,11 +401,13 @@ Change all Matchers to accept a promise
 This would allow to write
 
 ```javascript
-assert(obj.getX()).is(equalto(that));
-assert(obj.getX(null)).is(throwing(/.*null.*/));
+await assert(obj.getX()).is(equalto(that));
+await assert(obj.getX(null)).is(throwing(/.*null.*/));
 ```
 
 where `getX()` is an `async` method.
+
+Assert should return a promise, modified as needed by the checkers.
 
 Implement retry
 ---------------
@@ -416,3 +430,17 @@ assert(() => obj.getX()).retry()
 ```
 
 And can also offer the opposite check, `.while` which is a synonim of `.until(not(...))`.
+
+More checks
+-----------
+
+A number of other checks can be added to the current matchers, for example:
+- string.startsWith
+- string.endsWith
+
+More array checks
+-----------------
+
+On array, function like allMatch or noneMatch or similar, that take a matcher and run it on all
+the entries. It's currently doable with array.forEach(v => assert(v, is...)), but to have it as a 
+primitive would help.
