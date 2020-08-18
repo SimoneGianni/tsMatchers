@@ -1,7 +1,7 @@
 import {BaseMatcher, Matcher, Appendable, isContainer, exactly} from './tsMatchers';
 import {not} from './not';
 
-export class OfType extends BaseMatcher<any> implements Matcher<any> {
+export class OfType<T> extends BaseMatcher<T> implements Matcher<T> {
 	constructor(private type: string) { super(); }
 
 	matches(obj: any) {
@@ -38,7 +38,7 @@ export class Truthy extends BaseMatcher<any> implements Matcher<any> {
 	}
 }
 
-export function ofType(type: string): OfType {
+export function ofType(type: string): OfType<any> {
 	return new OfType(type);
 }
 
@@ -84,9 +84,9 @@ declare module './tsMatchers' {
 		defined: () => typeof definedValue;
 		undefined: () => typeof undefinedValue;
 
-		number: () => OfType;
-		boolean: () => OfType;
-		function: () => OfType;
+		number: () => OfType<number>;
+		boolean: () => OfType<boolean>;
+		function: () => OfType<Function>;
 
 		truthy: () => typeof aTruthy;
 		falsey: () => typeof aFalsey;

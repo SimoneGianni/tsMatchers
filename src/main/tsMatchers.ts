@@ -33,7 +33,8 @@
 		consoleDump = val;
 	}
 	
-	
+	export type MatcherFactory<T> = ()=>Matcher<T>;
+
 	export interface Matcher<T> {
 		matches(obj :T):boolean;
 		describe(obj :any, msg :Appendable) :void;
@@ -61,7 +62,7 @@
 		
 		is(matcher :Matcher<T>) :void
 		is(val:T) :void
-		is(fn :()=>Matcher<T>) :void
+		is(fn :MatcherFactory<T>) :void
 
 		is(val:any) :void {
 			var matcher:Matcher<T> = matcherOrEquals(val);
@@ -128,10 +129,8 @@
 	export function assert<T>(obj :T):ToMatch<T>
 	export function assert<T>(msg :string):ToMatch<string>
 	export function assert<T>(msg :string, obj :T):ToMatch<T> 
-	export function assert<T>(obj :T, matcher :T|Matcher<T>):void
-	export function assert<T>(msg :string, obj :T, matcher :T|Matcher<T>):void
-	export function assert<T>(obj :T, matcher :()=>Matcher<T>):void
-	export function assert<T>(msg :string, obj :T, matcher :()=>Matcher<T>):void 
+	export function assert<T>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void
+	export function assert<T>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void
 	 
 	export function assert<T>(msgOrObj :T|string, objOrMatcher? :T|Matcher<T>, matcher? :T|Matcher<T>):void|ToMatch<T> {
 		if (arguments.length == 1) {
