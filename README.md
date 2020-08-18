@@ -378,6 +378,11 @@ To run tests run
 npm test
 ```
 
+To publish a release
+
+```
+npm publish
+```
 
 Release notes
 =============
