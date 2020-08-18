@@ -381,11 +381,13 @@ npm test
 To publish a release
 
 ```
+npm run build
 npm publish
 ```
 
 Release notes
 =============
+ * 3.0.8 : republish
  * 3.0.7 : type checks on object matching
  * 3.0.6 : improved throwing error message
  * 3.0.5 : improved packaging and exports

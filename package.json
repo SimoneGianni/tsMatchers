@@ -1,6 +1,6 @@
 {
     "name": "tsmatchers",
-    "version": "3.0.7",
+    "version": "3.0.8",
     "devDependencies": {
         "@types/jest": "^24.9.0",
         "jest": "^24.9.0",
@@ -8,7 +8,7 @@
         "typescript": "^3.7.5"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "rm -fR js && tsc",
         "test": "jest"
     },
     "license": "ASL 2.0",
