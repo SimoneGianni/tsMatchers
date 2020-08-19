@@ -4,30 +4,7 @@ import {anObject, definedValue} from './typing';
 import './strictly'; // Need this not to make declare module below to fail in .d.ts
 
 
-// This version would be better, as it describes the matching object in terms of the original one,
-// however there is no way to force typescript to infer the original type, so in a number of cases
-// it does not, and fails with strange errors.
-
-//type ObjMatch<T> = { [P in keyof T]?: (ObjMatch<T[P]>|Matcher<T[P]>|MatcherFactory<T[P]>|T[P]) };
-/*
-type ObjMatch<T> = { 
-    [P in keyof T]?: (
-        T[P] extends object ? ObjMatch<T[P]> :
-        T[P] extends Function ? MatcherFactory<T[P]> : T[P]|Matcher<T[P]>) 
-    };
-*/
-
-// This approach defines the requirements of the original object based on the matching object given.
-// It raises the opposite error (the original object is missing a property, instead of the matching 
-// object having too many properties) and does not trigger code completion, but works in most cases.
-type OrigObj<T> = {
-    [P in keyof T]: (
-        T[P] extends Matcher<infer S> ? S :
-        T[P] extends MatcherFactory<infer S> ? S :
-        T[P] extends object ? OrigObj<T[P]> :
-        T[P]
-    );
-}
+type ObjMatch<T> = { [P in keyof T]?: (ObjMatch<T[P]>|Matcher<T[P]>|Matcher<any>|MatcherFactory<T[P]>|T[P]) };
 
 export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
     private def: { [key: string]: Matcher<any> } = {};
@@ -114,19 +91,19 @@ export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
 
 
 
-export function objectMatching<T>(def: T): Matcher<OrigObj<T>> {
+export function objectMatching<T, D extends T>(def: ObjMatch<D>): Matcher<T> {
     return new MatchObject(def, false);
 }
-export function objectMatchingStrictly<T>(def: T): Matcher<OrigObj<T>> {
+export function objectMatchingStrictly<T, D extends T>(def: ObjMatch<D>): Matcher<T> {
     return new MatchObject(def, true);
 }
 
-export function objectWithKeys<T>(...keys :string[]) :Matcher<OrigObj<T>> {
+export function objectWithKeys<T>(...keys :string[]) :Matcher<T> {
     var def :{[index:string]:Matcher<any>} = {};
     for (var i = 0; i < keys.length; i++) {
         def[keys[i]] = definedValue;
     }
-    return objectMatching<T>(<any>def);
+    return objectMatching<T, any>(<any>def);
 }
 
 

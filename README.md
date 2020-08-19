@@ -387,6 +387,7 @@ npm publish
 
 Release notes
 =============
+ * 3.0.9 : fixes on type checks for object matching
  * 3.0.8 : republish
  * 3.0.7 : type checks on object matching
  * 3.0.6 : improved throwing error message

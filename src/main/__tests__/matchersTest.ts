@@ -1,4 +1,4 @@
-import { assert, is, dumpInConsole, either } from '../tsMatchers';
+import { assert, is, dumpInConsole, either, Matcher } from '../tsMatchers';
 import {lessThan} from '../numbers';
 import '../numbers';
 import '../typing';
@@ -8,6 +8,7 @@ import '../array';
 import '../string';
 import '../throwing';
 import { throwing } from '../throwing';
+import { objectMatching, objectWithKeys } from '../object';
 
 dumpInConsole(false);
 
@@ -66,8 +67,8 @@ describe("Call test >", ()=>{
 describe("Object >", ()=>{
     let objA = {a:1};
     let objB = {b:2};
-    let objAB = {a:1, b:2};
-    let objBinA = {a:objB};
+    let objAB :{a:number,b:number} = {a:1, b:2};
+    let objBinA :{a: typeof objB} = {a:objB};
     let objBCinA = {a:{c:1,b:2}};
     it('Should simply match that it is an object', ()=>{
         assert("simple is type", {}, is.object);
@@ -85,6 +86,43 @@ describe("Object >", ()=>{
         assert("nested values with any matcher", objBinA, is.object.matching({a:{b: is.truthy()}}));
         assert("nested values with specific matcher", objBinA, is.object.matching({a:{b:is.number()}}));
     });
+    it('Should match structure with chained syntax', ()=>{
+        assert("simple values", objA).is(objectMatching({a:is.number()}));
+        assert("ignore additional", objAB).is(objectMatching({a:is.number}));
+        assert("nested values with any matcher", objBinA).is(objectMatching({a:{b: is.truthy()}}));
+        assert("nested values with specific matcher", objBinA).is(objectMatching({a:{b:is.number()}}));
+        assert("simple values", {a:1}).is(objectMatching({a:1}));
+        assert("ignore additional",  objAB).is(objectMatching({a:1}));
+        assert("nested values", {a:{b:1}}).is(objectMatching({a:{b:1}}));
+        assert("keys check", {a:1,b:1}).is(objectWithKeys('a'));
+    });
+    it('Should match enums', () => {
+        enum Types {
+            A, B
+        }
+        interface WithType {
+            type :Types;
+            other :string;
+        }
+        const obj :WithType = {type: Types.A, other:"any"};
+
+        assert("matches valid enum plain syntax", obj, is.object.matching({type:Types.A}));
+        assert("matches valid enum chain syntax", obj).is(objectMatching({type:Types.A}));
+        try {
+            assert("msg", obj, is.object.matching({type:Types.B}));
+            throw new Error("should complain invalid enum plain syntax");
+        } catch (e) {
+            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
+        }
+        try {
+            assert("msg", obj).is(objectMatching({type:Types.B}));
+            throw new Error("should complain invalid enum plain syntax");
+        } catch (e) {
+            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
+        }
+        
+    });
+
     it('Should obey strictly', ()=>{
         assert("simple values", {a:1}, is.strictly.object.matching({a:is.number}));
         try {
