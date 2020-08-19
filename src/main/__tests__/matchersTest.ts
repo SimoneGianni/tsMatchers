@@ -1,4 +1,4 @@
-import { assert, is, dumpInConsole, either, Matcher } from '../tsMatchers';
+import { assert, check, is, dumpInConsole, either, Matcher, equalTo } from '../tsMatchers';
 import {lessThan} from '../numbers';
 import '../numbers';
 import '../typing';
@@ -23,24 +23,28 @@ class DummyTest {
 
 describe("Call test >", ()=>{
     test('Should equal a number, all syntaxes', ()=>{
-        assert("plain long").when(1).is(1);
-        assert("one arg",1).is(1);
+        assert("plain long").check(1).is(1);
+        assert("plain long").check(1).is(equalTo(1));
         assert("two args", 1, 1);
-        assert(1).is(1);
-        assert(1,1);
-        assert(1, is.equal(1));
+        assert("two args", 1, is.equalTo(1));
+        assert("two args", 1, equalTo(1));
+        check(1).is(1);
+        check(1,1);
+        check(1, is.equal(1));
+        check(1, equalTo(1));
+        check(1).is(equalTo(1));
     });
 
     it('Should use passed matcher', ()=>{
-        assert("plain long").when(1).is(lessThan(5));
-        assert("one arg",1).is(lessThan(5));
+        assert("plain long").check(1).is(lessThan(5));
         assert("two args", 1, lessThan(5));
+        check(1).is(lessThan(5));
     });
 
     it('Should use passed matcherFunction', ()=>{
-        assert("plain long").when(1).is(is.number);
-        assert("one arg",1).is(is.number);
+        assert("plain long").check(1).is(is.number);
         assert("two args", 1, is.number);
+        check(1).is(is.number);
     });
 
     it('Should use passed matcher from "is" global', ()=>{
@@ -58,9 +62,9 @@ describe("Call test >", ()=>{
     it('Should work correctly with nulls', ()=>{
         //assert('null is falsey', null, is.falsey);
         assert('null is null', null, null);
-        assert('null is null, medium', null).is(null);
-        assert('null is null, long').when(null).is(null);
-        assert(null,null);
+        check(null).is(null);
+        assert('null is null, long').check(null).is(null);
+        check(null,null);
     });
 });
 
@@ -87,14 +91,14 @@ describe("Object >", ()=>{
         assert("nested values with specific matcher", objBinA, is.object.matching({a:{b:is.number()}}));
     });
     it('Should match structure with chained syntax', ()=>{
-        assert("simple values", objA).is(objectMatching({a:is.number()}));
-        assert("ignore additional", objAB).is(objectMatching({a:is.number}));
-        assert("nested values with any matcher", objBinA).is(objectMatching({a:{b: is.truthy()}}));
-        assert("nested values with specific matcher", objBinA).is(objectMatching({a:{b:is.number()}}));
-        assert("simple values", {a:1}).is(objectMatching({a:1}));
-        assert("ignore additional",  objAB).is(objectMatching({a:1}));
-        assert("nested values", {a:{b:1}}).is(objectMatching({a:{b:1}}));
-        assert("keys check", {a:1,b:1}).is(objectWithKeys('a'));
+        assert("simple values").check(objA).is(objectMatching({a:is.number()}));
+        assert("ignore additional").check(objAB).is(objectMatching({a:is.number}));
+        assert("nested values with any matcher").check(objBinA).is(objectMatching({a:{b: is.truthy()}}));
+        assert("nested values with specific matcher").check(objBinA).is(objectMatching({a:{b:is.number()}}));
+        assert("simple values").check({a:1}).is(objectMatching({a:1}));
+        assert("ignore additional").check( objAB).is(objectMatching({a:1}));
+        assert("nested values").check({a:{b:1}}).is(objectMatching({a:{b:1}}));
+        assert("keys check").check({a:1,b:1}).is(objectWithKeys('a'));
     });
     it('Should match enums', () => {
         enum Types {
@@ -106,8 +110,16 @@ describe("Object >", ()=>{
         }
         const obj :WithType = {type: Types.A, other:"any"};
 
+        // Uncommenting these lines, must give error, to highlight that typesafe check are working
+        /*
+        assert("matches valid enum plain syntax", obj, is.object.matching({type:Types.A, zz:2}));
+        check(obj, is.object.matching({type:Types.A, zz:2}));
+        check(obj).is(objectMatching({type:Types.A, zz:2}));
+        */
+
         assert("matches valid enum plain syntax", obj, is.object.matching({type:Types.A}));
-        assert("matches valid enum chain syntax", obj).is(objectMatching({type:Types.A}));
+        check(obj, is.object.matching({type:Types.A}));
+        check(obj).is(objectMatching({type:Types.A}));
         try {
             assert("msg", obj, is.object.matching({type:Types.B}));
             throw new Error("should complain invalid enum plain syntax");
@@ -115,8 +127,8 @@ describe("Object >", ()=>{
             if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
         }
         try {
-            assert("msg", obj).is(objectMatching({type:Types.B}));
-            throw new Error("should complain invalid enum plain syntax");
+            check(obj).is(objectMatching({type:Types.B}));
+            throw new Error("should complain invalid chained syntax");
         } catch (e) {
             if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
         }
@@ -244,7 +256,7 @@ describe('Throwing tests >', () => {
         assert("Check with message regexp", () => {throw new Error("test")}, is.throwing(/te.*/));
         assert("Check with type and object check", () => {throw new Error("test")}, is.throwing(either(is.instanceOf(Error)).and(is.object.matching({message: "test"}))));
 
-        assert("Alternative syntax").when(() => {throw new Error("test")}).is(throwing(Error));
-        assert(() => {throw new Error("test")}).is(throwing(Error));
+        assert("Alternative syntax").check(() => {throw new Error("test")}).is(throwing(Error));
+        check(() => {throw new Error("test")}).is(throwing(Error));
     })
 });

@@ -23,7 +23,7 @@
 		exceptions = [];
 	}
 	
-	export function check():void {
+	export function report():void {
 		serveLater = false;
 		if (exceptions.length == 0) return;
 		throw new Error(exceptions.join("\n"));
@@ -54,7 +54,7 @@
 			return this;
 		}
 
-		when<P>(obj:P):ToMatch<P>{
+		check<P>(obj:P):ToMatch<P>{
 			var ret = new ToMatch<P>(obj);
 			ret.addMsg = this.obj+"";
 			return ret;
@@ -116,6 +116,7 @@
 	
 
 	export abstract class BaseMatcher<T> implements Matcher<T> {
+		__matcherImplementation = true;
 		abstract matches(obj :T) :boolean;
 
 		describe(obj :any, msg :Appendable) {
@@ -126,26 +127,34 @@
 		}
 	}
 
-	export function assert<T>(obj :T):ToMatch<T>
-	export function assert<T>(msg :string):ToMatch<string>
-	export function assert<T>(msg :string, obj :T):ToMatch<T> 
-	export function assert<T>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void
-	export function assert<T>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void
-	 
-	export function assert<T>(msgOrObj :T|string, objOrMatcher? :T|Matcher<T>, matcher? :T|Matcher<T>):void|ToMatch<T> {
+	export interface NotAMatcher {
+		__matcherImplementation?: never;
+		[index: string]: any;
+		[index: number]: any;
+	}
+
+	type TestValue = null | (any & NotAMatcher);
+
+	export function assert<T extends TestValue>(msg :string):ToMatch<any>	 
+	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void
+	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :T|Matcher<T>|MatcherFactory<T>):void|ToMatch<any> {
 		if (arguments.length == 1) {
-			return new ToMatch<T>(<T>msgOrObj);
-		} else if (typeof(matcher) !== 'undefined') {
-			new ToMatch<T>(<T>msgOrObj).when(<T>objOrMatcher).is(<Matcher<any>>matcher);
-		} else if (objOrMatcher !== null && !!(<any>objOrMatcher)['matches'] && !!(<any>objOrMatcher)['describe']) {
-			new ToMatch<T>(<T>msgOrObj).is(<Matcher<any>>objOrMatcher);
+			return new ToMatch<any>(msg);
 		} else {
-			return new ToMatch<T>(<T>msgOrObj).when(<T>objOrMatcher);
+			new ToMatch<any>(msg).check(<T>obj).is(<Matcher<any>>matcher);
 		}
 	}
 
+	export function check<T extends TestValue>(obj :T):ToMatch<T>
+	export function check<T extends TestValue>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void	
+	export function check<T extends TestValue>(obj :T, matcher? :T|Matcher<T>|MatcherFactory<T>):void|ToMatch<T> {
+		if (arguments.length == 1) {
+			return new ToMatch<T>(obj);
+		} else {
+			new ToMatch<any>(null).check(<T>obj).is(<Matcher<any>>matcher);
+		}
+	}
 
-	
 	export class Equals<T> extends BaseMatcher<any> implements Matcher<any> {
 		constructor(private value:T) {super();}
 	

@@ -54,9 +54,9 @@ yarn add --dev tsmatcher
 Then import and use it into your tests:
 
 ```javascript
-import { assert, equalTo } from 'tsmatchers';
+import { check, equalTo } from 'tsmatchers';
 
-assert(x).is(equalTo(y));
+check(x).is(equalTo(y));
 ```
 
 You could prefer to download also the tsMatchersGlobal.ts that redeclares all the useful matching functions in the global
@@ -79,7 +79,7 @@ Using assertions
 The most common syntax for an assertion using tsMatchers is :
 
 ```javascript
-assert("This thing is true").when(x).is(rule);
+assert("This thing is true").check(x).is(rule);
 ```
 
 Where :
@@ -90,7 +90,7 @@ Where :
 While having a message is a good practice, if you don't have it you can skip it and write directly :
 
 ```javascript
-assert(x).is(rule);
+check(x).is(rule);
 ```
 
 And it also supports a different syntax to avoid polluting with tons of imports:
@@ -105,6 +105,17 @@ assert("This this is true", x, is.equalTo(y));
 
 ```
 
+Or also directly using `check`:
+
+```
+import { check, is } from 'tsmatchers';
+
+//....
+
+check(x, is.equalTo(y));
+
+```
+
 equalTo(val)
 ------------
 
@@ -113,27 +124,27 @@ equalTo(val)
 It checks if the value to be checked is (loosely) equal to the given value. For example :
 
 ```javascript
-assert(10).is(equalTo(10));
+check(10).is(equalTo(10));
 ```
 
 As said, it is so common that if you don't specify it and simply use the value, `equalTo` is used by default.
 
 ```javascript
-assert(10).is(10); // Totally equivalent to the previous example
+check(10).is(10); // Totally equivalent to the previous example
 ```
 *Note* the comparison is loosely equal, so it passes if `x == val` in JavaScript terms, however 
 it is TypeScript type checked, so the following will give compile errors :
 
 ```javascript
-assert(10).is(equalTo('10')); // Error, x=10 (number) and val='10' (string)
-assert(true).is(equalTo(1)); // Error, x=true (boolean) and val=1 (number)
+check(10).is(equalTo('10')); // Error, x=10 (number) and val='10' (string)
+check(true).is(equalTo(1)); // Error, x=true (boolean) and val=1 (number)
 ```
 
 If you need to perform untyped assertions like above, you can use `looselyEqualTo` :
 
 ```javascript
-assert(10).is(looselyEqualTo('10')); // Will pass, because '10'==10 is actually ok in JS
-assert(true).is(looselyEqualTo(1)); // Will pass, because true==1 is actually ok in JS
+check(10).is(looselyEqualTo('10')); // Will pass, because '10'==10 is actually ok in JS
+check(true).is(looselyEqualTo(1)); // Will pass, because true==1 is actually ok in JS
 ```
 
 If instead you need a strict comparison even at runtime, you can use `exactly`, that uses the strict comparison
@@ -142,15 +153,15 @@ operator and passes if `x === val` :
 ```javascript
 var x:any;
 // some value goes in x, but since it's :any TypeScript can't check at compile time
-assert(x).is(exactly(true)); // Will check that it is a boolean and it's true
+check(x).is(exactly(true)); // Will check that it is a boolean and it's true
 ```
 
 And remember these all work also with the alternate syntax:
 
 ```
-assert(x, is.equalTo(y));
-assert(x, is.looselyEqualTo(z));
-assert(x, is.exactly(w));
+check(x, is.equalTo(y));
+check(x, is.looselyEqualTo(z));
+check(x, is.exactly(w));
 ```
 
 aString, aNumber, aBoolean ...
@@ -160,7 +171,7 @@ If you don't want to check for a specific value, but only to check that somethin
 the various `aXXXX` :
 
 ```javascript
-assert(x).is(aString);
+check(x).is(aString);
 ```
 
 These will check for specific (JavaScript) types :
@@ -179,11 +190,11 @@ Others will check for boolean values :
 
 So for example :
 ```javascript
-assert(0).is(aFalsey);
-assert(1).is(aTruthy);
-assert('').is(aFalsey);
-assert(true).is(aTruthy);
-assert(true).is(aTrue);
+check(0).is(aFalsey);
+check(1).is(aTruthy);
+check('').is(aFalsey);
+check(true).is(aTruthy);
+check(true).is(aTrue);
 ```
 Will all pass.
 
@@ -194,10 +205,10 @@ Others are less specific but still very useful :
 
 ```javascript
 var x = 1;
-assert(x).is(definedValue);
+check(x).is(definedValue);
 var y:any = 'ciao';
 x = x*y;
-assert(x).is(aNaN);
+check(x).is(aNaN);
 ```
 
 not(rule)
@@ -206,8 +217,8 @@ not(rule)
 Any rule can be negated using `not`, for example :
 
 ```javascript
-assert(x).is(not(aNumber));
-assert(x).is(not(equalTo(10));
+check(x).is(not(aNumber));
+check(x).is(not(equalTo(10));
 ```
 
 Combining rules
@@ -216,13 +227,13 @@ Combining rules
 More complex expressions can be created using the `either(rule).or(rule).and(rule)` syntax :
 
 ```javascript
-assert(x).is(either(aNumber).or(aBoolean));
-assert(x).is(either(aNumber).and(equalTo(10));
+check(x).is(either(aNumber).or(aBoolean));
+check(x).is(either(aNumber).and(equalTo(10));
 ```
 
 This works also with the alternative syntax but it's bit more convoluted:
 ```
-assert(x, is.either(is.aNumber).or(is.aBoolean));
+check(x, is.either(is.aNumber).or(is.aBoolean));
 ```
 
 Numbers
@@ -237,14 +248,14 @@ There are many rules to check numbers :
 For example :
 ```javascript
 var a = 12.5;
-assert(a).is(greaterThan(10));
-assert(a).is(lessThan(15));
-assert(a).is(between(10,20));
-assert(a).is(closeTo(10,0.5);
+check(a).is(greaterThan(10));
+check(a).is(lessThan(15));
+check(a).is(between(10,20));
+check(a).is(closeTo(10,0.5);
 
 var b = 25;
-assert(b).is(between(25,30)); // Will pass, between is inclusive
-assert(b).is(greaterThan(25,true)); // Will pass because of the boolean true making it inclusive
+check(b).is(between(25,30)); // Will pass, between is inclusive
+check(b).is(greaterThan(25,true)); // Will pass because of the boolean true making it inclusive
 ```
 
 
@@ -256,13 +267,13 @@ You can check an array length with `withLength` and if it contains specific valu
 For example :
 ```javascript
 var x :number[] = [10,11,12];
-assert(x).is(anArray); // Useless in this case
-assert(x).is(withLength(3));
-assert(x).is(arrayContaining(equalTo(10)));
-assert(x).is(arrayContaining(greaterThan(10));
+check(x).is(anArray); // Useless in this case
+check(x).is(withLength(3));
+check(x).is(arrayContaining(equalTo(10)));
+check(x).is(arrayContaining(greaterThan(10));
 
 // using either
-assert(x).is(either(withLength(3)).and(arrayContaining(equalTo(10))));
+check(x).is(either(withLength(3)).and(arrayContaining(equalTo(10))));
 ```
 All these assertions will pass.
 
@@ -274,7 +285,7 @@ a compile time error :
 
 ```javascript
 var x :number[] = [10,11,12];
-assert(x).is(arrayContaining(equalTo('text'))); 
+check(x).is(arrayContaining(equalTo('text'))); 
 ```
 
 Strings
@@ -284,9 +295,9 @@ A string length can be checked with `withLength`, and you can check for sub-stri
 
 ```javascript
 var x = 'Test';
-assert(x).is(aString); // Useless in this case
-assert(x).is(withLength(4));
-assert(x).is(stringContaining('est'));
+check(x).is(aString); // Useless in this case
+check(x).is(withLength(4));
+check(x).is(stringContaining('est'));
 ```
 
 Objects
@@ -298,7 +309,7 @@ Other than `anObject` matcher, you can check the properties of an object with `o
 // Will use an inline object, but any javascript object will work
 var x = {a:10,b:'Test',c: {c1:100,c2:20}, d:'Other'};
 
-assert(x).is(objectMatching({
+check(x).is(objectMatching({
   a: 10,
   b: either(withLength(4)).and(stringContaining('est')),
   c: { // Sub-object-matching
@@ -321,8 +332,8 @@ Type safety between the given object and the matchers is checked, an will raise 
 ```javascript
 var x = {a:10};
 
-assert(x).is(objectMatching({b:5})); // Compile error, x does not have a "b" property
-assert(x).is(objectMatching({a:"ciao"})); // Compile error, x.a is a number, not a string
+check(x).is(objectMatching({b:5})); // Compile error, x does not have a "b" property
+check(x).is(objectMatching({a:"ciao"})); // Compile error, x.a is a number, not a string
 ```
 
 instanceOf
@@ -332,7 +343,7 @@ To check if `x` is an instance of a specific class, use the `instanceOf(val)` ru
 
 ```javascript
 var x = new Person();
-assert(x).is(instanceOf(Person));
+check(x).is(instanceOf(Person));
 ```
 
 Checking exceptions
@@ -341,26 +352,26 @@ Checking exceptions
 To check if a call throws an exception use "throwing", usually together with a fat arrow function:
 
 ```javascript
-assert(() => object.call(null)).is(throwing());
+check(() => object.call(null)).is(throwing());
 ```
 
 In addition to that you cal test that the message is the expected one, using specific string or regular expression:
 
 ```javascript
-assert(() => object.call(null)).is(throwing("Must specify an argument"));
-assert(() => object.call(null)).is(throwing(/Must.*/));
+check(() => object.call(null)).is(throwing("Must specify an argument"));
+check(() => object.call(null)).is(throwing(/Must.*/));
 ```
 
 In more complex applications, it's useful not to throw simple Error but to throw specific instances:
 
 ```javascript
-assert(() => object.call(null)).is(throwing(ErrorType));
+check(() => object.call(null)).is(throwing(ErrorType));
 ```
 
 And eventually it's also possible to test that these objects have the excepted structure:
 
 ```javascript
-assert(() => object.call(null)).is(throwing(objectMatching({statusCode: 500, message: withLength(greaterThan(0))}))));
+check(() => object.call(null)).is(throwing(objectMatching({statusCode: 500, message: withLength(greaterThan(0))}))));
 ```
 
 Building locally
@@ -387,6 +398,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.0 : Breaking syntax change, `assert("msg",obj).is(..` removed, `assert("msg").when(obj)` renamed to check, `assert(obj,val)` rnamed to check
  * 3.0.9 : fixes on type checks for object matching
  * 3.0.8 : republish
  * 3.0.7 : type checks on object matching
@@ -409,8 +421,8 @@ Change all Matchers to accept a promise
 This would allow to write
 
 ```javascript
-await assert(obj.getX()).is(equalto(that));
-await assert(obj.getX(null)).is(throwing(/.*null.*/));
+await check(obj.getX()).is(equalto(that));
+await check(obj.getX(null)).is(throwing(/.*null.*/));
 ```
 
 where `getX()` is an `async` method.
@@ -423,13 +435,13 @@ Implement retry
 Once async functions are accepted, they could be retried to support ongoing activities in E2E tests:
 
 ```javascript
-assert(() => obj.getX()).retry().until(equalTo(that));
+check(() => obj.getX()).retry().until(equalTo(that));
 ```
 
 the `retry` could expose some more methods to tweak the retry policy, like:
 
 ```javascript
-assert(() => obj.getX()).retry()
+check(() => obj.getX()).retry()
   .upTo(5, "seconds")
   .upTo(10, "times")
   .every(100, "ms")
@@ -450,5 +462,5 @@ More array checks
 -----------------
 
 On array, function like allMatch or noneMatch or similar, that take a matcher and run it on all
-the entries. It's currently doable with array.forEach(v => assert(v, is...)), but to have it as a 
+the entries. It's currently doable with array.forEach(v => check(v, is...)), but to have it as a 
 primitive would help.
