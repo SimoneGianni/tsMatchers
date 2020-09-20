@@ -1,6 +1,6 @@
 {
     "name": "tsmatchers",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "devDependencies": {
         "@types/jest": "^24.9.0",
         "jest": "^24.9.0",

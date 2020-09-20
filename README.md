@@ -116,6 +116,24 @@ check(x, is.equalTo(y));
 
 ```
 
+async await
+-----------
+
+Async methods are supported in all checks, so for example:
+
+```javascript
+async function doSomething() :number {
+  // Your async-await promises code here
+  return 1;
+}
+
+it("Test async", async () => {
+  await assert("Something should be more than 10").check(doSometing()).is(greaterThan(10));
+  // as well as in alternative syntax
+  await check(doSomething(), is.greaterThan(10));
+});
+```
+
 equalTo(val)
 ------------
 
@@ -211,6 +229,13 @@ x = x*y;
 check(x).is(aNaN);
 ```
 
+In alternative compact syntax the initial "a" is dropped:
+
+```
+check(a, is.number);
+check(b, is.falsey);
+```
+
 not(rule)
 ---------
 
@@ -219,6 +244,13 @@ Any rule can be negated using `not`, for example :
 ```javascript
 check(x).is(not(aNumber));
 check(x).is(not(equalTo(10));
+```
+
+In alternative syntax `is.not` can se used to achieve the same results:
+
+```javascript
+check(s, is.not.number);
+check(s, is.not.equal("ciao"));
 ```
 
 Combining rules
@@ -258,7 +290,6 @@ check(b).is(between(25,30)); // Will pass, between is inclusive
 check(b).is(greaterThan(25,true)); // Will pass because of the boolean true making it inclusive
 ```
 
-
 Arrays
 ------
 
@@ -269,23 +300,34 @@ For example :
 var x :number[] = [10,11,12];
 check(x).is(anArray); // Useless in this case
 check(x).is(withLength(3));
+check(x).is(withLength(greaterThan(2)));
+check(x).is(arrayContaining(10));
 check(x).is(arrayContaining(equalTo(10)));
 check(x).is(arrayContaining(greaterThan(10));
 
 // using either
-check(x).is(either(withLength(3)).and(arrayContaining(equalTo(10))));
+check(x).is(either(withLength(3)).and(arrayContaining(10)));
 ```
 All these assertions will pass.
 
 `withLength(val)` takes a single number and checks the `length` property of `x`.
 
 `arrayContaining(rule)` passes if at least one element of the array matches the given rule. The rule can be any
-matcher expression, but it's type checked at compile time if the array is type checked, so the following will give
+matcher expression, and it's even type checked at compile time if the array is type checked, so the following will give
 a compile time error :
 
 ```javascript
 var x :number[] = [10,11,12];
-check(x).is(arrayContaining(equalTo('text'))); 
+check(x).is(arrayContaining(equalTo('text'))); // Typescript type error here
+```
+
+In alternative syntax, use `is.array`:
+
+```javascript
+var x :number[] = [10,11,12];
+check(x, is.array.containing(10));
+check(x, is.array.containing(is.greaterThan(11)));
+check(x, is.array.withLength(3));
 ```
 
 Strings
@@ -398,6 +440,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.1 : Async value checks
  * 4.0.0 : Breaking syntax change, `assert("msg",obj).is(..` removed, `assert("msg").when(obj)` renamed to check, `assert(obj,val)` rnamed to check
  * 3.0.9 : fixes on type checks for object matching
  * 3.0.8 : republish
@@ -415,19 +458,24 @@ Release notes
  TODO
  ====
 
-Change all Matchers to accept a promise
----------------------------------------
+
+Async throwing
+--------------
 
 This would allow to write
-
 ```javascript
-await check(obj.getX()).is(equalto(that));
-await check(obj.getX(null)).is(throwing(/.*null.*/));
+await check(async () => { throw "test" }, is.throwing("test"));
 ```
 
-where `getX()` is an `async` method.
+To support this, we need the notion of async matchers, that will return a promise, and alter 
+method signature accordingly to allow a wait.
 
-Assert should return a promise, modified as needed by the checkers.
+Also, as in the case above, is.throwing would be sometimes a sync and sometimes and async checker,
+delending on the type of the first parameter, which is probably not achievable by typescript type
+system.
+
+So, eventually a syncThrowing variation must be added to avoid tslint no-floating-promises
+complaining about each check.
 
 Implement retry
 ---------------
@@ -435,13 +483,13 @@ Implement retry
 Once async functions are accepted, they could be retried to support ongoing activities in E2E tests:
 
 ```javascript
-check(() => obj.getX()).retry().until(equalTo(that));
+await check(() => obj.getX()).retry().until(equalTo(that));
 ```
 
 the `retry` could expose some more methods to tweak the retry policy, like:
 
 ```javascript
-check(() => obj.getX()).retry()
+await check(() => obj.getX()).retry()
   .upTo(5, "seconds")
   .upTo(10, "times")
   .every(100, "ms")

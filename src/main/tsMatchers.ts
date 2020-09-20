@@ -40,35 +40,49 @@
 		describe(obj :any, msg :Appendable) :void;
 	}
 
-	export class ToMatch<T> {
+	export class ToMatch<T,R extends T|Promise<T>> {
 		private addMsg :string;
 		
 		constructor(private obj:T) {}
 		
-		msg(message:string):ToMatch<T>{
+		msg(message:string):ToMatch<T,R>{
 			this.addMsg = message;
 			return this;
 		}
-		message(message:string):ToMatch<T>{
+		message(message:string):ToMatch<T,R>{
 			this.addMsg = message;
 			return this;
 		}
 
-		check<P>(obj:P):ToMatch<P>{
-			var ret = new ToMatch<P>(obj);
+		check<P>(obj:Promise<P>):ToMatch<P,Promise<P>>
+		check<P>(obj:P):ToMatch<P,P>
+		check<P>(obj:P):ToMatch<P,any>{
+			var ret = new ToMatch<P,any>(obj);
 			ret.addMsg = this.obj+"";
 			return ret;
 		}
 		
-		is(matcher :Matcher<T>) :void
-		is(val:T) :void
-		is(fn :MatcherFactory<T>) :void
+		is(matcher :Matcher<T>) :R
+		is(val:T) :R
+		is(fn :MatcherFactory<T>) :R
 
-		is(val:any) :void {
+		is(val:any) :R {
 			var matcher:Matcher<T> = matcherOrEquals(val);
-			if (!matcher.matches(this.obj)) {
+			if (this.obj && this.obj['then']) {
+				return (<R><any>(<Promise<T>><any>this.obj).then((ret) => {
+					this.intCheck(matcher, ret);
+					return ret;
+				}));
+			} else {
+				this.intCheck(matcher, this.obj);
+				return <R>this.obj;
+			}
+		}
+
+		private intCheck(matcher:Matcher<T>, obj :T) {
+			if (!matcher.matches(obj)) {
 				var app = new Appendable("Assert failure, expecting");
-				matcher.describe(this.obj,app);
+				matcher.describe(obj,app);
 				if (this.addMsg) app.append(" when asserting '" + this.addMsg + "'");
 				var e = new Error(app.msg);
 				if (consoleDump) {
@@ -135,23 +149,26 @@
 
 	type TestValue = null | (any & NotAMatcher);
 
-	export function assert<T extends TestValue>(msg :string):ToMatch<any>	 
-	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void
-	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :T|Matcher<T>|MatcherFactory<T>):void|ToMatch<any> {
+	export function assert<T extends TestValue>(msg :string):ToMatch<any,any>	 
+	export function assert<T extends TestValue>(msg :string, obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
+	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
+	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<any,any> {
 		if (arguments.length == 1) {
-			return new ToMatch<any>(msg);
+			return new ToMatch<any,any>(msg);
 		} else {
-			new ToMatch<any>(msg).check(<T>obj).is(<Matcher<any>>matcher);
+			return new ToMatch<any,any>(msg).check(<T>obj).is(<Matcher<any>>matcher);
 		}
 	}
 
-	export function check<T extends TestValue>(obj :T):ToMatch<T>
-	export function check<T extends TestValue>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):void	
-	export function check<T extends TestValue>(obj :T, matcher? :T|Matcher<T>|MatcherFactory<T>):void|ToMatch<T> {
+	export function check<T extends TestValue>(obj :T):ToMatch<T,T>
+	export function check<T extends TestValue>(obj :Promise<T>):ToMatch<T,Promise<T>>
+	export function check<T extends TestValue>(obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
+	export function check<T extends TestValue>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
+	export function check<T extends TestValue>(obj :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<T,any> {
 		if (arguments.length == 1) {
-			return new ToMatch<T>(obj);
+			return new ToMatch<T, any>(obj);
 		} else {
-			new ToMatch<any>(null).check(<T>obj).is(<Matcher<any>>matcher);
+			return new ToMatch<any,any>(null).check(<T>obj).is(<Matcher<any>>matcher);
 		}
 	}
 

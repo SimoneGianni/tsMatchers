@@ -9,6 +9,8 @@ import '../string';
 import '../throwing';
 import { throwing } from '../throwing';
 import { objectMatching, objectWithKeys } from '../object';
+import { arrayContaining } from '../array';
+import { aNumber } from '../typing';
 
 dumpInConsole(false);
 
@@ -188,9 +190,16 @@ describe("Array >", ()=>{
             if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
         }
     });
+    it('Should match length', ()=>{
+        assert("On assert syntax", [1,2,3], is.array.withLength(3));
+        assert("On assert syntax", [1,2,3], is.array.withLength(3));
+    });
     it('Should match containing', ()=>{
-        assert("On number", [1,2,3], is.array.containing(1));
-        assert("On number matcher", [1,2,3], is.array.containing(is.number()));
+        assert("On number").check([1,2,3]).is(arrayContaining(1));
+        assert("On number is syntax", [1,2,3], is.array.containing(1));
+
+        assert("On number matcher").check([1,2,3]).is(arrayContaining(aNumber));
+        assert("On number matcher is syntax", [1,2,3], is.array.containing(is.number()));
 
         assert("On object matching", [{a:{b:1}},3], is.array.containing(is.object.matching({a:{b:is.number()}})));
     });
@@ -259,4 +268,50 @@ describe('Throwing tests >', () => {
         assert("Alternative syntax").check(() => {throw new Error("test")}).is(throwing(Error));
         check(() => {throw new Error("test")}).is(throwing(Error));
     })
+});
+
+describe('Async tests >', () => {
+    let calls = 0;
+
+    function wait(milliseconds) {
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
+    }    
+    async function getNum(i :number) {
+        await wait(50);
+        calls++;
+        return i;
+    }
+    async function getError() {
+        await wait(50);
+        throw new Error("Test exception");
+    }
+
+    beforeEach(() => {
+        calls = 0;
+    });
+
+    it('Should do proper asserts on async', async () => {
+        await assert("Num is correct", getNum(1), is.number);
+        await assert("Num with long syntax").check(getNum(1)).is(1);
+        await check(getNum(1), 1);
+        try {
+            await assert("Num is wrong", getNum(1), is.function);
+            throw new Error("Should fail the assertion above");
+        } catch (e) {
+            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
+        }
+        
+        const skipped = assert("Num with long syntax").check(getNum(1)).is(1);
+        assert("Done proper calls after skipped", calls, 4);
+        await skipped;
+        assert("Done proper calls as the end", calls, 5);
+    });
+
+    /*
+    // WIP
+    it('Should do proper throwing asserts on async', async () => {
+        await assert("Detecs async error", async () => await getError(), is.throwing("Test exception"));
+
+    });
+    */
 });
