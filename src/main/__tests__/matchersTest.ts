@@ -259,6 +259,7 @@ describe('String tests >', ()=>{
 describe('Throwing tests >', () => {
     it('Should match thowing error', () => {
         assert("Check without any spec", () => {throw new Error("test")}, is.throwing());
+        assert("Check without any spec sync", () => {throw new Error("test")}, is.throwingSync());
         assert("Check with type check", () => {throw new Error("test")}, is.throwing(Error));
         assert("Check with object check", () => {throw new Error("test")}, is.throwing(is.object.matching({message: "test"})));
         assert("Check with message string", () => {throw new Error("test")}, is.throwing("test"));
@@ -282,7 +283,7 @@ describe('Async tests >', () => {
         return i;
     }
     async function getError() {
-        await wait(50);
+        await getNum(1);
         throw new Error("Test exception");
     }
 
@@ -307,11 +308,26 @@ describe('Async tests >', () => {
         assert("Done proper calls as the end", calls, 5);
     });
 
-    /*
-    // WIP
     it('Should do proper throwing asserts on async', async () => {
-        await assert("Detecs async error", async () => await getError(), is.throwing("Test exception"));
+        // Uncommenting these two lines, should give compile error
+        //assert("Test", 1, is.throwing("a"));
+        //assert("Test", () => getNum(1), is.throwingSync("a"));
 
+        await assert("Detecs async error", async () => await getError(), is.throwing("Test exception"));
+        assert("Done proper calls in the middle", calls, 1);
+        const skipped = assert("Detecs async error", async () => await getError(), is.throwing("Test exception"));
+        assert("Done proper calls after skipped", calls, 1);
+        await skipped;
+        assert("Done proper calls as the end", calls, 2);
     });
-    */
+
+    it("Should do proper throwing asserts on plain promise", async () => {
+        // Uncommenting this line should give compile errors
+        //assert("Test", getError(),is.throwing("Test exception"));
+        
+        await assert("Accepts plain promises", () => getError(), is.throwing("Test exception"));
+        const plainPromise = getError();
+        await assert("Accepts plain promises", () => plainPromise, is.throwing("Test exception"));
+        assert("Done proper calls as the end", calls, 2);
+    });
 });

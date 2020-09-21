@@ -416,6 +416,23 @@ And eventually it's also possible to test that these objects have the excepted s
 check(() => object.call(null)).is(throwing(objectMatching({statusCode: 500, message: withLength(greaterThan(0))}))));
 ```
 
+Async methods and promises are also supported:
+
+```javascript
+await check(() => somePromise).is(throwing(Error)); // Note that it needs to be wrapped in a lambda function
+await check(() => someAsyncMethod()).is(throwing(Error));
+await check(async () => await somethingLong()).is(throwing(Error));
+```
+
+Note: TypeScript is not able to properly infer the async or sync type for the throwing matcher,
+so it defaults to returning a Promise. ts-lint with option no-floating-promises may complain about
+lines where the returning promise is not used, in that case throwingSync can be used to coerce
+the sync case.
+
+```javascript
+check(() => nonAsyncMethod()).is(throwingSync(Error)); // Prevents ts-lint from seeing a Promise when it's not there
+```
+
 Building locally
 ================
 
@@ -440,6 +457,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.2 : Async throwing
  * 4.0.1 : Async value checks
  * 4.0.0 : Breaking syntax change, `assert("msg",obj).is(..` removed, `assert("msg").when(obj)` renamed to check, `assert(obj,val)` rnamed to check
  * 3.0.9 : fixes on type checks for object matching
@@ -458,24 +476,6 @@ Release notes
  TODO
  ====
 
-
-Async throwing
---------------
-
-This would allow to write
-```javascript
-await check(async () => { throw "test" }, is.throwing("test"));
-```
-
-To support this, we need the notion of async matchers, that will return a promise, and alter 
-method signature accordingly to allow a wait.
-
-Also, as in the case above, is.throwing would be sometimes a sync and sometimes and async checker,
-delending on the type of the first parameter, which is probably not achievable by typescript type
-system.
-
-So, eventually a syncThrowing variation must be added to avoid tslint no-floating-promises
-complaining about each check.
 
 Implement retry
 ---------------
@@ -510,5 +510,7 @@ More array checks
 -----------------
 
 On array, function like allMatch or noneMatch or similar, that take a matcher and run it on all
-the entries. It's currently doable with array.forEach(v => check(v, is...)), but to have it as a 
-primitive would help.
+the entries. 
+
+It's currently doable with array.forEach(v => check(v, is...)), but to have it as a 
+primitive would help, also considering forEach does not play well with async.

@@ -36,8 +36,12 @@
 	export type MatcherFactory<T> = ()=>Matcher<T>;
 
 	export interface Matcher<T> {
-		matches(obj :T):boolean;
+		matches(obj :T):boolean|Promise<boolean>;
 		describe(obj :any, msg :Appendable) :void;
+	}
+
+	export interface AsyncMatcher<T> extends Matcher<T> {
+		__isAsync: boolean;
 	}
 
 	export class ToMatch<T,R extends T|Promise<T>> {
@@ -61,26 +65,34 @@
 			ret.addMsg = this.obj+"";
 			return ret;
 		}
-		
+
+		is(matcher :AsyncMatcher<R>) :R
+		is(matcher :AsyncMatcher<T>) :Promise<T>
 		is(matcher :Matcher<T>) :R
 		is(val:T) :R
 		is(fn :MatcherFactory<T>) :R
 
-		is(val:any) :R {
+		is(val:any) :R|Promise<any> {
 			var matcher:Matcher<T> = matcherOrEquals(val);
 			if (this.obj && this.obj['then']) {
 				return (<R><any>(<Promise<T>><any>this.obj).then((ret) => {
-					this.intCheck(matcher, ret);
-					return ret;
+					return this.intCheck(matcher, ret);
 				}));
 			} else {
-				this.intCheck(matcher, this.obj);
-				return <R>this.obj;
+				return this.intCheck(matcher, this.obj);
 			}
 		}
 
-		private intCheck(matcher:Matcher<T>, obj :T) {
-			if (!matcher.matches(obj)) {
+		private intCheck(matcher:Matcher<T>, obj :T) :R {
+			let res = matcher.matches(obj);
+			if (res['then']) {
+				return <R><any>(<Promise<boolean>>res).then((res) => this.intFail(matcher,obj,res));
+			}
+			return this.intFail(matcher, obj, <boolean>res);
+		}
+
+		private intFail(matcher:Matcher<T>, obj :T, res :boolean) :R {
+			if (res == false) {
 				var app = new Appendable("Assert failure, expecting");
 				matcher.describe(obj,app);
 				if (this.addMsg) app.append(" when asserting '" + this.addMsg + "'");
@@ -96,6 +108,7 @@
 					throw e;
 				}
 			}
+			return <R>this.obj;
 		}
 	}
 	
@@ -131,7 +144,7 @@
 
 	export abstract class BaseMatcher<T> implements Matcher<T> {
 		__matcherImplementation = true;
-		abstract matches(obj :T) :boolean;
+		abstract matches(obj :T) :boolean|Promise<boolean>;
 
 		describe(obj :any, msg :Appendable) {
 			if (!(<Matcher<T>>this).matches(obj)) {
@@ -151,6 +164,7 @@
 
 	export function assert<T extends TestValue>(msg :string):ToMatch<any,any>	 
 	export function assert<T extends TestValue>(msg :string, obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
+	export function assert<T extends TestValue>(msg :string, obj :T, matcher :AsyncMatcher<T>):Promise<T>
 	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
 	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<any,any> {
 		if (arguments.length == 1) {
@@ -163,6 +177,7 @@
 	export function check<T extends TestValue>(obj :T):ToMatch<T,T>
 	export function check<T extends TestValue>(obj :Promise<T>):ToMatch<T,Promise<T>>
 	export function check<T extends TestValue>(obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
+	export function check<T extends TestValue>(obj :T, matcher :AsyncMatcher<T>):Promise<T>	
 	export function check<T extends TestValue>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
 	export function check<T extends TestValue>(obj :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<T,any> {
 		if (arguments.length == 1) {
