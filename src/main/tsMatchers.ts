@@ -264,19 +264,11 @@
 			var b :any = new ContainerObj();
 			var d :any = seed;
 			d.__matcherFunction = true;
-			// Loose inheritance from ContainerObj
+			// Loose inheritance from ContainerObj, cause we need a function that also has some other things attached
 			for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-			for (var p in ContainerObj.prototype) d[p] = (<any>ContainerObj.prototype)[p];
-			/*
-			// Prototypical inheritance, should be
-			d.prototype = new ContainerObj();
-			d.prototype.constructor = seed;
-			*/
-			/*
-			// How Typescript does
-			var __:any = function __() { this.constructor = d; }
-			d.prototype = (__.prototype = b.prototype,new __());
-			*/
+			Object.getOwnPropertyNames(ContainerObj.prototype)
+				.filter(n => n !== 'constructor')
+				.forEach(p => d[p] = ContainerObj.prototype[p]);
 			return <ContainerObj>d;
 		}
 
