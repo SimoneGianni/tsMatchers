@@ -292,6 +292,7 @@ check(x).is(withLength(greaterThan(2)));
 check(x).is(arrayContaining(10));
 check(x).is(arrayContaining(equalTo(10)));
 check(x).is(arrayContaining(greaterThan(10));
+check(x).is(arrayEachItem(greaterThan(9)));
 
 // using either
 check(x).is(either(withLength(3)).and(arrayContaining(10)));
@@ -301,12 +302,16 @@ All these assertions will pass.
 `withLength(val)` takes a single number and checks the `length` property of `x`.
 
 `arrayContaining(rule)` passes if at least one element of the array matches the given rule. The rule can be any
-matcher expression, and it's even type checked at compile time if the array is type checked, so the following will give
-a compile time error :
+matcher expression.
+
+`arrayEachItem(rule)` instead passes if all the elements of the array match the given rule.
+
+Both are type checked at compile time, so the following will give a compile time error :
 
 ```javascript
 var x :number[] = [10,11,12];
-check(x).is(arrayContaining(equalTo('text'))); // Typescript type error here
+check(x).is(arrayContaining(equalTo('text'))); // Typescript type error here, cause array is numbers and matcher is for strings
+check(x).is(arrayEachItem(equalTo('text'))); // Typescript type error here, same
 ```
 
 In alternative syntax, use `is.array`:
@@ -315,6 +320,7 @@ In alternative syntax, use `is.array`:
 var x :number[] = [10,11,12];
 check(x, is.array.containing(10));
 check(x, is.array.containing(is.greaterThan(11)));
+check(x, is.array.eachItem(is.greaterThan(9)));
 check(x, is.array.withLength(3));
 ```
 
@@ -483,6 +489,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.4 : Array eachItem mathcer
  * 4.0.3 : Bumped versions, increased tests, fixed minor things
  * 4.0.2 : Async throwing
  * 4.0.1 : Async value checks
@@ -525,12 +532,3 @@ await check(() => obj.getX()).retry()
 ```
 
 And can also offer the opposite check, `.while` which is a synonim of `.until(not(...))`.
-
-More array checks
------------------
-
-On array, function like allMatch or noneMatch or similar, that take a matcher and run it on all
-the entries. 
-
-It's currently doable with array.forEach(v => check(v, is...)), but to have it as a 
-primitive would help, also considering forEach does not play well with async.

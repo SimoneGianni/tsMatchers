@@ -33,6 +33,21 @@ import {anArray} from './typing';
 		}
 	}
 	
+	export class ArrayEachItem<T> extends BaseMatcher<T[]> implements Matcher<T[]> {
+		constructor(private sub:Matcher<T>) {super();}
+	
+		matches(obj:T[]) {
+			for (var i = 0; i < obj.length; i++) {
+				if (!this.sub.matches(obj[i])) return false;
+			}
+			return true;
+		}
+		
+		describe(obj :any, msg :Appendable) {
+			msg.append(" an array where each item matches");
+			this.sub.describe(obj,msg);
+		}
+	}
 
 
 	export function withLength(len:number) :WithLength {
@@ -45,6 +60,11 @@ import {anArray} from './typing';
 		return new ArrayContaining<T>(matcherOrEquals(x));
 	}
 	
+	export function arrayEachItem<T>(sub :Matcher<T>) :ArrayEachItem<T>;
+	export function arrayEachItem<T>(val :T) :ArrayEachItem<T>;
+	export function arrayEachItem<T>(x:any) :ArrayEachItem<T> {
+		return new ArrayEachItem<T>(matcherOrEquals(x));
+	}
 
 
 export interface ArrayInterface extends MatcherContainer {
@@ -52,6 +72,7 @@ export interface ArrayInterface extends MatcherContainer {
     equals :typeof arrayEquals;
     // TODO would be better as a chaining a wrapper on "is"
     containing :typeof arrayContaining;
+	eachItem :typeof arrayEachItem;
 
     // TODO would be better as chaining a wrapper on "number"
     withLength :typeof withLength;
@@ -67,6 +88,7 @@ var arrayContainer = ContainerObj.fromFunction(function () { return anArray; });
 
 arrayContainer.registerMatcher('equals', arrayEquals);
 arrayContainer.registerMatcher('containing', arrayContaining);
+arrayContainer.registerMatcher('eachItem', arrayEachItem);
 arrayContainer.registerMatcher('withLength', withLength);
 
 isContainer.registerSub('array', arrayContainer);

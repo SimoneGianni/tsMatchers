@@ -1,4 +1,6 @@
+import { arrayEachItem } from '../array';
 import { assert, is, dumpInConsole, arrayContaining, aNumber, withLength } from '../index';
+import { greaterThan } from '../numbers';
 import { check, equalTo } from '../tsMatchers';
 import { checkMessage } from '../__utils__/testUtils';
 
@@ -20,11 +22,20 @@ describe("Array >", ()=>{
         assert("On number is syntax", [1,2,3], is.array.containing(1));
 
         assert("On number matcher").check([1,2,3]).is(arrayContaining(aNumber));
+        assert("On number oly one element").check([1,"2",{a:3}]).is(arrayContaining(aNumber));
         assert("On number matcher is syntax", [1,2,3], is.array.containing(is.number()));
 
         assert("On object matching", [{a:{b:1}},3], is.array.containing(is.object.matching({a:{b:is.number()}})));
         
         checkMessage([1,2,3], is.array.containing(5), /something.*equal to number 5.*but.*1,2,3/);
+    });
+    it('Should match allItems', ()=>{
+        assert("allItems, all bad").check([3,4,5]).is(arrayEachItem(greaterThan(2)));
+
+        // U_ncommenting the line below should give a compiler error, cause of array of numbers being checked with a string
+        //assert("allItems").check([3,4,5]).is(arrayAllItems(equalTo("ciao")));
+
+        checkMessage([3,4,5], is.array.eachItem(is.greaterThan(3.5)), /each item.*greater than/);
     });
     it("Should match equal arrays", ()=>{
         check([1,2,3], equalTo([1,2,3]));
