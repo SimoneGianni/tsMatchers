@@ -6,10 +6,16 @@ What is it?
 
 A set of typesafe typescript matchers inspired by Hamcrest matchers for junit, to be used for easier and more descriptive test assertions.
 
+- Totally type safe assertions for your unit tests
+- Works with Jest, Mocha, TsUnit and any other unit test framework
+- Zero dependencies
+- Can coexist with any other assertion library
+- 99% of test coverage
+
 Why should i use it?
 --------------------
 
-When developing TypeScript, you often need to write some tests, mostly unit tests. There are currently a number of 
+When developing TypeScript, you often need to write unit tests. There are currently a number of 
 frameworks to write those tests, like Mocha, Jest, TsUnit just to name a few.
 
 However, the assertions in most of those frameworks are not very descriptive nor easy to use. 
@@ -63,15 +69,15 @@ You could prefer to download also the tsMatchersGlobal.ts that redeclares all th
 scope to use them easier. While this is technically "polluting your global namespace", it is intended to be used only
 during tests, and names are chosen not to conflict with anything usually in the global scope, so should not be a real problem.
 
-Moreover, is what some testing frameworks, like jest, are doing.
+Moreover, is what most testing frameworks are doing.
 
 Then use it inside your favorite unit test engine, a failed assertion will throw a runtime exception.
 
 How can I help
 ==============
 
-Feel free to report bugs, wrong documentation, or your ideas on how to improve it in the GitHub issues. Feel also free
-to fork it and send me pull requests with your changes. 
+Feel free to report bugs, wrong documentation, or your ideas on how to improve it in the GitHub issues, fork it and send pull 
+requests with your changes. 
 
 Using assertions
 ================
@@ -107,31 +113,13 @@ assert("This this is true", x, is.equalTo(y));
 
 Or also directly using `check`:
 
-```
+```javascript
 import { check, is } from 'tsmatchers';
 
 //....
 
 check(x, is.equalTo(y));
 
-```
-
-async await
------------
-
-Async methods are supported in all checks, so for example:
-
-```javascript
-async function doSomething() :number {
-  // Your async-await promises code here
-  return 1;
-}
-
-it("Test async", async () => {
-  await assert("Something should be more than 10").check(doSometing()).is(greaterThan(10));
-  // as well as in alternative syntax
-  await check(doSomething(), is.greaterThan(10));
-});
 ```
 
 equalTo(val)
@@ -388,6 +376,24 @@ var x = new Person();
 check(x).is(instanceOf(Person));
 ```
 
+async await
+-----------
+
+Async methods are supported in all checks, so for example:
+
+```javascript
+async function doSomething() :number {
+  // Your async-await promises code here
+  return 1;
+}
+
+it("Test async", async () => {
+  await assert("Something should be more than 10").check(doSometing()).is(greaterThan(10));
+  // as well as in alternative syntax
+  await check(doSomething(), is.greaterThan(10));
+});
+```
+
 Checking exceptions
 -------------------
 
@@ -446,6 +452,12 @@ To run tests run
 
 ```
 npm test
+```
+
+or
+
+```
+npm run watch
 ```
 
 To publish a release
