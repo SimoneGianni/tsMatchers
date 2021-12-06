@@ -457,6 +457,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.3 : Bumped versions, increased tests, fixed minor things
  * 4.0.2 : Async throwing
  * 4.0.1 : Async value checks
  * 4.0.0 : Breaking syntax change, `assert("msg",obj).is(..` removed, `assert("msg").when(obj)` renamed to check, `assert(obj,val)` rnamed to check

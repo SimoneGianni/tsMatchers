@@ -49,10 +49,6 @@
 		
 		constructor(private obj:T) {}
 		
-		msg(message:string):ToMatch<T,R>{
-			this.addMsg = message;
-			return this;
-		}
 		message(message:string):ToMatch<T,R>{
 			this.addMsg = message;
 			return this;
@@ -62,7 +58,7 @@
 		check<P>(obj:P):ToMatch<P,P>
 		check<P>(obj:P):ToMatch<P,any>{
 			var ret = new ToMatch<P,any>(obj);
-			ret.addMsg = this.obj+"";
+			//ret.addMsg = this.obj+"";
 			return ret;
 		}
 
@@ -132,7 +128,12 @@
 		} catch (e) {
 			try {
 				var json = JSON.stringify(obj);
-				msg.append(json);
+				if (json == "null" && obj !== null) {
+					// Some values (like Infinity and NaN for example) are serialized as null to json
+					msg.append(obj + "");
+				} else {
+					msg.append(json);
+				}
 			} catch (e) {
 				msg.append(typeof obj);
 				msg.append(' ');
@@ -195,7 +196,7 @@
 		}
 		
 		describe(obj :any,msg :Appendable) {
-			msg.append(" something equals to " + (typeof this.value) + " ");
+			msg.append(" something equal to " + (typeof this.value) + " ");
 			dump(this.value, msg);
 			super.describe(obj,msg);
 		}
@@ -396,8 +397,10 @@
 		return <Matcher<T>>ret; 
 	}
 	
-	
-	export function equalTo<T>(value:T):Equals<T> {
+	export function equalTo<T>(value:T):Matcher<T> {
+		if (Array.isArray(value)) {
+			return <Matcher<T>> <any>arrayEquals(value);
+		}
 		return new Equals<T>(value);
 	}
 	
@@ -427,8 +430,6 @@
 		constructor(private sub:Matcher<T>) {super();}
 		
 		matches(obj:T) {
-			if (this.nextOr) return this.nextOr.matches(obj);
-			if (this.nextAnd) return this.nextAnd.matches(obj);
 			return this.sub.matches(obj);
 		}
 		
@@ -449,13 +450,7 @@
 			return this.nextAnd;
 		}
 		describe(obj :any, msg :Appendable) {
-			if (this.nextAnd) {
-				this.nextAnd.describe(obj,msg);
-			} else if (this.nextOr) {
-				this.nextOr.describe(obj,msg);
-			} else {
-				this.sub.describe(obj,msg);
-			}
+			this.sub.describe(obj,msg);
 		}
 	}
 	
@@ -486,6 +481,13 @@
 			}
 			return true;
 		}
+
+		and(other:Matcher<T>):CombineAnd<T>;
+		and(val:T):CombineAnd<T>;
+		and(x:any):CombineAnd<T> {
+			this.add(matcherOrEquals(x));
+			return this;
+		}
 	}
 	
 	export class CombineOr<T> extends CombineList<T> implements Matcher<T> {
@@ -496,6 +498,13 @@
 				if (this.list[i].matches(obj)) return true;
 			}
 			return false;
+		}
+
+		or(other:Matcher<T>):CombineOr<T>;
+		or(val:T):CombineOr<T>;
+		or(x:any):CombineOr<T> {
+			this.add(matcherOrEquals(x));
+			return this;
 		}
 	}
 	

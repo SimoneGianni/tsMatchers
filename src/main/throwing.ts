@@ -12,7 +12,7 @@ export class Throwing extends BaseMatcher<Function> implements Matcher<Function>
 	matches(fnc: Function) {
 		try {
 			let ret = (<Function>fnc).call(null);
-			if (ret['then']) {
+			if (ret && ret['then']) {
 				return (<Promise<any>>ret)
 					.then(() => false)
 					.catch((e) => {
@@ -34,9 +34,9 @@ export class Throwing extends BaseMatcher<Function> implements Matcher<Function>
 	}
 
 	describe(obj: any, msg: Appendable) {
-		msg.append(" a function throwing");
+		msg.append(" a function throwing an exception");
 		if (typeof(this.submatch) !== 'undefined') {
-			msg.append(", and thrown exception is");
+			msg.append(" which is");
 			this.submatch.describe(this.found, msg);
 		} else {
 			super.describe(obj, msg);

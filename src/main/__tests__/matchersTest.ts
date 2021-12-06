@@ -1,4 +1,4 @@
-import { assert, check, is, dumpInConsole, either, Matcher, equalTo } from '../tsMatchers';
+import { assert, check, is, dumpInConsole, equalTo, later, report, dump, Appendable } from '../tsMatchers';
 import {lessThan} from '../numbers';
 import '../numbers';
 import '../typing';
@@ -7,10 +7,7 @@ import '../object';
 import '../array';
 import '../string';
 import '../throwing';
-import { throwing } from '../throwing';
-import { objectMatching, objectWithKeys } from '../object';
-import { arrayContaining } from '../array';
-import { aNumber } from '../typing';
+import { checkMessage } from '../__utils__/testUtils';
 
 dumpInConsole(false);
 
@@ -35,6 +32,7 @@ describe("Call test >", ()=>{
         check(1, is.equal(1));
         check(1, equalTo(1));
         check(1).is(equalTo(1));
+        check(1).message("message later").is(1);
     });
 
     it('Should use passed matcher', ()=>{
@@ -62,159 +60,78 @@ describe("Call test >", ()=>{
     });
 
     it('Should work correctly with nulls', ()=>{
-        //assert('null is falsey', null, is.falsey);
+        assert('null is falsey', null, is.falsey);
         assert('null is null', null, null);
         check(null).is(null);
         assert('null is null, long').check(null).is(null);
         check(null,null);
     });
-});
 
-describe("Object >", ()=>{
-    let objA = {a:1};
-    let objB = {b:2};
-    let objAB :{a:number,b:number} = {a:1, b:2};
-    let objBinA :{a: typeof objB} = {a:objB};
-    let objBCinA = {a:{c:1,b:2}};
-    it('Should simply match that it is an object', ()=>{
-        assert("simple is type", {}, is.object);
-        assert("simple is type", {}, is.object());
-    });
-    it('Should match plain object structure', ()=>{
-        assert("simple values", {a:1}, is.object.matching({a:1}));
-        assert("ignore additional",  objAB, is.object.matching({a:1}));
-        assert("nested values", {a:{b:1}}, is.object.matching({a:{b:1}}));
-        assert("keys check", {a:1,b:1}, is.object.withKeys('a'));
-    });
-    it('Should match structure with matchers', ()=>{
-        assert("simple values", objA, is.object.matching({a:is.number()}));
-        assert("ignore additional", objAB, is.object.matching({a:is.number}));
-        assert("nested values with any matcher", objBinA, is.object.matching({a:{b: is.truthy()}}));
-        assert("nested values with specific matcher", objBinA, is.object.matching({a:{b:is.number()}}));
-    });
-    it('Should match structure with chained syntax', ()=>{
-        assert("simple values").check(objA).is(objectMatching({a:is.number()}));
-        assert("ignore additional").check(objAB).is(objectMatching({a:is.number}));
-        assert("nested values with any matcher").check(objBinA).is(objectMatching({a:{b: is.truthy()}}));
-        assert("nested values with specific matcher").check(objBinA).is(objectMatching({a:{b:is.number()}}));
-        assert("simple values").check({a:1}).is(objectMatching({a:1}));
-        assert("ignore additional").check( objAB).is(objectMatching({a:1}));
-        assert("nested values").check({a:{b:1}}).is(objectMatching({a:{b:1}}));
-        assert("keys check").check({a:1,b:1}).is(objectWithKeys('a'));
-    });
-    it('Should match enums', () => {
-        enum Types {
-            A, B
-        }
-        interface WithType {
-            type :Types;
-            other :string;
-        }
-        const obj :WithType = {type: Types.A, other:"any"};
-
-        // Uncommenting these lines, must give error, to highlight that typesafe check are working
-        /*
-        assert("matches valid enum plain syntax", obj, is.object.matching({type:Types.A, zz:2}));
-        check(obj, is.object.matching({type:Types.A, zz:2}));
-        check(obj).is(objectMatching({type:Types.A, zz:2}));
-        */
-
-        assert("matches valid enum plain syntax", obj, is.object.matching({type:Types.A}));
-        check(obj, is.object.matching({type:Types.A}));
-        check(obj).is(objectMatching({type:Types.A}));
-        try {
-            assert("msg", obj, is.object.matching({type:Types.B}));
-            throw new Error("should complain invalid enum plain syntax");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
-        try {
-            check(obj).is(objectMatching({type:Types.B}));
-            throw new Error("should complain invalid chained syntax");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
-        
-    });
-
-    it('Should obey strictly', ()=>{
-        assert("simple values", {a:1}, is.strictly.object.matching({a:is.number}));
-        try {
-            assert("complain on additional", objAB, is.strictly.object.matching({a:is.number}));
-            throw new Error("Should complain on additional");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
-        try {
-            assert("complain on nested additional", objBCinA, is.strictly.object.matching({a:{b:3}}));
-            throw new Error("Should complain on nested additional");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
-        try {
-            assert("complain on extra keys", {a:1,b:1}, is.strictly.object.withKeys('a'));
-            throw new Error("Should complain on extra keys");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
-    });
-    it('Should not complain on undefined values', ()=>{
-        var obj = {
-            a:1,
-            b:null,
-            c:undefined
-        };
-        assert("Should not complain", obj, is.strictly.object.matching({a:1,b:null}));
-        try {
-            assert("still complain on null", obj, is.strictly.object.matching({a:1}));
-            throw new Error("Should still complain on null");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
+    it('Should report message, if any', ()=>{
+        const consoleMock = jest.spyOn(global.console, "error").mockImplementation(() => {})
+        dumpInConsole(true);
+        checkMessage(1,2, /but was 1$/);
+        dumpInConsole(false);
+        assert("Console.error called", consoleMock.mock.calls, is.array.withLength(1));
+        consoleMock.mockRestore();
     });
 });
 
-describe("Array >", ()=>{
-    it('Should match array type', ()=>{
-        assert('On plain array', [], is.array());
-        try {
-            assert('On number', 1, is.array());
-            throw new Error("Should complain on number");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
-        try {
-            assert('On string', 'ciao', is.array());
-            throw new Error("Should complain on string");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
+describe("Dump tests", ()=>{
+    it("Dump using json", ()=>{
+        var msg = new Appendable();
+        dump({a:"something"}, msg);
+        check(msg.msg, '{"a":"something"}');
     });
-    it('Should match length', ()=>{
-        assert("On assert syntax", [1,2,3], is.array.withLength(3));
-        assert("On assert syntax", [1,2,3], is.array.withLength(3));
-    });
-    it('Should match containing', ()=>{
-        assert("On number").check([1,2,3]).is(arrayContaining(1));
-        assert("On number is syntax", [1,2,3], is.array.containing(1));
-
-        assert("On number matcher").check([1,2,3]).is(arrayContaining(aNumber));
-        assert("On number matcher is syntax", [1,2,3], is.array.containing(is.number()));
-
-        assert("On object matching", [{a:{b:1}},3], is.array.containing(is.object.matching({a:{b:is.number()}})));
+    it("Dump using fallback", ()=>{
+        var msg = new Appendable();
+        var obj :any = {a:"something"};
+        obj.b = obj;
+        dump(obj, msg);
+        check(msg.msg, 'object [object Object]');
     });
 });
 
-describe("Basic strictly >", ()=>{
+describe("Strictly and loosely >", ()=>{
     it('Should obey strictly equals', ()=>{
         assert("on string", "1", is.equal("1"));
-        try {
-            assert("on string", "1", is.strictly.equal(new String("1")));
-            throw new Error("Should fail the assertion above");
-        } catch (e) {
-            if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;
-        }
+        checkMessage("1", is.strictly.equal(new String("1")), /exactly equal.*"1".*but was "1"/);
     });
+    it("Should loosely equal match", ()=>{
+        assert("string and number", "1", is.looselyEqualTo(1));
+        checkMessage("1", is.looselyEqualTo(2), /equal to number 2 but was "1"/);
+    });
+});
+
+describe("Truthy and falsey, true and false", ()=>{
+    it("Should match truthy vs true", ()=>{
+        assert("1 is truthy", 1, is.truthy);
+        checkMessage(0, is.truthy, /a truthy value.*but was 0/);
+        checkMessage(1, <any>is.true, /exactly equal to boolean true.*but was 1/);
+    });
+    it("Should match falsey vs false", ()=>{
+        assert("0 is falsey", 0, is.falsey);
+        checkMessage(1, is.falsey, /not a truthy value.*but was 1/);
+        checkMessage(0, <any>is.false, /exactly equal to boolean false.*but was 0/);
+    });
+});
+
+describe("Either - and - or", ()=>{
+    it("Should combine on or", ()=>{
+        assert("Or combined", 1, is.either(is.greaterThan(5)).or(is.lessThan(4)));
+        assert("Or combined", 6, is.either(is.greaterThan(5)).or(is.lessThan(4)));
+        assert("Or combined", 6, is.either(is.greaterThan(5)).or(is.lessThan(4)).or(is.nan()));
+        checkMessage(4.5, is.either(is.greaterThan(5)).or(is.lessThan(4)), /a number greater than 5.*or a number less than 4.*but was 4.5/s);
+    });
+    it("Should combine on and", ()=>{
+        assert("And combined", 4.5, is.either(is.lessThan(5)).and(is.greaterThan(4)));
+        assert("And combined", 4.5, is.either(is.lessThan(5)).and(is.greaterThan(4)).and(is.finite()));
+        checkMessage(6, is.either(is.lessThan(5)).and(is.greaterThan(4)), /a number less than 5.*but was 6.*and a number greater than 4/s);
+    });
+    it("Not combined", ()=>{
+        assert("And combined", 4.5, is.either(is.lessThan(5)));
+        checkMessage(6, is.either(is.lessThan(5)), /a number less than 5.*but was 6/s);
+    })
 });
 
 describe("Not tests >", ()=>{
@@ -238,37 +155,6 @@ describe("Not tests >", ()=>{
         assert("on plain array", {}, is.not.array());
         assert("on length", ['a'], is.not.array.withLength(5));
     });
-});
-
-describe('String tests >', ()=>{
-    it('Should match regexp', ()=>{
-        assert("Checks a string", 'ciao', is.string());
-        assert("match pattern", 'ciao', is.string.matching('^c.*'));
-        assert("match re", 'ciao', is.string.matching(/^c.*/));
-    });
-    it('Should match length', ()=>{
-        assert("Length", 'ciao', is.string.withLength(4));
-        assert("Length with lessThan", 'ciao', is.string.withLength(is.lessThan(10)));
-        assert("Length with greaterThan", 'ciao', is.string.withLength(is.greaterThan(2)));
-    });
-    it('Should match containing', ()=>{
-        assert("containing", 'ciao', is.string.containing('ia'));
-    })
-});
-
-describe('Throwing tests >', () => {
-    it('Should match thowing error', () => {
-        assert("Check without any spec", () => {throw new Error("test")}, is.throwing());
-        assert("Check without any spec sync", () => {throw new Error("test")}, is.throwingSync());
-        assert("Check with type check", () => {throw new Error("test")}, is.throwing(Error));
-        assert("Check with object check", () => {throw new Error("test")}, is.throwing(is.object.matching({message: "test"})));
-        assert("Check with message string", () => {throw new Error("test")}, is.throwing("test"));
-        assert("Check with message regexp", () => {throw new Error("test")}, is.throwing(/te.*/));
-        assert("Check with type and object check", () => {throw new Error("test")}, is.throwing(either(is.instanceOf(Error)).and(is.object.matching({message: "test"}))));
-
-        assert("Alternative syntax").check(() => {throw new Error("test")}).is(throwing(Error));
-        check(() => {throw new Error("test")}).is(throwing(Error));
-    })
 });
 
 describe('Async tests >', () => {
@@ -329,5 +215,21 @@ describe('Async tests >', () => {
         const plainPromise = getError();
         await assert("Accepts plain promises", () => plainPromise, is.throwing("Test exception"));
         assert("Done proper calls as the end", calls, 2);
+    });
+});
+
+describe("Report later", ()=>{
+    it("Should do nothing is no errors", ()=>{
+        later();
+        report();
+    });
+    it("Should collect errors and report them later", ()=>{
+        later();
+        check(1, 2);
+        try {
+            report();
+        } catch (e) {
+            assert("Error is in the message", e, is.object.matching({message: is.string.matching(/equal to number 2 but was 1/)}));
+        }
     });
 });

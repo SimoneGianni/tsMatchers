@@ -81,8 +81,8 @@ export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
         if (obj && this.strict) {
             for (var k in obj) {
                 var matcher = this.def[k];
-                if (!matcher) {
-                    msg.append(k + " should not be there\n");
+                if (!matcher && typeof obj[k] !== "undefined") {
+                    msg.append("\n" + k + " should not be there");
                 }
             }
         }
@@ -127,7 +127,6 @@ declare module './strictly' {
 }
 
 var objectContainer = ContainerObj.fromFunction(function () { return anObject; });
-//var objectImpl :ObjectInterface = <any>objectContainer;
 
 objectContainer.registerMatcher('matching', objectMatching);
 objectContainer.registerMatcher('withKeys', objectWithKeys);
@@ -135,9 +134,3 @@ objectContainer.registerMatcher('withKeys', objectWithKeys);
 isContainer.registerSub('object', objectContainer);
 
 (<ContainerObj><any>is.strictly).registerSub('object', objectContainer.createWrapper((m)=>(<MatchObject<any>>m).asStrict()));
-
-//registerWrapper(is.strictly, 'object', makeWrapper(objectImpl, (m)=>(<MatchObject>m).asStrict()));
-
-// TODO these should not be here if wrappers could wrap wrappers
-//registerWrapper(is.not, 'object', makeWrapper(objectImpl, (m)=>not(m)));
-//registerWrapper(is.not.strictly, 'object', makeWrapper(objectImpl, (m)=>not(m)));

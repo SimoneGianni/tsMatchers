@@ -48,12 +48,12 @@ export class StringLength extends BaseMatcher<string> implements Matcher<string>
     
     describe(obj :any, msg :Appendable) {
         if (typeof(this.len) === 'number') {
-            msg.append(" a string with length \"" + this.len + "\"");
-            super.describe(obj,msg);
+            msg.append(" a string with length " + this.len);
         } else {
             msg.append(" a string with length");
             this.len.describe(obj ? obj.length : obj, msg);
         }
+        super.describe(obj,msg);
     }
 }
 

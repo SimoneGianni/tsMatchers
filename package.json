@@ -1,6 +1,6 @@
 {
     "name": "tsmatchers",
-    "version": "4.0.2",
+    "version": "4.0.3",
     "devDependencies": {
         "@babel/core": "^7.16.0",
         "@babel/preset-env": "^7.16.0",
@@ -14,7 +14,8 @@
     },
     "scripts": {
         "build": "rm -fR js && tsc",
-        "test": "jest"
+        "test": "jest",
+        "watch": "jest --watchAll"
     },
     "license": "ASL 2.0",
     "repository": {

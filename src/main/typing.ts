@@ -22,7 +22,8 @@ export class InstanceOf extends BaseMatcher<any> implements Matcher<any> {
 	}
 
 	describe(obj: any, msg: Appendable) {
-		msg.append(" an instance of " + this.type);
+		var name = this.type.name || (this.type.constructor && this.type.constructor.name) || (this.type + "");
+		msg.append(" an instance of " + name);
 		super.describe(obj, msg);
 	}
 }

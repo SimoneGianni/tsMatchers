@@ -10,6 +10,7 @@ export class Not<T> extends BaseMatcher<T> implements Matcher<T> {
     describe(obj: any, msg: Appendable) {
         msg.append(" not");
         this.sub.describe(obj, msg);
+        super.describe(obj, msg);
     }
 }
 

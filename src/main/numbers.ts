@@ -94,7 +94,7 @@ export class IsFinite extends BaseMatcher<number> implements Matcher<number> {
 	}
 
 	describe(obj: any, msg: Appendable) {
-		msg.append(" an finite value");
+		msg.append(" a finite value");
 		super.describe(obj, msg);
 	}
 }

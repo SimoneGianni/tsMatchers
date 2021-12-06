@@ -63,27 +63,10 @@ declare module './tsMatchers' {
     }
 }
 
-/*
-declare module './strictly' {
-    export interface StrictlyInterface {
-        array :ArrayInterface;
-    }
-}
-*/
-
 var arrayContainer = ContainerObj.fromFunction(function () { return anArray; });
-//var objectImpl :ArrayInterface = <any>arrayContainer;
 
 arrayContainer.registerMatcher('equals', arrayEquals);
 arrayContainer.registerMatcher('containing', arrayContaining);
 arrayContainer.registerMatcher('withLength', withLength);
 
 isContainer.registerSub('array', arrayContainer);
-
-//(<ContainerObj><any>is.strictly).registerSub('object', objectContainer.createWrapper((m)=>(<MatchObject>m).asStrict()));
-
-//registerWrapper(is.strictly, 'object', makeWrapper(objectImpl, (m)=>(<MatchObject>m).asStrict()));
-
-// TODO these should not be here if wrappers could wrap wrappers
-//registerWrapper(is.not, 'object', makeWrapper(objectImpl, (m)=>not(m)));
-//registerWrapper(is.not.strictly, 'object', makeWrapper(objectImpl, (m)=>not(m)));
