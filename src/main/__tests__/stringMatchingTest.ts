@@ -20,7 +20,13 @@ describe('String tests >', ()=>{
 
     });
     it('Should match containing', ()=>{
-        assert("containing", 'ciao', is.string.containing('ia'));
+        assert("containing is syntax", 'ciao', is.string.containing('ia'));
+        assert("containing multiple is syntax", 'ciao a tutti', is.string.containing('ia','tut'));
+        assert("containing multiple attached is syntax", 'ciao a tutti', is.string.containing('ia','o '));
+
+        checkMessage('ciao', is.string.containing('zz'), /containing "zz".*but was "ciao"/);
+        checkMessage('ciao a tutti', is.string.containing('zz','yy'), /containing "zz".*followed.*"yy".*but was "ciao.*/);
+
     });
     it("Should match startsWith", ()=>{
         assert("start with").check("whatever").is(stringStartingWith("what"));

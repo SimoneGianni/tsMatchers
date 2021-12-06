@@ -4,16 +4,25 @@ import {ofType} from './typing';
 import './strictly'; // Need this not to make declare module below to fail in .d.ts
 
 export class StringContaining extends BaseMatcher<string> implements Matcher<string> {
-    constructor(private sub:string) {super();}
+    constructor(private sub:string[]) {super();}
 
     matches(obj:string) {
         if (!obj) return false;
         if (typeof obj !== 'string') return false;
-        return obj.indexOf(this.sub) > -1;
+        var lastIndex = 0;
+        return this.sub.map(s => lastIndex = obj.indexOf(s, lastIndex))
+            .filter(v => v == -1)
+            .length == 0;
     }
     
     describe(obj :any, msg :Appendable) {
-        msg.append(" a string containing \"" + this.sub + "\"");
+        msg.append(" a string containing ");
+        this.sub.forEach((s,i) => {
+            if (i > 0) {
+                msg.append(" followed by ");
+            }
+            msg.append("\"" + s + "\"");
+        });
         super.describe(obj,msg);
     }
 }
@@ -88,7 +97,7 @@ export class StringLength extends BaseMatcher<string> implements Matcher<string>
 }
 
 
-export function stringContaining(sub:string) :StringContaining {
+export function stringContaining(...sub :string[]) :StringContaining {
     return new StringContaining(sub);
 }
 
@@ -129,14 +138,6 @@ declare module './tsMatchers' {
         string: StringInterface;
     }
 }
-
-/*
-declare module './strictly' {
-    export interface StrictlyInterface {
-        string :StringInterface;
-    }
-}
-*/
 
 var stringContainer = ContainerObj.fromFunction(function () { return aString; });
 
