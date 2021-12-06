@@ -18,6 +18,36 @@ export class StringContaining extends BaseMatcher<string> implements Matcher<str
     }
 }
 
+export class StringStartsWith extends BaseMatcher<string> implements Matcher<string> {
+    constructor(private sub:string) {super();}
+
+    matches(obj:string) {
+        if (!obj) return false;
+        if (typeof obj !== 'string') return false;
+        return obj.indexOf(this.sub) === 0;
+    }
+    
+    describe(obj :any, msg :Appendable) {
+        msg.append(" a string starting with \"" + this.sub + "\"");
+        super.describe(obj,msg);
+    }
+}
+
+export class StringEndsWith extends BaseMatcher<string> implements Matcher<string> {
+    constructor(private sub:string) {super();}
+
+    matches(obj:string) {
+        if (!obj) return false;
+        if (typeof obj !== 'string') return false;
+        return obj.endsWith(this.sub);
+    }
+    
+    describe(obj :any, msg :Appendable) {
+        msg.append(" a string ending with \"" + this.sub + "\"");
+        super.describe(obj,msg);
+    }
+}
+
 export class StringMatching extends BaseMatcher<string> implements Matcher<string> {
     constructor(private re:RegExp) {super();}
 
@@ -62,6 +92,14 @@ export function stringContaining(sub:string) :StringContaining {
     return new StringContaining(sub);
 }
 
+export function stringStartingWith(sub:string) :StringStartsWith {
+    return new StringStartsWith(sub);
+}
+
+export function stringEndingWith(sub:string) :StringEndsWith {
+    return new StringEndsWith(sub);
+}
+
 export function stringLength(len:number|Matcher<number>) :StringLength {
     return new StringLength(len);
 }
@@ -81,6 +119,8 @@ export interface StringInterface extends MatcherContainer {
     ():typeof aString;
     matching: typeof stringMatching;
     containing: typeof stringContaining;
+    starting: typeof stringStartingWith;
+    ending: typeof stringEndingWith;
     withLength: typeof stringLength;
 }
 
@@ -99,19 +139,11 @@ declare module './strictly' {
 */
 
 var stringContainer = ContainerObj.fromFunction(function () { return aString; });
-//var objectImpl :StringInterface = <any>stringContainer;
 
 stringContainer.registerMatcher('matching', stringMatching);
 stringContainer.registerMatcher('containing', stringContaining);
+stringContainer.registerMatcher('starting', stringStartingWith);
+stringContainer.registerMatcher('ending', stringEndingWith);
 stringContainer.registerMatcher('withLength', stringLength);
 
-
 isContainer.registerSub('string', stringContainer);
-
-//(<ContainerObj><any>is.strictly).registerSub('object', stringContainer.createWrapper((m)=>(<MatchObject>m).asStrict()));
-
-//registerWrapper(is.strictly, 'object', makeWrapper(objectImpl, (m)=>(<MatchObject>m).asStrict()));
-
-// TODO these should not be here if wrappers could wrap wrappers
-//registerWrapper(is.not, 'object', makeWrapper(objectImpl, (m)=>not(m)));
-//registerWrapper(is.not.strictly, 'object', makeWrapper(objectImpl, (m)=>not(m)));

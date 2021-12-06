@@ -321,13 +321,26 @@ check(x, is.array.withLength(3));
 Strings
 -------
 
-A string length can be checked with `withLength`, and you can check for sub-strings using `stringContaining` :
+A string length can be checked with the following matchers:
+- `stringLength`, to make sure of the length, which also accepts combining other matchers
+- `stringContaining`, to check substrings
+- `stringStartsWith` and `stringEndsWith` to check starting and ending parts
 
 ```javascript
-var x = 'Test';
+var x = 'Testing';
 check(x).is(aString); // Useless in this case
-check(x).is(withLength(4));
+check(x).is(stringLength(4));
+check(x).is(stringLength(greaterThan(3))); // Supports using a number matcher
 check(x).is(stringContaining('est'));
+check(x).is(stringStartsWith('Tes'));
+check(x).is(stringEndsWith('ing'));
+
+// Alternative syntax
+check(x, is.withLength(4));
+check(x, is.withLength(greaterThan(3))); // Supports using a number matcher
+check(x, is.containing('est'));
+check(x, is.starting('Tes'));
+check(x, is.ending('ing'));
 ```
 
 Objects
@@ -511,13 +524,6 @@ await check(() => obj.getX()).retry()
 ```
 
 And can also offer the opposite check, `.while` which is a synonim of `.until(not(...))`.
-
-More checks
------------
-
-A number of other checks can be added to the current matchers, for example:
-- string.startsWith
-- string.endsWith
 
 More array checks
 -----------------
