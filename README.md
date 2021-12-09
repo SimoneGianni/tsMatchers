@@ -414,6 +414,43 @@ it("Test async", async () => {
 });
 ```
 
+Retry
+-----
+
+There are times when async operations may take time to complete, and a given check needs to
+be retries few times before it eventually returns the correct value.
+
+A check can be retried using `retry()` (or `is.retrying()`), for example:
+```javascript
+mylib.downloadFile();       // Start some async long running operation
+await check(                // Retry is always an async operation, so we use await
+  ()=>                      // Always need a function wrapping our call to that is can be retried
+    mylib.getFile()         // getFile() is a method that will return a value only after some time 
+).is(
+  retry()                   // So we retry the check ...
+    .upTo(3, "seconds")     // .. up to 3, after that time it will fail ..
+    .wait(1, "seconds")     // .. initially waiting one second .. 
+    .every(100, "millis")   // .. then retry every 100 millis ..
+    .until(is.truthy);      // until something is returned
+)
+```
+
+More formally: `retry()` will setup a retry operation that will asynchronously execute a function over and over at
+specific intervals, until the return value does not match a specified matcher or a given timeout is reached.
+
+This means that `retry()`:
+1. needs a function, that will be executed multiple times .. using it on a static value is pointless and causes a compiler error
+2. it is always an asynchronous operation, so it must be used with `await` or other proper handling for async tests
+3. the actual check to perform on the returned value is specified using `.until(condition)`, any available matcher can be used
+
+`retry()` can be configured with the following methods:
+- `.upTo(val[,unit])` : how long to retry, by default if not specified it's 1.5 seconds
+- `.every(val[,unit])` : how much to wait between retries, by default if not specified 100 ms
+- `.wait(val[,unit])` : how much to wait before the first try, by default is 0 and first try happens immediately
+
+Each of the three methods accepts a value and a unit, the unit can be "millis", "seconds", "minutes" or "hours", or their
+shorter versions "ms", "s", "m", "h".
+
 Checking exceptions
 -------------------
 
@@ -489,6 +526,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.5 : Retry, minor bug on reporting assertion message
  * 4.0.4 : Array eachItem mathcer
  * 4.0.3 : Bumped versions, increased tests, fixed minor things
  * 4.0.2 : Async throwing
@@ -510,25 +548,14 @@ Release notes
  TODO
  ====
 
+More fluent interface
+---------------------
 
-Implement retry
----------------
-
-Once async functions are accepted, they could be retried to support ongoing activities in E2E tests:
-
-```javascript
-await check(() => obj.getX()).retry().until(equalTo(that));
-```
-
-the `retry` could expose some more methods to tweak the retry policy, like:
+Like `.to.be` and similar constructs, we already have the `is` interface and the container for matchers, but we need 
+to somehow chain it with the value. Syntax would be something like:
 
 ```javascript
-await check(() => obj.getX()).retry()
-  .upTo(5, "seconds")
-  .upTo(10, "times")
-  .every(100, "ms")
-  .wait(1, "second")
-  .until(..);
-```
+check("str").is().string.withLength(3);
 
-And can also offer the opposite check, `.while` which is a synonim of `.until(not(...))`.
+await check(() => somethingAsync()).is().throwing(AnError);
+```

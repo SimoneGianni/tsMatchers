@@ -45,9 +45,9 @@
 	}
 
 	export class ToMatch<T,R extends T|Promise<T>> {
-		private addMsg :string;
+		private obj:T
 		
-		constructor(private obj:T) {}
+		constructor(private addMsg :string) {}
 		
 		message(message:string):ToMatch<T,R>{
 			this.addMsg = message;
@@ -57,8 +57,8 @@
 		check<P>(obj:Promise<P>):ToMatch<P,Promise<P>>
 		check<P>(obj:P):ToMatch<P,P>
 		check<P>(obj:P):ToMatch<P,any>{
-			var ret = new ToMatch<P,any>(obj);
-			//ret.addMsg = this.obj+"";
+			var ret = new ToMatch<P,any>(this.addMsg);
+			ret.obj = obj;
 			return ret;
 		}
 
@@ -182,7 +182,7 @@
 	export function check<T extends TestValue>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
 	export function check<T extends TestValue>(obj :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<T,any> {
 		if (arguments.length == 1) {
-			return new ToMatch<T, any>(obj);
+			return new ToMatch<T, any>(null).check(<T>obj);
 		} else {
 			return new ToMatch<any,any>(null).check(<T>obj).is(<Matcher<any>>matcher);
 		}
@@ -240,9 +240,10 @@
 
 	export type MatcherTransformer<T> = (base :Matcher<T>)=>Matcher<T>;
 	export type MatcherFunction<T> = (...args :any[])=>Matcher<T>;
+	export type MatcherBuilder<T> = ()=>T|any; // Should be "a function returning an object that has a function that produces a Matcher<T>"
 
 	export interface MatcherContainer {
-		[index:string]:MatcherFunction<any>|MatcherContainer;
+		[index:string]:MatcherFunction<any>|MatcherContainer|MatcherBuilder<any>;
 	}
 
 	var ContainerObjCnt = 1;
@@ -273,7 +274,7 @@
 			return <ContainerObj>d;
 		}
 
-		registerMatcher(name :string, fn :MatcherFunction<any>|Matcher<any>) {
+		registerMatcher(name :string, fn :MatcherFunction<any>|MatcherBuilder<any>|Matcher<any>) {
 			var func :MatcherFunction<any> = null; 
 			if (typeof fn == 'function') {
 				func = <()=>Matcher<any>>fn;
