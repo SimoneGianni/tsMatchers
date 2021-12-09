@@ -65,19 +65,11 @@ import { check, equalTo } from 'tsmatchers';
 check(x).is(equalTo(y));
 ```
 
-You could prefer to download also the tsMatchersGlobal.ts that redeclares all the useful matching functions in the global
-scope to use them easier. While this is technically "polluting your global namespace", it is intended to be used only
-during tests, and names are chosen not to conflict with anything usually in the global scope, so should not be a real problem.
-
-Moreover, is what most testing frameworks are doing.
-
-Then use it inside your favorite unit test engine, a failed assertion will throw a runtime exception.
-
 How can I help
 ==============
 
-Feel free to report bugs, wrong documentation, or your ideas on how to improve it in the GitHub issues, fork it and send pull 
-requests with your changes. 
+Please star the project. Report bugs, wrong or not clear documentation, or your ideas on how to improve it in the GitHub issues, 
+and eventually fork it and send pull requests with your changes. 
 
 Using assertions
 ================
@@ -251,7 +243,7 @@ check(x).is(either(aNumber).or(aBoolean));
 check(x).is(either(aNumber).and(equalTo(10));
 ```
 
-This works also with the alternative syntax but it's bit more convoluted:
+This works also with the alternative compact syntax but it's bit more convoluted:
 ```
 check(x, is.either(is.aNumber).or(is.aBoolean));
 ```
@@ -281,7 +273,8 @@ check(b).is(greaterThan(25,true)); // Will pass because of the boolean true maki
 Arrays
 ------
 
-You can check an array length with `withLength` and if it contains specific values with `arrayContaining`.
+You can check an array length with `withLength`, if it contains specific values with `arrayContaining`, and 
+if all elements of an array conform to a rule using `arrayEachItem`.
 
 For example :
 ```javascript
@@ -299,7 +292,7 @@ check(x).is(either(withLength(3)).and(arrayContaining(10)));
 ```
 All these assertions will pass.
 
-`withLength(val)` takes a single number and checks the `length` property of `x`.
+`withLength(rule)` takes a single number and checks the `length` property of the array.
 
 `arrayContaining(rule)` passes if at least one element of the array matches the given rule. The rule can be any
 matcher expression.
