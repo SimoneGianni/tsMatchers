@@ -1,5 +1,5 @@
-import {MatcherContainer, isContainer, ContainerObj, exactly} from './tsMatchers';
 import './not'; // Need this not to make declare module below to fail in .d.ts
+import { ContainerObj, exactly, isContainer, MatcherContainer } from './tsMatchers';
 
 export interface StrictlyInterface extends MatcherContainer {
     equal :typeof exactly;
@@ -9,7 +9,7 @@ export interface OuterStrictly extends StrictlyInterface {
 
 }
 
-var strictlyContainer = new ContainerObj();
+export var strictlyContainer = new ContainerObj();
 isContainer.registerSub('strictly', strictlyContainer);
 //var notStrictly = makeWrapper(strictly, (m)=>not(m));
 

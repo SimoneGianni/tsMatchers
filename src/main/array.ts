@@ -1,5 +1,5 @@
-import {BaseMatcher, Matcher, Appendable, isContainer, ContainerObj, MatcherContainer, matcherOrEquals, arrayEquals} from './tsMatchers';
-import {anArray} from './typing';
+import { Appendable, arrayEquals, BaseMatcher, ContainerObj, isContainer, Matcher, MatcherContainer, MatcherFactory, matcherOrEquals } from './tsMatchers';
+import { anArray } from './typing';
 
 
 	// TODO make this more flexible, accepting a sub, like withLength(greaterThat(10)) etc..
@@ -49,6 +49,32 @@ import {anArray} from './typing';
 		}
 	}
 
+	export class ArrayMatching<T> extends BaseMatcher<T[]> implements Matcher<T[]> {
+		constructor(private allMatchers :Matcher<T>[]) {super();}
+	
+		matches(obj:T[]) {
+			if (obj.length != this.allMatchers.length) return false;
+			for (var i = 0; i < obj.length; i++) {
+				if (!this.allMatchers[i].matches(obj[i])) return false;
+			}
+			return true;
+		}
+		
+		describe(obj :any, msg :Appendable) {
+			if (obj.length != this.allMatchers.length) {
+				msg.append(" an array with " + this.allMatchers.length + " items");
+				return;
+			}
+			msg.append(" an array ");
+			for (var i = 0; i < obj.length; i++) {
+				if (!this.allMatchers[i].matches(obj[i])) {
+					msg.append(" with item " + i);
+					this.allMatchers[i].describe(obj[i],msg);
+				}
+			}
+		}
+	}
+
 
 	export function withLength(len:number) :WithLength {
 		return new WithLength(len);
@@ -66,6 +92,10 @@ import {anArray} from './typing';
 		return new ArrayEachItem<T>(matcherOrEquals(x));
 	}
 
+	export function arrayMatching<T>(allMatchers :(T|Matcher<T>|MatcherFactory<T>)[]) :ArrayMatching<T> {
+		return new ArrayMatching<T>(allMatchers.map(x => matcherOrEquals(x)));
+	}
+
 
 export interface ArrayInterface extends MatcherContainer {
     ():typeof anArray;
@@ -73,7 +103,7 @@ export interface ArrayInterface extends MatcherContainer {
     // TODO would be better as a chaining a wrapper on "is"
     containing :typeof arrayContaining;
 	eachItem :typeof arrayEachItem;
-
+	matching :typeof arrayMatching;
     // TODO would be better as chaining a wrapper on "number"
     withLength :typeof withLength;
 }
@@ -90,5 +120,6 @@ arrayContainer.registerMatcher('equals', arrayEquals);
 arrayContainer.registerMatcher('containing', arrayContaining);
 arrayContainer.registerMatcher('eachItem', arrayEachItem);
 arrayContainer.registerMatcher('withLength', withLength);
+arrayContainer.registerMatcher('matching', arrayMatching);
 
 isContainer.registerSub('array', arrayContainer);

@@ -1,7 +1,8 @@
-import {BaseMatcher, Matcher, Appendable, is, isContainer, ContainerObj, MatcherContainer, MatcherFactory, matcherOrEquals} from './tsMatchers';
-import {anObject, definedValue} from './typing';
+import { Appendable, BaseMatcher, ContainerObj, isContainer, Matcher, MatcherContainer, MatcherFactory, matcherOrEquals } from './tsMatchers';
+import { anObject, definedValue } from './typing';
 
 import './strictly'; // Need this not to make declare module below to fail in .d.ts
+import { strictlyContainer } from './strictly';
 
 
 type ObjMatch<T> = { [P in keyof T]?: (ObjMatch<T[P]>|Matcher<T[P]>|Matcher<any>|MatcherFactory<T[P]>|T[P]) };
@@ -133,4 +134,4 @@ objectContainer.registerMatcher('withKeys', objectWithKeys);
 
 isContainer.registerSub('object', objectContainer);
 
-(<ContainerObj><any>is.strictly).registerSub('object', objectContainer.createWrapper((m)=>(<MatchObject<any>>m).asStrict()));
+strictlyContainer.registerSub('object', objectContainer.createWrapper((m)=>(<MatchObject<any>>m).asStrict()));

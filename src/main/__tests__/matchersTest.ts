@@ -1,12 +1,12 @@
-import { assert, check, is, dumpInConsole, equalTo, later, report, dump, Appendable } from '../tsMatchers';
-import {lessThan} from '../numbers';
-import '../numbers';
-import '../typing';
-import '../strictly';
-import '../object';
 import '../array';
+import '../numbers';
+import { lessThan } from '../numbers';
+import '../object';
+import '../strictly';
 import '../string';
 import '../throwing';
+import { Appendable, assert, check, dump, dumpInConsole, equalTo, is, later, report } from '../tsMatchers';
+import '../typing';
 import { checkMessage } from '../__utils__/testUtils';
 
 dumpInConsole(false);
@@ -78,16 +78,21 @@ describe("Call test >", ()=>{
 });
 
 describe("Dump tests", ()=>{
-    it("Dump using json", ()=>{
+    it("Dump using utils", ()=>{
         var msg = new Appendable();
         dump({a:"something"}, msg);
+        check(msg.msg, '{ a: \'something\' }');
+    });
+    it("Dump using json", ()=>{
+        var msg = new Appendable();
+        dump({a:"something"}, msg, false);
         check(msg.msg, '{"a":"something"}');
     });
     it("Dump using fallback", ()=>{
         var msg = new Appendable();
         var obj :any = {a:"something"};
         obj.b = obj;
-        dump(obj, msg);
+        dump(obj, msg, false);
         check(msg.msg, 'object [object Object]');
     });
 });
@@ -95,11 +100,11 @@ describe("Dump tests", ()=>{
 describe("Strictly and loosely >", ()=>{
     it('Should obey strictly equals', ()=>{
         assert("on string", "1", is.equal("1"));
-        checkMessage("1", is.strictly.equal(new String("1")), /exactly equal.*"1".*but was "1"/);
+        checkMessage("1", is.strictly.equal(new String("1")), /exactly equal.*'1'.*but was '1'/);
     });
     it("Should loosely equal match", ()=>{
         assert("string and number", "1", is.looselyEqualTo(1));
-        checkMessage("1", is.looselyEqualTo(2), /equal to number 2 but was "1"/);
+        checkMessage("1", is.looselyEqualTo(2), /equal to number 2 but was '1'/);
     });
 });
 

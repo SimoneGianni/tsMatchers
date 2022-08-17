@@ -121,10 +121,17 @@
 		}
 	}
 	
-	export function dump(obj:any,msg:Appendable) {
+	export function dump(obj:any,msg:Appendable,useUtils = true) {
+		if (obj instanceof Error) {
+			msg.append(" an Error instance with message:\"");
+			msg.append(obj.message);
+			msg.append("\"\n");
+			msg.append(obj.stack);
+		}
 		try {
-			var utils = require('utils');
-			utils.inspect(obj, {depth:5});
+			if (!useUtils) throw new Error("Utils not available");
+			var utils = require('node:util');
+			msg.append(utils.inspect(obj, {depth:5}));
 		} catch (e) {
 			try {
 				var json = JSON.stringify(obj);

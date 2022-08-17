@@ -1,5 +1,5 @@
-import {BaseMatcher, Matcher, Appendable, isContainer, is, AsyncMatcher } from './tsMatchers';
-import {objectMatching } from "./object";
+import { objectMatching } from "./object";
+import { Appendable, AsyncMatcher, BaseMatcher, is, isContainer, Matcher } from './tsMatchers';
 import { instanceOf } from './typing';
 
 export class Throwing extends BaseMatcher<Function> implements Matcher<Function>,AsyncMatcher<Function> {
@@ -35,11 +35,15 @@ export class Throwing extends BaseMatcher<Function> implements Matcher<Function>
 
 	describe(obj: any, msg: Appendable) {
 		msg.append(" a function throwing an exception");
-		if (typeof(this.submatch) !== 'undefined') {
-			msg.append(" which is");
-			this.submatch.describe(this.found, msg);
+		if (this.found) {
+			if (typeof(this.submatch) !== 'undefined') {
+				msg.append(" which is");
+				this.submatch.describe(this.found, msg);
+			} else {
+				super.describe(obj, msg);
+			}
 		} else {
-			super.describe(obj, msg);
+			msg.append(" but no exception was thrown");
 		}
 	}
 }

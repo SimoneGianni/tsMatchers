@@ -1,4 +1,4 @@
-import { assert, is, dumpInConsole, arrayContaining, aNumber, withLength } from '../index';
+import { assert, dumpInConsole, is } from '../index';
 import { stringEndingWith, stringStartingWith } from '../string';
 import { checkMessage } from '../__utils__/testUtils';
 
@@ -24,23 +24,23 @@ describe('String tests >', ()=>{
         assert("containing multiple is syntax", 'ciao a tutti', is.string.containing('ia','tut'));
         assert("containing multiple attached is syntax", 'ciao a tutti', is.string.containing('ia','o '));
 
-        checkMessage('ciao', is.string.containing('zz'), /containing "zz".*but was "ciao"/);
-        checkMessage('ciao a tutti', is.string.containing('zz','yy'), /containing "zz".*followed.*"yy".*but was "ciao.*/);
+        checkMessage('ciao', is.string.containing('zz'), /containing 'zz'.*but was 'ciao'/);
+        checkMessage('ciao a tutti', is.string.containing('zz','yy'), /containing 'zz'.*followed.*'yy'.*but was 'ciao.*/);
 
     });
     it("Should match startsWith", ()=>{
         assert("start with").check("whatever").is(stringStartingWith("what"));
         assert("start with is syntax", "whatever", is.string.starting("what"));
-        checkMessage("whatever", is.string.starting("nope"), /starting with "nope".*but was "whatever"/);
-        checkMessage(<any>1, is.string.starting("nope"), /starting with "nope".*but was 1/);
-        checkMessage(null, is.string.starting("nope"), /starting with "nope".*but was null/);
+        checkMessage("whatever", is.string.starting("nope"), /starting with 'nope'.*but was 'whatever'/);
+        checkMessage(<any>1, is.string.starting("nope"), /starting with 'nope'.*but was 1/);
+        checkMessage(null, is.string.starting("nope"), /starting with 'nope'.*but was null/);
     });
     it("Should match endsWith", ()=>{
         assert("end with").check("whatever").is(stringEndingWith("ever"));
         assert("end with is syntax", "whatever", is.string.ending("ever"));
-        checkMessage("whatever", is.string.ending("nope"), /ending with "nope".*but was "whatever"/);
-        checkMessage(<any>1, is.string.ending("nope"), /ending with "nope".*but was 1/);
-        checkMessage(null, is.string.ending("nope"), /ending with "nope".*but was null/);
+        checkMessage("whatever", is.string.ending("nope"), /ending with 'nope'.*but was 'whatever'/);
+        checkMessage(<any>1, is.string.ending("nope"), /ending with 'nope'.*but was 1/);
+        checkMessage(null, is.string.ending("nope"), /ending with 'nope'.*but was null/);
     });
     it('Should fail on non strings', ()=>{
         var n :any = 1;

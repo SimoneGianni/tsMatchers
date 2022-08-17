@@ -1,5 +1,5 @@
-import {BaseMatcher, Matcher, Appendable, isContainer, ContainerObj, MatcherContainer} from './tsMatchers';
-import {ofType} from './typing';
+import { Appendable, BaseMatcher, ContainerObj, dump, isContainer, Matcher, MatcherContainer } from './tsMatchers';
+import { ofType } from './typing';
 
 import './strictly'; // Need this not to make declare module below to fail in .d.ts
 
@@ -21,7 +21,7 @@ export class StringContaining extends BaseMatcher<string> implements Matcher<str
             if (i > 0) {
                 msg.append(" followed by ");
             }
-            msg.append("\"" + s + "\"");
+            dump(s,msg);
         });
         super.describe(obj,msg);
     }
@@ -37,7 +37,8 @@ export class StringStartsWith extends BaseMatcher<string> implements Matcher<str
     }
     
     describe(obj :any, msg :Appendable) {
-        msg.append(" a string starting with \"" + this.sub + "\"");
+        msg.append(" a string starting with ");
+        dump(this.sub,msg);
         super.describe(obj,msg);
     }
 }
@@ -52,7 +53,8 @@ export class StringEndsWith extends BaseMatcher<string> implements Matcher<strin
     }
     
     describe(obj :any, msg :Appendable) {
-        msg.append(" a string ending with \"" + this.sub + "\"");
+        msg.append(" a string ending with ");
+        dump(this.sub,msg);
         super.describe(obj,msg);
     }
 }

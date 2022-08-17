@@ -1,4 +1,4 @@
-import { assert, is, dumpInConsole, throwing, either, check } from '../index';
+import { assert, check, dumpInConsole, either, is, throwing } from '../index';
 import { checkMessage } from '../__utils__/testUtils';
 
 dumpInConsole(false);
@@ -22,15 +22,15 @@ describe('Throwing tests >', () => {
         assert("Alternative syntax").check(() => {throw new Error("test")}).is(throwing(Error));
         check(() => {throw new Error("test")}).is(throwing(Error));
 
-        checkMessage(() => "ok", is.throwing("bah"), /expecting a function throwing an exception.*"bah".*but was undefined/s);
-        checkMessage(() => "ok", is.throwing(), /expecting a function throwing an exception.*but was undefined/s);
+        checkMessage(() => "ok", is.throwing("bah"), /expecting a function throwing an exception.*but no exception/s);
+        checkMessage(() => "ok", is.throwing(), /expecting a function throwing an exception.*but no exception/s);
     });
     it("Should throw async", async ()=>{
         await assert("Detects async error", async () => await getError(), is.throwing("Test exception"));
         try {
             await assert("No error", async () => await wait(50), is.throwing("Test exception"));
         } catch (e) {
-            check(e, is.object.matching({message:is.string.matching(/throwing an exception.*but was undefined/s)}));
+            check(e, is.object.matching({message:is.string.matching(/throwing an exception.*but no exception/s)}));
         }
     });
 });
