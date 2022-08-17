@@ -134,9 +134,23 @@ describe("Either - and - or", ()=>{
         checkMessage(6, is.either(is.lessThan(5)).and(is.greaterThan(4)), /a number less than 5.*but was 6.*and a number greater than 4/s);
     });
     it("Not combined", ()=>{
-        assert("And combined", 4.5, is.either(is.lessThan(5)));
+        assert<number>("And combined", 4.5, is.either(is.lessThan(5)));
         checkMessage(6, is.either(is.lessThan(5)), /a number less than 5.*but was 6/s);
     })
+});
+
+describe("Fluid and - or", ()=>{
+    it("Should combine on or", ()=>{
+        assert("Or combined", 1, is.greaterThan(5).or.lessThan(4));
+        assert("Or combined", 6, is.greaterThan(5).or.lessThan(4));
+        assert("Or combined", 6, is.greaterThan(5).or.lessThan(4).or.nan());
+        checkMessage(4.5, is.greaterThan(5).or.lessThan(4), /a number greater than 5.*or a number less than 4.*but was 4.5/s);
+    });
+    it("Should combine on and", ()=>{
+        assert("And combined", 4.5, is.lessThan(5).and.greaterThan(4));
+        assert("And combined", 4.5, is.lessThan(5).and.greaterThan(4).and.finite());
+        checkMessage(6, is.lessThan(5).and.greaterThan(4), /a number less than 5.*but was 6.*and a number greater than 4/s);
+    });
 });
 
 describe("Not tests >", ()=>{

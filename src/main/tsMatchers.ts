@@ -38,6 +38,8 @@
 	export interface Matcher<T> {
 		matches(obj :T):boolean|Promise<boolean>;
 		describe(obj :any, msg :Appendable) :void;
+		or :IsInterface & ((m :Matcher<T>) => Matcher<T>);
+		and :IsInterface & ((m :Matcher<T>) => Matcher<T>);
 	}
 
 	export interface AsyncMatcher<T> extends Matcher<T> {
@@ -160,6 +162,23 @@
 				dump(obj,msg);
 			}
 		}
+
+		protected asEitherOr(m :Matcher<any>) :CombineOr<T> {
+			let either = new CombineEither(this);
+			return either.innerOr(m);
+		}
+		protected asEitherAnd(m :Matcher<any>) :CombineAnd<T> {
+			let either = new CombineEither(this);
+			return either.innerAnd(m);
+		}
+
+		get or() {
+			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherOr(m), false);
+		}
+
+		get and() {
+			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherAnd(m), false);
+		}
 	}
 
 	export interface NotAMatcher {
@@ -169,6 +188,7 @@
 	}
 
 	type TestValue = null | (any & NotAMatcher);
+	type Value<T> = T & NotAMatcher;
 
 	export function assert<T extends TestValue>(msg :string):ToMatch<any,any>	 
 	export function assert<T extends TestValue>(msg :string, obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
@@ -281,7 +301,7 @@
 			return <ContainerObj>d;
 		}
 
-		registerMatcher(name :string, fn :MatcherFunction<any>|MatcherBuilder<any>|Matcher<any>) {
+		registerMatcher(name :string, fn :MatcherFunction<any>|MatcherBuilder<any>|Matcher<any>, register = true) {
 			var func :MatcherFunction<any> = null; 
 			if (typeof fn == 'function') {
 				func = <()=>Matcher<any>>fn;
@@ -298,15 +318,19 @@
 			this.makeMatcherGetter(name);
 
 			// Add the matcher to all the wrappers 
-			for (var i = 0; i < this._externalWrappers.length; i++) {
-				this._externalWrappers[i].receiveWrappedMatcher(name);
+			if (register) {
+				for (var i = 0; i < this._externalWrappers.length; i++) {
+					this._externalWrappers[i].receiveWrappedMatcher(name, register);
+				}
 			}
 		}
 
-		private receiveWrappedMatcher(name :string) {
+		private receiveWrappedMatcher(name :string, register: boolean) {
 			this.makeMatcherGetter(name);
-			for (var i = 0; i < this._externalWrappers.length; i++) {
-				this._externalWrappers[i].receiveWrappedMatcher(name);
+			if (register) {
+				for (var i = 0; i < this._externalWrappers.length; i++) {
+					this._externalWrappers[i].receiveWrappedMatcher(name, register);
+				}
 			}
 		}
 
@@ -332,7 +356,7 @@
 			});
 		}
 
-		registerSub(name :string, sub :ContainerObj) {
+		registerSub(name :string, sub :ContainerObj, register = true) {
 			//console.log("Registering on " + this._prog + " the sub " + name + ":" + sub._prog);
 			this._subs[name] = sub;
 			Object.defineProperty(this, name, {
@@ -340,13 +364,15 @@
 					return this._subs[name];
 				}
 			});
-			for (var i = 0; i < this._externalWrappers.length; i++) {
-				if (this._externalWrappers[i] === sub) continue;
-				this._externalWrappers[i].receiveWrappedSub(name);
+			if (register) {
+				for (var i = 0; i < this._externalWrappers.length; i++) {
+					if (this._externalWrappers[i] === sub) continue;
+					this._externalWrappers[i].receiveWrappedSub(name, sub, register);
+				}
 			}
 		}
 
-		createWrapper(wrapFn :(M :Matcher<any>)=>Matcher<any>) {
+		createWrapper(wrapFn :(M :Matcher<any>)=>Matcher<any>, register = true) {
 			//console.log("Creating wrapper on " + this._prog);
 			var ret :ContainerObj = null;
 			if ((<any>this).__matcherFunction) {
@@ -358,34 +384,44 @@
 			}
 			ret._wraps = this;
 			ret._wrapFn = wrapFn;
-			this._externalWrappers.push(ret);
-			for (var k in this._matchers) {
-				ret.receiveWrappedMatcher(k);
+			if (register) this._externalWrappers.push(ret);
+
+			let matchers = this._matchers;
+			let subs = this._subs;
+
+			let wraps = this._wraps;
+			while (wraps && wraps._wraps) {
+				wraps = wraps._wraps;
 			}
-			for (var k in this._subs) {
-				ret.receiveWrappedSub(k);
+			if (wraps) {
+				matchers = this._wraps._matchers;
+				subs = this._wraps._subs;
 			}
-			if (this._wraps) {
-				for (var k in this._wraps._matchers) {
-					ret.receiveWrappedMatcher(k);
-				}
-				for (var k in this._wraps._subs) {
-					ret.receiveWrappedSub(k);
-				}
+			for (var k in matchers) {
+				ret.receiveWrappedMatcher(k, register);
 			}
+			for (var k in subs) {
+				if (subs[k] === this) continue;
+				ret.receiveWrappedSub(k, subs[k], register);
+			}
+
 			return ret;
 		}
 
-		receiveWrappedSub(name :string) {
-			//console.log("Received a wrapped sub on " + this._myname + "." + name);
-			var sub = this._wraps._subs[name];
-			var wrapper = sub.createWrapper(this._wrapFn);
-			this.registerSub(name, wrapper);
+		receiveWrappedSub(name :string, sub: ContainerObj, register :boolean) {
+			if (this[name]) return;
+			//if (this._prog > 30) debugger;
+			console.log("Received a wrapped sub on " + this._prog + "." + name + ":" + sub._prog);
+			var wrapper = sub.createWrapper(this._wrapFn, register);
+			this.registerSub(name, wrapper, register);
 		}
 	}
 
+	function uselessIs<T>(m :Matcher<T>) {
+		return m;
+	}
 
-	export var isContainer = new ContainerObj();
+	export var isContainer = ContainerObj.fromFunction(uselessIs);
 
 	export function matcherOrEquals<T>(mtch:Matcher<T>):Matcher<T>;
 	export function matcherOrEquals<T>(val:T):Matcher<T>;
@@ -441,17 +477,17 @@
 			return this.sub.matches(obj);
 		}
 		
-		or(other:Matcher<T>):CombineOr<T>;
-		or(val:T):CombineOr<T>;
-		or(x:any):CombineOr<T> {
+		innerOr(other:Matcher<T>):CombineOr<T>;
+		innerOr(val:Value<T>):CombineOr<T>;
+		innerOr(x:any):CombineOr<T> {
 			this.nextOr = new CombineOr<T>();
 			this.nextOr.add(this.sub);
 			this.nextOr.add(matcherOrEquals(x));
 			return this.nextOr;
 		}
-		and(other:Matcher<T>):CombineAnd<T>;
-		and(val:T):CombineAnd<T>;
-		and(x:any):CombineAnd<T> {
+		innerAnd(other:Matcher<T>):CombineAnd<T>;
+		innerAnd(val:Value<T>):CombineAnd<T>;
+		innerAnd(x:any):CombineAnd<T> {
 			this.nextAnd = new CombineAnd<T>();
 			this.nextAnd.add(this.sub);
 			this.nextAnd.add(matcherOrEquals(x));
@@ -490,9 +526,13 @@
 			return true;
 		}
 
-		and(other:Matcher<T>):CombineAnd<T>;
-		and(val:T):CombineAnd<T>;
-		and(x:any):CombineAnd<T> {
+		protected asEitherAnd(m: Matcher<any>): CombineAnd<T> {
+			return this.innerAnd(m);
+		}
+
+		innerAnd(other:Matcher<T>):CombineAnd<T>;
+		innerAnd(val:Value<T>):CombineAnd<T>;
+		innerAnd(x:any):CombineAnd<T> {
 			this.add(matcherOrEquals(x));
 			return this;
 		}
@@ -508,21 +548,28 @@
 			return false;
 		}
 
-		or(other:Matcher<T>):CombineOr<T>;
-		or(val:T):CombineOr<T>;
-		or(x:any):CombineOr<T> {
+		protected asEitherOr(m: Matcher<any>): CombineOr<T> {
+			return this.innerOr(m);
+		}
+
+		innerOr(other:Matcher<T>):CombineOr<T>;
+		innerOr(val:Value<T>):CombineOr<T>;
+		innerOr(x:any):CombineOr<T> {
 			this.add(matcherOrEquals(x));
 			return this;
 		}
 	}
 	
 	
-	export function either<T>(sub :Matcher<T>) :CombineEither<T>;
-	export function either<T>(val :T) :CombineEither<T>;
-	export function either<T>(x:any) :CombineEither<T> {
+	export function either<T>(sub :Matcher<T>) :Matcher<T>;
+	export function either<T>(val :Value<T>) :Matcher<T>;
+	export function either<T>(x:any) :Matcher<T> {
 		return new CombineEither<T>(matcherOrEquals(x));
 	}
 	
+	// TODO create a wrapper for "or" and "and"
+
+
 	isContainer.registerMatcher('either', either);
 
 	export interface IsInterface extends MatcherContainer {
