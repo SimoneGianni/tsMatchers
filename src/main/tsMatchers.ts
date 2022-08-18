@@ -43,8 +43,8 @@
 	}
 
 	export interface AsyncMatcher<T> extends Matcher<T> {
-		__isAsync: true;
-		__matcherImplementation: true;
+		__isAsync: boolean;
+		__matcherImplementation: boolean;
 	}
 
 	type RecursivePartial<T> = {
@@ -201,9 +201,9 @@
 	export type Value<T> = null | (T & NotAMatcher);
 
 	export function assert<T extends TestValue>(msg :string):ToMatch<any,any>	 
-	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
-	export function assert<T extends TestValue>(msg :string, obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
 	export function assert<T extends TestValue>(msg :string, obj :T, matcher :AsyncMatcher<T>):Promise<T>
+	export function assert<T extends TestValue>(msg :string, obj :PromiseLike<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
+	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
 	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<any,any> {
 		if (arguments.length == 1) {
 			return new ToMatch<any,any>(msg);
@@ -213,9 +213,9 @@
 	}
 
 	export function check<T extends TestValue>(obj :T):ToMatch<T,T>
-	export function check<T extends TestValue>(obj :Promise<T>):ToMatch<T,Promise<T>>
-	export function check<T extends TestValue>(obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
+	export function check<T extends TestValue>(obj :PromiseLike<T>):ToMatch<T,Promise<T>>
 	export function check<T extends TestValue>(obj :T, matcher :AsyncMatcher<T>):Promise<T>	
+	export function check<T extends TestValue>(obj :PromiseLike<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
 	export function check<T extends TestValue>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
 	export function check<T extends TestValue>(obj :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<T,any> {
 		if (arguments.length == 1) {

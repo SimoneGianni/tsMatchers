@@ -1,4 +1,4 @@
-import { assert, is, dumpInConsole, convertInterval, retry } from '../index';
+import { assert, convertInterval, dumpInConsole, is, retry } from '../index';
 import { checkMessage } from '../__utils__/testUtils';
 
 dumpInConsole(false);
@@ -61,12 +61,12 @@ describe('Retrying tests >', () => {
     });
 
 
-    it('Should pass easy test', ()=>{
-        assert("Check retry", () => true, is.retrying().until(is.true));
-        assert("Check retry", () => true, retry().until(is.true));
+    it('Should pass easy test', async ()=>{
+        await assert("Check retry", () => true, is.retrying().until(is.true));
+        await assert("Check retry", () => true, retry().until(is.true));
 
-        assert("Check retry", () => true, is.retrying().until(true));
-        assert("Check retry", () => true, retry().until(true));
+        await assert("Check retry", () => true, is.retrying().until(true));
+        await assert("Check retry", () => true, retry().until(true));
     });
 
     it('Should retry sync', async ()=>{
@@ -109,6 +109,5 @@ describe('Retrying tests >', () => {
         await assert("Retries", asyncThrow, is.retrying().until(is.true));
         assert("It did retry 10 times", tries, 10);
     });
-
 });
 

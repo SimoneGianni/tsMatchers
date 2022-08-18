@@ -90,6 +90,11 @@ describe("Object >", ()=>{
         const obj :object = undefined as unknown as object;
         checkMessage(obj, is.object.matching({a:1}),/Assert failure.*object matching.*but was undefined.*/s);
     });
+    it.skip("#12 overload infer", () => {
+        function getSomething<T>() :T { return null as unknown as T; };
+
+        check(getSomething(), is.object.matching({a:1}));
+    });
     /*
     it.skip('All the cases that should give compile error', () => {
         let obj = {a:1};

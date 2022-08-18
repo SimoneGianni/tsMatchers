@@ -1,4 +1,4 @@
-import {BaseMatcher, Matcher, Appendable, isContainer, AsyncMatcher, MatcherFunction, matcherOrEquals } from './tsMatchers';
+import { Appendable, AsyncMatcher, BaseMatcher, isContainer, Matcher, MatcherFunction, matcherOrEquals } from './tsMatchers';
 
 type Fn<T> = () => T|Promise<T>;
 
@@ -81,7 +81,7 @@ export interface RetryPublic<F extends Function> {
 	upTo(val :number, unit? :IntervalUnit) :RetryPublic<F>;
 	every(val :number, unit? :IntervalUnit) :RetryPublic<F>;
 	wait(val :number, unit? :IntervalUnit) :RetryPublic<F>;
-	until<T>(sub :T|Matcher<T>|MatcherFunction<T>) :Matcher<Fn<T>>;
+	until<T>(sub :T|Matcher<T>|MatcherFunction<T>) :AsyncMatcher<Fn<T>>;
 }
 
 // TODO would be better for it to be unmutable and always returning new instances
@@ -129,7 +129,7 @@ export class RetryBuilder<F extends Function> implements RetryPublic<F> { 
 		return "every " + this.everyStr + " up to " + this.uptoStr;
 	}
 
-	public until<T>(sub :T|Matcher<T>|MatcherFunction<T>) :Matcher<Fn<T>> {
+	public until<T>(sub :T|Matcher<T>|MatcherFunction<T>) :AsyncMatcher<Fn<T>> {
 		return new RetryMatcher<T>(this.clone(), matcherOrEquals(sub));
 	}
 
