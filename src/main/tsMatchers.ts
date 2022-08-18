@@ -43,9 +43,16 @@
 	}
 
 	export interface AsyncMatcher<T> extends Matcher<T> {
-		__isAsync: boolean;
+		__isAsync: true;
+		__matcherImplementation: true;
 	}
 
+	type RecursivePartial<T> = {
+		[P in keyof T]?:
+		  T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+		  T[P] extends object ? RecursivePartial<T[P]> :
+		  T[P];
+	  };	
 	export class ToMatch<T,R extends T|Promise<T>> {
 		private obj:T
 		
@@ -66,8 +73,8 @@
 
 		is(matcher :AsyncMatcher<R>) :R
 		is(matcher :AsyncMatcher<T>) :Promise<T>
-		is(matcher :Matcher<T>) :R
-		is(val:T) :R
+		is(matcher :Matcher<T>|Matcher<RecursivePartial<T>>) :R
+		is(val:Value<T>) :R
 		is(fn :MatcherFactory<T>) :R
 
 		is(val:any) :R|Promise<any> {
@@ -191,12 +198,12 @@
 	});
 
 	type TestValue = null | (any & NotAMatcher);
-	export type Value<T> = T & NotAMatcher;
+	export type Value<T> = null | (T & NotAMatcher);
 
 	export function assert<T extends TestValue>(msg :string):ToMatch<any,any>	 
+	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
 	export function assert<T extends TestValue>(msg :string, obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
 	export function assert<T extends TestValue>(msg :string, obj :T, matcher :AsyncMatcher<T>):Promise<T>
-	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
 	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<any,any> {
 		if (arguments.length == 1) {
 			return new ToMatch<any,any>(msg);

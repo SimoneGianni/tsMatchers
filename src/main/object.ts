@@ -5,7 +5,18 @@ import './strictly'; // Need this not to make declare module below to fail in .d
 import { strictlyContainer } from './strictly';
 
 
-type ObjMatch<T> = { [P in keyof T]?: (ObjMatch<T[P]>|Matcher<T[P]>|Matcher<any>|MatcherFactory<T[P]>|T[P]) };
+type ObjMatch<T> = {
+    [P in keyof T]?: (ObjMatch<T[P]>|Matcher<T[P]>|Matcher<any>|MatcherFactory<T[P]>|T[P]);    
+} | {
+    [index:string]: Matcher<any>|MatcherFactory<any>|ObjMatch<any>|undefined|never
+}
+
+export type OrigObj<T> = {
+    [P in keyof T]: 
+        T[P] extends Matcher<infer U> ? U :
+        T[P] extends MatcherFactory<infer U> ? U :
+        T[P] extends object ? OrigObj<T[P]> : T[P];
+}; // & { [index :string]: any};
 
 export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
     private def: { [key: string]: Matcher<any> } = {};
@@ -92,19 +103,19 @@ export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
 
 
 
-export function objectMatching<T, D extends T>(def: ObjMatch<D>): Matcher<T> {
+export function objectMatching<T>(def: ObjMatch<T>): Matcher<OrigObj<T>> {
     return new MatchObject(def, false);
 }
-export function objectMatchingStrictly<T, D extends T>(def: ObjMatch<D>): Matcher<T> {
+export function objectMatchingStrictly<T>(def: ObjMatch<T>): Matcher<OrigObj<T>> {
     return new MatchObject(def, true);
 }
 
-export function objectWithKeys<T>(...keys :string[]) :Matcher<T> {
+export function objectWithKeys<T>(...keys :string[]) :Matcher<OrigObj<T>> {
     var def :{[index:string]:Matcher<any>} = {};
     for (var i = 0; i < keys.length; i++) {
         def[keys[i]] = definedValue;
     }
-    return objectMatching<T, any>(<any>def);
+    return objectMatching<T>(def as ObjMatch<T>);
 }
 
 
@@ -120,6 +131,13 @@ declare module './tsMatchers' {
         object: ObjectInterface;
     }
 }
+
+declare module './not' {
+    export interface NotInterface {
+        object: { (): Matcher<any>} & ObjectInterface;
+    }
+}
+
 
 declare module './strictly' {
     export interface StrictlyInterface {

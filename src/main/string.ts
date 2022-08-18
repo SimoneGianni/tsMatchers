@@ -123,7 +123,7 @@ export function stringMatching(re:string|RegExp) :StringMatching {
     }
 }
 
-export var aString = ofType('string');
+export var aString :Matcher<string> = ofType('string');
 
 
 export interface StringInterface extends MatcherContainer {
@@ -137,7 +137,13 @@ export interface StringInterface extends MatcherContainer {
 
 declare module './tsMatchers' {
     export interface IsInterface {
-        string: StringInterface;
+        string: StringInterface
+    }
+}
+
+declare module './not' {
+    export interface NotInterface {
+        string: { (): Matcher<any>} & StringInterface;
     }
 }
 

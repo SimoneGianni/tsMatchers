@@ -1,4 +1,4 @@
-import {BaseMatcher, Matcher, Appendable, IsInterface, isContainer, matcherOrEquals} from './tsMatchers';
+import { Appendable, BaseMatcher, isContainer, IsInterface, Matcher, matcherOrEquals } from './tsMatchers';
 
 export class Not<T> extends BaseMatcher<T> implements Matcher<T> {
     constructor(private sub: Matcher<T>) { super(); }

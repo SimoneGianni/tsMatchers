@@ -1,5 +1,5 @@
-import {BaseMatcher, Matcher, Appendable, isContainer, exactly} from './tsMatchers';
-import {not} from './not';
+import { not } from './not';
+import { Appendable, BaseMatcher, exactly, isContainer, Matcher } from './tsMatchers';
 
 export class OfType<T> extends BaseMatcher<T> implements Matcher<T> {
 	constructor(private type: string) { super(); }
@@ -39,7 +39,7 @@ export class Truthy extends BaseMatcher<any> implements Matcher<any> {
 	}
 }
 
-export function ofType(type: string): OfType<any> {
+export function ofType<N>(type: string): OfType<N> {
 	return new OfType(type);
 }
 
@@ -51,10 +51,10 @@ export function instanceOf(type: any): InstanceOf {
 export var definedValue: Matcher<any> = not(ofType('undefined'));
 export var undefinedValue = ofType('undefined');
 
-export var aNumber = ofType('number');
-export var aBoolean = ofType('boolean');
-export var anObject = ofType('object');
-export var aFunction = ofType('function');
+export var aNumber = ofType<number>('number');
+export var aBoolean = ofType<boolean>('boolean');
+export var anObject = ofType<object>('object');
+export var aFunction = ofType<Function>('function');
 
 export var anArray = instanceOf(Array);
 
@@ -85,9 +85,9 @@ declare module './tsMatchers' {
 		defined: () => typeof definedValue;
 		undefined: () => typeof undefinedValue;
 
-		number: () => OfType<number>;
-		boolean: () => OfType<boolean>;
-		function: () => OfType<Function>;
+		number: () => Matcher<number>;
+		boolean: () => Matcher<boolean>;
+		function: () => Matcher<Function>;
 
 		truthy: () => typeof aTruthy;
 		falsey: () => typeof aFalsey;
@@ -97,4 +97,12 @@ declare module './tsMatchers' {
         instanceOf: typeof instanceOf;
         ofType: typeof ofType;
     }
+}
+
+declare module './not' {
+	export interface NotInterface {
+		number: () => Matcher<any>;
+		boolean: () => Matcher<any>;
+		function: () => Matcher<any>;
+	}
 }

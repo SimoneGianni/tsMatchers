@@ -25,7 +25,8 @@ describe("Array >", ()=>{
         assert("On number oly one element").check([1,"2",{a:3}]).is(arrayContaining(aNumber));
         assert("On number matcher is syntax", [1,2,3], is.array.containing(is.number()));
 
-        assert("On object matching", [{a:{b:1}},3], is.array.containing(is.object.matching({a:{b:is.number()}})));
+        let arrayNotTuple = [{a:{b:1}},3];
+        assert("On object matching", arrayNotTuple, is.array.containing(is.object.matching({a:{b:is.number()}})));
         
         checkMessage([1,2,3], is.array.containing(5), /something.*equal to number 5.*but.*1, 2, 3/);
     });

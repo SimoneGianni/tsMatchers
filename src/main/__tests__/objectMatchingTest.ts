@@ -1,8 +1,13 @@
 import { assert, check, dumpInConsole, is, objectMatching, objectWithKeys } from '../index';
-import { objectMatchingStrictly } from '../object';
+import { objectMatchingStrictly, OrigObj } from '../object';
+import { Matcher } from '../tsMatchers';
 import { checkMessage } from '../__utils__/testUtils';
 
 dumpInConsole(false);
+
+// Useful extraction types in case things go wrong and needs deugging
+type extractMatcher<Type> = Type extends Matcher<infer X> ? X : never
+type extractOrig<Type> = Type extends OrigObj<infer X> ? X : never
 
 describe("Object >", ()=>{
     let objA = {a:1};
@@ -56,6 +61,7 @@ describe("Object >", ()=>{
         assert("matches valid enum plain syntax", obj, is.object.matching({type:Types.A}));
         check(obj, is.object.matching({type:Types.A}));
         check(obj).is(objectMatching({type:Types.A}));
+
         checkMessage(obj, is.object.matching({type:Types.B}), /1 but was 0/);
     });
 
@@ -84,5 +90,34 @@ describe("Object >", ()=>{
         const obj :object = undefined as unknown as object;
         checkMessage(obj, is.object.matching({a:1}),/Assert failure.*object matching.*but was undefined.*/s);
     });
+    /*
+    it.skip('All the cases that should give compile error', () => {
+        let obj = {a:1};
+
+        // Inline different
+        check({a:1},objectMatching({b:3}));
+        check({a:1},is.object.matching({b:3}));
+        check({a:1}).is(objectMatching({b:3}));
+        check(obj,objectMatching({b:3}));
+        check(obj,is.object.matching({b:3}));
+        check(obj).is(objectMatching({b:3}));
+
+        // With matcher
+        check({a:1},objectMatching({b:is.number()}));
+        check({a:1},is.object.matching({b:is.number()}));
+        check({a:1}).is(objectMatching({b:is.number()}));
+        check(obj,objectMatching({b:is.number()}));
+        check(obj,is.object.matching({b:is.number()}));
+        check(obj).is(objectMatching({b:is.number()}));
+
+        // Inline added (duck typing at play here in some cases)
+        check({a:1},objectMatching({a:1, b:3}));
+        check({a:1},is.object.matching({a:1, b:3}));
+        check({a:1}).is(objectMatching({a:1, b:3}));
+        check(obj,objectMatching({a:1, b:3}));
+        check(obj,is.object.matching({a:1, b:3}));
+        check(obj).is(objectMatching({a:1, b:3}));        
+    });
+    */
 });
 

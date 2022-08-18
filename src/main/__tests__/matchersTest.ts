@@ -156,6 +156,10 @@ describe("Fluid and - or", ()=>{
 describe("Not tests >", ()=>{
     it('Should support not', ()=>{
         assert("number not string",5,is.not.string());
+        assert("number not number","5",is.not.number());
+        assert("number not boolean",5,is.not.boolean());
+        assert("number not function",5,is.not.function());
+        assert("number not array",5,is.not.array());
         assert("number less than 10",5,is.lessThan(10));
         assert("number not less than 4",5,is.not.lessThan(4));
     });
@@ -166,8 +170,8 @@ describe("Not tests >", ()=>{
 
     it('Should support not matching', ()=>{
         assert("on non object", 1, is.not.object());
-        assert("on non existing tuple", {}, is.not.object.matching({a:1}));
-        assert("strictly on non existing tuple", {}, is.not.strictly.object.matching({a:1}));
+        assert("on non existing tuple", {} as  {a:number}, is.not.object.matching({a:1}));
+        assert("strictly on non existing tuple", {} as {a:number}, is.not.strictly.object.matching({a:1}));
     });
 
     it('Should support not array', ()=>{
@@ -201,7 +205,7 @@ describe('Async tests >', () => {
         await assert("Num with long syntax").check(getNum(1)).is(1);
         await check(getNum(1), 1);
         try {
-            await assert("Num is wrong", getNum(1), is.function);
+            await assert("Num is wrong", getNum(1) as unknown as Function, is.function);
             throw new Error("Should fail the assertion above");
         } catch (e) {
             if ((<Error>e).message.substr(0,14) != 'Assert failure') throw e;

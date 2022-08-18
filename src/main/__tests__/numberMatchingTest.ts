@@ -8,7 +8,7 @@ describe('Numbers tests >', ()=>{
     it("Should check if it's a number", () => {
         assert("Is a number").check(1).is(aNumber);
         assert("Is a number is syntax", 1, is.number());
-        checkMessage("1", is.number(), /a number.*but was '1'/);
+        checkMessage("1" as unknown, is.number(), /a number.*but was '1'/);
     });
     it("Close to", ()=>{
         assert("Is close to").check(1.5).is(closeTo(1.49,0.02));
