@@ -153,11 +153,12 @@
 	
 
 	export abstract class BaseMatcher<T> implements Matcher<T> {
+		protected static NO_BUT_WAS = "___no_bu_was___";
 		__matcherImplementation = true;
 		abstract matches(obj :T) :boolean|Promise<boolean>;
 
 		describe(obj :any, msg :Appendable) {
-			if (!(<Matcher<T>>this).matches(obj)) {
+			if (obj !== BaseMatcher.NO_BUT_WAS && !(<Matcher<T>>this).matches(obj)) {
 				msg.append(" but was ");
 				dump(obj,msg);
 			}
@@ -181,14 +182,16 @@
 		}
 	}
 
-	export interface NotAMatcher {
+	export type NotAMatcher = {
 		__matcherImplementation?: never;
+	} & 
+	((number|boolean|string|null|undefined|Date|RegExp) | {
 		[index: string]: any;
 		[index: number]: any;
-	}
+	});
 
 	type TestValue = null | (any & NotAMatcher);
-	type Value<T> = T & NotAMatcher;
+	export type Value<T> = T & NotAMatcher;
 
 	export function assert<T extends TestValue>(msg :string):ToMatch<any,any>	 
 	export function assert<T extends TestValue>(msg :string, obj :Promise<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>

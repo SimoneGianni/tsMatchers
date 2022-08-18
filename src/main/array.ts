@@ -1,4 +1,6 @@
-import { Appendable, arrayEquals, BaseMatcher, ContainerObj, isContainer, Matcher, MatcherContainer, MatcherFactory, matcherOrEquals } from './tsMatchers';
+import "./strictly";
+import { strictlyContainer } from './strictly';
+import { Appendable, arrayEquals, BaseMatcher, ContainerObj, isContainer, Matcher, MatcherContainer, MatcherFactory, matcherOrEquals, Value } from './tsMatchers';
 import { anArray } from './typing';
 
 
@@ -50,26 +52,85 @@ import { anArray } from './typing';
 	}
 
 	export class ArrayMatching<T> extends BaseMatcher<T[]> implements Matcher<T[]> {
-		constructor(private allMatchers :Matcher<T>[]) {super();}
+		constructor(private allMatchers :Matcher<T>[], private strict = false) {super();}
 	
+		asStrict() {
+			return new ArrayMatching(this.allMatchers, true);
+		}
+
 		matches(obj:T[]) {
-			if (obj.length != this.allMatchers.length) return false;
-			for (var i = 0; i < obj.length; i++) {
-				if (!this.allMatchers[i].matches(obj[i])) return false;
+			if (!Array.isArray(obj)) return false;
+			if (this.strict) {
+				if (obj.length != this.allMatchers.length) return false;
 			}
-			return true;
+			let sequence = 0;
+			let i = 0;
+			while (i < obj.length && sequence < this.allMatchers.length) {
+				if (this.allMatchers[sequence].matches(obj[i])) {
+					// We are on a strike, let's go on and see if we find all the sequence
+					sequence++;
+					i++;
+				} else if (sequence == 0) {
+					// We tried our first matcher and didn't find it, so just check the next element
+					i++;
+				} else {
+					// We were on a strike, but we didn't find the next element, so we reset the sequence
+					sequence = 0;
+				}
+			}
+			return sequence == this.allMatchers.length;
 		}
 		
 		describe(obj :any, msg :Appendable) {
-			if (obj.length != this.allMatchers.length) {
+			if (!Array.isArray(obj)) {
 				msg.append(" an array with " + this.allMatchers.length + " items");
-				return;
+				super.describe(obj,msg);		
 			}
-			msg.append(" an array ");
-			for (var i = 0; i < obj.length; i++) {
-				if (!this.allMatchers[i].matches(obj[i])) {
-					msg.append(" with item " + i);
-					this.allMatchers[i].describe(obj[i],msg);
+			if (this.strict) {
+				if (obj?.length != this.allMatchers.length) {
+					msg.append(" an array with " + this.allMatchers.length + " items");
+					if (obj && (typeof obj.length !== 'undefined')) msg.append(" (found has " + obj.length + ")");
+					super.describe(obj,msg);		
+					return;
+				}
+				msg.append(" an array having:\n");
+				for (var i = 0; i < obj.length; i++) {
+					if (!this.allMatchers[i].matches(obj[i])) {
+						msg.append("[" + i + "]:");
+						this.allMatchers[i].describe(obj[i],msg);
+						msg.append("\n");
+					}
+				}
+			} else {
+				msg.append(" an array with " + this.allMatchers.length + " items");
+				let sequence = 0;
+				let sequenceStart = 0;
+				let i = 0;
+				while (i < obj.length && sequence < this.allMatchers.length) {
+					if (this.allMatchers[sequence].matches(obj[i])) {
+						// We are on a strike, nothing to say
+						if (sequence == 0) {
+							sequenceStart = i;
+						}
+						sequence++;
+						i++;
+					} else if (sequence == 0) {
+						// We tried our first matcher and didn't find it, so just check the next element
+						i++;
+					} else {
+						// We were on a strike, but we didn't find the next element, so we reset the sequence
+						msg.append(", items " + sequenceStart + " to " + (i-1) + " matched but element " + i + " expecting");
+						this.allMatchers[sequence].describe(obj[i],msg);
+						sequence = 0;
+						sequenceStart = -1;
+					}
+				}
+				if (sequenceStart == 0) {
+					msg.append(" but no element ever matched");
+					this.allMatchers[0].describe(BaseMatcher.NO_BUT_WAS,msg);
+				} else if (sequenceStart > 0){
+					msg.append(", items " + sequenceStart + " to " + (i-1) + " matched but array finished before matching");
+					this.allMatchers[sequence].describe(BaseMatcher.NO_BUT_WAS,msg);
 				}
 			}
 		}
@@ -80,20 +141,21 @@ import { anArray } from './typing';
 		return new WithLength(len);
 	}
 	
-	export function arrayContaining<T>(sub :Matcher<T>) :ArrayContaining<T>;
-	export function arrayContaining<T>(val :T) :ArrayContaining<T>;
+	export function arrayContaining<T>(sub :Matcher<T>|Value<T>|MatcherFactory<T>) :ArrayContaining<T>;
 	export function arrayContaining<T>(x:any) :ArrayContaining<T> {
 		return new ArrayContaining<T>(matcherOrEquals(x));
 	}
 	
-	export function arrayEachItem<T>(sub :Matcher<T>) :ArrayEachItem<T>;
-	export function arrayEachItem<T>(val :T) :ArrayEachItem<T>;
+	export function arrayEachItem<T>(sub :Matcher<T>|Value<T>|MatcherFactory<T>) :ArrayEachItem<T>;
 	export function arrayEachItem<T>(x:any) :ArrayEachItem<T> {
 		return new ArrayEachItem<T>(matcherOrEquals(x));
 	}
 
-	export function arrayMatching<T>(allMatchers :(T|Matcher<T>|MatcherFactory<T>)[]) :ArrayMatching<T> {
+	export function arrayMatching<T>(allMatchers :(Matcher<T>|Value<T>|MatcherFactory<T>)[]) :ArrayMatching<T> {
 		return new ArrayMatching<T>(allMatchers.map(x => matcherOrEquals(x)));
+	}
+	export function arrayMatchingStrictly<T>(allMatchers :(Matcher<T>|Value<T>|MatcherFactory<T>)[]) :ArrayMatching<T> {
+		return new ArrayMatching<T>(allMatchers.map(x => matcherOrEquals(x)), true);
 	}
 
 
@@ -114,6 +176,16 @@ declare module './tsMatchers' {
     }
 }
 
+declare module './strictly' {
+    export interface StrictlyInterface {
+        array :{
+			containing :typeof arrayEachItem;
+			matching: typeof arrayMatchingStrictly;
+		}
+    }
+}
+
+
 var arrayContainer = ContainerObj.fromFunction(function () { return anArray; });
 
 arrayContainer.registerMatcher('equals', arrayEquals);
@@ -123,3 +195,8 @@ arrayContainer.registerMatcher('withLength', withLength);
 arrayContainer.registerMatcher('matching', arrayMatching);
 
 isContainer.registerSub('array', arrayContainer);
+
+var strictContainer = new ContainerObj();
+strictContainer.registerMatcher('matching', arrayMatchingStrictly);
+strictContainer.registerMatcher('containing', arrayEachItem);
+strictlyContainer.registerSub('array', strictContainer);

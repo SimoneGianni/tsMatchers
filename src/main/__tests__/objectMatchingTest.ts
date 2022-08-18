@@ -1,4 +1,4 @@
-import { assert, check, is, dumpInConsole, objectMatching, objectWithKeys } from '../index';
+import { assert, check, dumpInConsole, is, objectMatching, objectWithKeys } from '../index';
 import { objectMatchingStrictly } from '../object';
 import { checkMessage } from '../__utils__/testUtils';
 
@@ -81,7 +81,8 @@ describe("Object >", ()=>{
         checkMessage(obj, is.strictly.object.matching({a:1}), /b should not be there$/);
     });
     it('Should work when passed undefined', ()=> {
-        checkMessage(undefined, is.object.matching({a:1}),/Assert failure.*object matching.*but was undefined.*/s);
+        const obj :object = undefined as unknown as object;
+        checkMessage(obj, is.object.matching({a:1}),/Assert failure.*object matching.*but was undefined.*/s);
     });
 });
 

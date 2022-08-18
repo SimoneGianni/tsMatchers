@@ -48,4 +48,30 @@ describe("Array >", ()=>{
         check([1,2,3], arrayMatching([is.number,is.number,is.number]));
         check([1,2,3], arrayMatching([1,2,3]));
     });
+
+    it("arrayMatching partials", ()=>{
+        check([1,2,3,4,5], arrayMatching([1,2,3]));
+        check([1,2,3,4,5], arrayMatching([3,4,5]));
+        check([1,2,3,4,5], arrayMatching([2,3,4]));
+    });
+
+    it("arrayMatching negatives", ()=>{
+        checkMessage([1,2,3,4,5], arrayMatching([7,8,9]), /an array with 3.*but no element.*something equal to.*7$/);
+        checkMessage([1,2,3,4,5], arrayMatching([2,3,5]), /items 1 to 2 matched but element 3 expecting something equal to number 5 but was 4$/);
+        checkMessage([1,2,3,4,5], arrayMatching([4,5,6]), /items 3 to 4 matched but array finished before matching something equal to number 6$/);
+    });
+
+    it("strictly containing", () => {
+        check([1,2,3], is.strictly.array.containing(is.number));
+        check([1,2,3], is.strictly.array.containing(is.greaterThan(0)));        
+    });
+
+    it("strictly matching", () => {
+        check([1,2,3], is.strictly.array.matching([is.number,is.number,is.number]));
+        check([1,2,3], is.strictly.array.matching([1,2,3]));
+        checkMessage([1,2,3], is.strictly.array.matching([1,2]), /an array with 2 items.*found has 3.*\[ 1, 2, 3 \]$/);
+        checkMessage([1,2,3], is.strictly.array.matching([1,5,3]), /an array having[\s\S]*\[1\]: something equal to number 5 but was 2\s*$/m);
+    });
+
+
 });
