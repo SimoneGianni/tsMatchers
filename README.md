@@ -270,6 +270,58 @@ check(b).is(between(25,30)); // Will pass, between is inclusive
 check(b).is(greaterThan(25,true)); // Will pass because of the boolean true making it inclusive
 ```
 
+Dates
+-----
+
+Dates are supported for direct comparison, for example :
+
+```javascript
+var a :Date = // a date
+var b :Date = // a date
+check(a).is(equalTo(b));
+check(a).is(b); // Same more compact
+```
+
+Similar to numbers, there are many matchers to check dates :
+ * `dateAfter(val:Date,inclusive:boolean=false)` passes if `x` is a date after than `val` (or equal to `val` is `inclusive` is specified `true`)
+ * `dateBefore(val:Date,inclusive:boolean=false)` same as after, but passes if `x` is before than `val`.
+ * `dateBetween(min:Date,max:Date)` passes if `x` is a date between `min` and `max` **inclusive**.
+ * `dateCloseTo(val:Date,precision:Date)` passes if `x` is a date close to `val` within the given `precision`
+
+The precision is one of the following strings: "millisecond", "second", "minute", "hour", "day", "month", "year". A date is considered close to another date if the difference between the dates is withing the specified precision.
+
+For example :
+```javascript
+var a = new Date(2016,1,1);
+check(a).is(aDate);
+check(a).is(dateAfter(new Date(2015,1,1)));
+check(a).is(dateBefore(new Date(2017,1,1)));
+check(a).is(dateBetween(new Date(2015,1,1),new Date(2017,1,1)));
+check(a).is(dateCloseTo(new Date(2016,3,4),'year')); // Will pass because of the precision: the two dates are in the same year
+```
+
+Instead of using a Date object, you can use a string with the ISO format, which will be converted to a date considering it always in UTC and filling the missing fields with zeroes.
+
+
+```javascript
+var a = // some date;
+check(a).is(dateAfter("2015-01-01T15:40:27.345Z"));
+```
+
+When using a string as an argument to closeTo, the precision is determined based on the given string, for example:
+
+```javascript
+check(a).is(dateCloseTo("2016")); // Will implicitly use precision "year" and check only the year
+check(a).is(dateCloseTo("2016-03-05")); // Will implicitly use precision "day" and not consider the time
+```
+
+Date matchers are available also in the compact syntax:
+
+```javascript
+check(b, is.date);
+check(a, is.date.after("2015-01-01T15:40:27.345Z"));
+```
+
 Arrays
 ------
 

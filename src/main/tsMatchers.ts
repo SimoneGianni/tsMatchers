@@ -229,6 +229,11 @@
 		constructor(private value:T) {super();}
 	
 		matches(obj:T) {
+			if (obj instanceof Date) {
+				if (this.value instanceof Date) {
+					return obj.getTime() == this.value.getTime();
+				}
+			}
 			return obj == this.value;
 		}
 		
@@ -280,7 +285,7 @@
 	export type MatcherBuilder<T> = ()=>T|any; // Should be "a function returning an object that has a function that produces a Matcher<T>"
 
 	export interface MatcherContainer {
-		[index:string]:MatcherFunction<any>|MatcherContainer|MatcherBuilder<any>;
+		//[index:string]:MatcherFunction<any>|MatcherContainer|MatcherBuilder<any>;
 	}
 
 	var ContainerObjCnt = 1;
@@ -420,8 +425,7 @@
 
 		receiveWrappedSub(name :string, sub: ContainerObj, register :boolean) {
 			if (this[name]) return;
-			//if (this._prog > 30) debugger;
-			console.log("Received a wrapped sub on " + this._prog + "." + name + ":" + sub._prog);
+			//console.log("Received a wrapped sub on " + this._prog + "." + name + ":" + sub._prog);
 			var wrapper = sub.createWrapper(this._wrapFn, register);
 			this.registerSub(name, wrapper, register);
 		}

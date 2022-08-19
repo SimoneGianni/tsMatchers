@@ -1,9 +1,12 @@
-export { assert, is, dumpInConsole, either, equalTo, exactly, looselyEqualTo, later, check } from './tsMatchers';
-export * from './numbers';
-export * from './typing';
-export * from './strictly';
-export * from './object';
 export * from './array';
+export * from './dates';
+export * from './not';
+export * from './numbers';
+export * from './object';
+export * from './retry';
+export * from './strictly';
 export * from './string';
 export * from './throwing';
-export * from './retry';
+export { assert, check, dumpInConsole, either, equalTo, exactly, is, later, looselyEqualTo } from './tsMatchers';
+export * from './typing';
+
