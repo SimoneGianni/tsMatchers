@@ -1,6 +1,6 @@
 {
     "name": "tsmatchers",
-    "version": "4.0.5",
+    "version": "4.0.6",
     "devDependencies": {
         "@babel/core": "^7.18.10",
         "@babel/preset-env": "^7.18.10",
