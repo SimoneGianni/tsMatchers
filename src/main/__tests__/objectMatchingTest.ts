@@ -95,6 +95,12 @@ describe("Object >", ()=>{
 
         check(getSomething(), is.object.matching({a:1}));
     });
+    it("Should work with functions", ()=>{
+        let obj :{[index:string] :(i:number)=>string} = {
+            a: (i:number) => "ciao"
+        };
+        check(obj, is.object.matching({a:is.function()}));
+    });
     /*
     it.skip('All the cases that should give compile error', () => {
         let obj = {a:1};

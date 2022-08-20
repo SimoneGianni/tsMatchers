@@ -571,6 +571,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.7 : Fixed #16 and partial work on #17 and other minor fixes and clode cleanups
  * 4.0.6 : Support for dates, better array matching, less object matching generic mess, full exception on is.throwing, dependency bump (tickets #8 #9 #10 #11 #12 #13)
  * 4.0.5 : Retry, minor bug on reporting assertion message
  * 4.0.4 : Array eachItem mathcer

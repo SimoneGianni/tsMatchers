@@ -14,6 +14,7 @@ type ObjMatch<T> = {
 export type OrigObj<T> = {
     [P in keyof T]: 
         T[P] extends Matcher<infer U> ? U :
+        T[P] extends Function ? (...args: any[]) => any :
         T[P] extends MatcherFactory<infer U> ? U :
         T[P] extends object ? OrigObj<T[P]> : T[P];
 }; // & { [index :string]: any};

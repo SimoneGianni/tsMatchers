@@ -38,8 +38,8 @@
 	export interface Matcher<T> {
 		matches(obj :T):boolean|Promise<boolean>;
 		describe(obj :any, msg :Appendable) :void;
-		or :IsInterface & ((m :Matcher<T>) => Matcher<T>);
-		and :IsInterface & ((m :Matcher<T>) => Matcher<T>);
+		or :IsInterface;
+		and :IsInterface;
 	}
 
 	export interface AsyncMatcher<T> extends Matcher<T> {
@@ -47,12 +47,21 @@
 		__matcherImplementation: boolean;
 	}
 
-	type RecursivePartial<T> = {
+	type RecursivePartial<T> = 
+		T extends number ? number :
+		T extends string ? string :
+		T extends boolean ? boolean :
+		T extends Array<infer U> ? Array<RecursivePartial<U>> :
+		T extends Date ? Date :
+		T extends RegExp ? RegExp :
+		T extends Function ? Function :
+		T extends Object ? {
 		[P in keyof T]?:
 		  T[P] extends (infer U)[] ? RecursivePartial<U>[] :
 		  T[P] extends object ? RecursivePartial<T[P]> :
 		  T[P];
-	  };	
+		} : T;
+
 	export class ToMatch<T,R extends T|Promise<T>> {
 		private obj:T
 		
@@ -73,7 +82,7 @@
 
 		is(matcher :AsyncMatcher<R>) :R
 		is(matcher :AsyncMatcher<T>) :Promise<T>
-		is(matcher :Matcher<T>|Matcher<RecursivePartial<T>>) :R
+		is(matcher :Matcher<RecursivePartial<T>>) :R
 		is(val:Value<T>) :R
 		is(fn :MatcherFactory<T>) :R
 
@@ -180,12 +189,12 @@
 			return either.innerAnd(m);
 		}
 
-		get or() {
-			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherOr(m), false);
+		get or() :IsInterface {
+			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherOr(m), false) as unknown as IsInterface;
 		}
 
-		get and() {
-			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherAnd(m), false);
+		get and() :IsInterface {
+			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherAnd(m), false) as unknown as IsInterface;
 		}
 	}
 
@@ -197,14 +206,20 @@
 		[index: number]: any;
 	});
 
-	type TestValue = null | (any & NotAMatcher);
-	export type Value<T> = null | (T & NotAMatcher);
+	export type NotAPromise = {
+		then?: never;
+	};
+
+	type TestValue = null | (any & NotAMatcher & NotAPromise);
+	export type Value<T> = null | (T & NotAMatcher & NotAPromise);
+
+	export type SomethingMatches<T> = T|Matcher<T>|MatcherFactory<T>|Matcher<RecursivePartial<T>>|MatcherFactory<RecursivePartial<T>>;
 
 	export function assert<T extends TestValue>(msg :string):ToMatch<any,any>	 
-	export function assert<T extends TestValue>(msg :string, obj :T, matcher :AsyncMatcher<T>):Promise<T>
-	export function assert<T extends TestValue>(msg :string, obj :PromiseLike<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
-	export function assert<T extends TestValue>(msg :string, obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
-	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<any,any> {
+	export function assert<T extends TestValue>(msg :string, obj :T, matcher :AsyncMatcher<T>|AsyncMatcher<RecursivePartial<T>>):Promise<T>
+	export function assert<T extends TestValue>(msg :string, obj :PromiseLike<T>, matcher :SomethingMatches<T>):Promise<T>
+	export function assert<T extends TestValue>(msg :string, obj :T, matcher :SomethingMatches<T>):T
+	export function assert<T extends TestValue>(msg :string, obj? :T, matcher? :SomethingMatches<T>):T|ToMatch<any,any> {
 		if (arguments.length == 1) {
 			return new ToMatch<any,any>(msg);
 		} else {
@@ -214,10 +229,10 @@
 
 	export function check<T extends TestValue>(obj :T):ToMatch<T,T>
 	export function check<T extends TestValue>(obj :PromiseLike<T>):ToMatch<T,Promise<T>>
-	export function check<T extends TestValue>(obj :T, matcher :AsyncMatcher<T>):Promise<T>	
-	export function check<T extends TestValue>(obj :PromiseLike<T>, matcher :T|Matcher<T>|MatcherFactory<T>):Promise<T>
-	export function check<T extends TestValue>(obj :T, matcher :T|Matcher<T>|MatcherFactory<T>):T
-	export function check<T extends TestValue>(obj :T, matcher? :T|Matcher<T>|MatcherFactory<T>):T|ToMatch<T,any> {
+	export function check<T extends TestValue>(obj :PromiseLike<T>, matcher :SomethingMatches<T>):Promise<T>
+	export function check<T extends TestValue>(obj :T, matcher :AsyncMatcher<T>|AsyncMatcher<RecursivePartial<T>>):Promise<T>	
+	export function check<T extends TestValue>(obj :T, matcher :SomethingMatches<T>):T
+	export function check<T extends TestValue>(obj :T, matcher? :SomethingMatches<T>):T|ToMatch<T,any> {
 		if (arguments.length == 1) {
 			return new ToMatch<T, any>(null).check(<T>obj);
 		} else {

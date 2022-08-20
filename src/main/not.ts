@@ -1,4 +1,4 @@
-import { Appendable, BaseMatcher, isContainer, IsInterface, Matcher, MatcherFactory, matcherOrEquals, Value } from './tsMatchers';
+import { Appendable, BaseMatcher, isContainer, IsInterface, Matcher, matcherOrEquals, SomethingMatches, Value } from './tsMatchers';
 
 export class Not<T> extends BaseMatcher<T> implements Matcher<T> {
     constructor(private sub: Matcher<T>) { super(); }
@@ -14,8 +14,8 @@ export class Not<T> extends BaseMatcher<T> implements Matcher<T> {
     }
 }
 
-export function not<T>(sub: Matcher<T>|MatcherFactory<T>): Matcher<T>;
 export function not<T>(val: Value<T>): Matcher<T>;
+export function not<T>(sub: SomethingMatches<T>): Matcher<T>;
 export function not<T>(x: any): Matcher<T> {
     return new Not<T>(matcherOrEquals(x));
 }
