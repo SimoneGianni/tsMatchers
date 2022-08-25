@@ -57,6 +57,8 @@ describe("Call test >", ()=>{
     it('Should work correctly on nulls and undefineds', ()=>{
         assert('is null', null, is.falsey);
         assert('is undefined', undefined, is.undefined);
+        checkMessage(null, is.object, /object value.*but was null/);
+        checkMessage(undefined, is.object, /object value.*but was undefined/);
     });
 
     it('Should work correctly with nulls', ()=>{
@@ -141,6 +143,7 @@ describe("Either - and - or", ()=>{
 
 describe("Fluid and - or", ()=>{
     it("Should combine on or", ()=>{
+        is.greaterThan(5).or.lessThan(4)
         assert("Or combined", 1, is.greaterThan(5).or.lessThan(4));
         assert("Or combined", 6, is.greaterThan(5).or.lessThan(4));
         assert("Or combined", 6, is.greaterThan(5).or.lessThan(4).or.nan());

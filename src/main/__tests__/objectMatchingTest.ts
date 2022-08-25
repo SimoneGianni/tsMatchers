@@ -23,6 +23,7 @@ describe("Object >", ()=>{
         assert("simple values", {a:1}, is.object.matching({a:1}));
         assert("ignore additional",  objAB, is.object.matching({a:1}));
         assert("nested values", {a:{b:1}}, is.object.matching({a:{b:1}}));
+        assert("nested values", {a:{b:1}} as unknown, is.object.matching({c:undefined}));
         assert("keys check", {a:1,b:1}, is.object.withKeys('a'));
     });
     it('Should match structure with matchers', ()=>{

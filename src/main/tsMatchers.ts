@@ -38,8 +38,8 @@
 	export interface Matcher<T> {
 		matches(obj :T):boolean|Promise<boolean>;
 		describe(obj :any, msg :Appendable) :void;
-		or :IsInterface;
-		and :IsInterface;
+		or :((other :Matcher<T>) => Matcher<T>) & IsInterface;
+		and :((other :Matcher<T>) => Matcher<T>) & IsInterface;
 	}
 
 	export interface AsyncMatcher<T> extends Matcher<T> {
@@ -189,11 +189,11 @@
 			return either.innerAnd(m);
 		}
 
-		get or() :IsInterface {
+		get or() {
 			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherOr(m), false) as unknown as IsInterface;
 		}
 
-		get and() :IsInterface {
+		get and() {
 			return isContainer.createWrapper((m :Matcher<any>) => this.asEitherAnd(m), false) as unknown as IsInterface;
 		}
 	}
@@ -293,6 +293,19 @@
 			super.describe(obj,msg);
 		}
 	}
+
+	export class OfType<T = any> extends BaseMatcher<T> implements Matcher<T> {
+		constructor(private type: string) { super(); }
+	
+		matches(obj: any) {
+			return typeof obj === this.type && (this.type !== "object" || obj instanceof Object);
+		}
+	
+		describe(obj: any, msg: Appendable) {
+			msg.append(" a " + this.type + " value");
+			super.describe(obj, msg);
+		}
+	}	
 
 
 	export type MatcherTransformer<T> = (base :Matcher<T>)=>Matcher<T>;
@@ -458,6 +471,8 @@
 		var ret :any = null; 
 		if (x === null) {
 			ret = equalTo(null);
+		} else if (typeof x === "undefined") {
+			ret = new OfType("undefined");
 		} else if (x instanceof BaseMatcher) {
 			ret = <Matcher<T>>x;
 		} else if (Array.isArray(x)) {

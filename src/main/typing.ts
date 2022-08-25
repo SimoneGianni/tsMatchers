@@ -1,18 +1,5 @@
 import { not } from './not';
-import { Appendable, BaseMatcher, exactly, isContainer, Matcher } from './tsMatchers';
-
-export class OfType<T = any> extends BaseMatcher<T> implements Matcher<T> {
-	constructor(private type: string) { super(); }
-
-	matches(obj: any) {
-		return typeof obj === this.type;
-	}
-
-	describe(obj: any, msg: Appendable) {
-		msg.append(" a " + this.type + " value");
-		super.describe(obj, msg);
-	}
-}
+import { Appendable, BaseMatcher, exactly, isContainer, Matcher, OfType } from './tsMatchers';
 
 export class InstanceOf extends BaseMatcher<any> implements Matcher<any> {
 	constructor(private type: any) { super(); }

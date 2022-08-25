@@ -28,11 +28,15 @@ export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
         super();
         this.originalDef = defu;
         for (var k in defu) {
-            var m = defu[k];
-            if (!(m instanceof BaseMatcher) && typeof m === 'object') {
-                this.def[k] = new MatchObject(m, strict);
-            } else {
-                this.def[k] = matcherOrEquals(defu[k]);
+            try {
+                var m = defu[k];
+                if (!(m instanceof BaseMatcher) && typeof m === 'object' && m != null) {
+                    this.def[k] = new MatchObject(m, strict);
+                } else {
+                    this.def[k] = matcherOrEquals(defu[k]);
+                }
+            } catch (e) {
+                throw new Error("Error allocating matcher on key " + k + ": caused by " + e.message + "\n" + e.stack + "\n----------------\n");
             }
         }
         this.strict = strict;
