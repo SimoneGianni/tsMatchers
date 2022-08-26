@@ -48,7 +48,7 @@ export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
 
     matches(obj: T) {
         // TODO reenable
-        if (!anObject.matches(obj)) return false;
+        if (!anObject.matches(obj as any)) return false;
         var founds: { [key: string]: boolean } = {};
         for (let k in obj) {
             let matcher = this.def[k];

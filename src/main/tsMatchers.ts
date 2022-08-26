@@ -617,6 +617,7 @@
 	isContainer.registerMatcher('either', either);
 
 	export interface IsInterface extends MatcherContainer {
+		<T>(other: Matcher<T>): Matcher<T>;
 		equal :typeof equalTo;
 		exactly :typeof exactly;
 		equalTo :typeof equalTo;

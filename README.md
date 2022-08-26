@@ -571,6 +571,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.10 : Improved signatures for better compatibility
  * 4.0.9 : Fixed #19, improved `.or()` and `.and()`
  * 4.0.8 : Fixes issue with undefined values in object matching
  * 4.0.7 : Fixed #16 and partial work on #17 and other minor fixes and clode cleanups

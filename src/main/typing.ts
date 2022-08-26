@@ -26,7 +26,7 @@ export class Truthy extends BaseMatcher<any> implements Matcher<any> {
 	}
 }
 
-export function ofType<N = any>(type: string): OfType<N> {
+export function ofType<N = any>(type: string): Matcher<N> {
 	return new OfType(type);
 }
 
@@ -47,8 +47,8 @@ export var anArray = instanceOf(Array);
 
 export var aTruthy = new Truthy();
 export var aFalsey: Matcher<any> = not(aTruthy);
-export var aTrue: Matcher<boolean> = exactly(true);
-export var aFalse: Matcher<boolean> = exactly(false);
+export var aTrue: Matcher<true> = exactly(true);
+export var aFalse: Matcher<false> = exactly(false);
 
 
 
@@ -73,7 +73,7 @@ declare module './tsMatchers' {
 		undefined: () => typeof undefinedValue;
 
 		number: () => Matcher<number>;
-		boolean: () => Matcher<boolean>;
+		boolean: () => Matcher<boolean|true|false>;
 		function: () => Matcher<(... a:any[]) => any>;
 
 		truthy: () => typeof aTruthy;

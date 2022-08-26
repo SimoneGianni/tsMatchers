@@ -102,6 +102,33 @@ describe("Object >", ()=>{
         };
         check(obj, is.object.matching({a:is.function()}));
     });
+    it("Should accept matchers based on types", () => {
+        let obj :{
+            num:number,
+            str:string,
+            bool:boolean,
+            tr? :true
+        } = {
+            num:1,
+            str:"ciao",
+            bool:true,
+            tr:true
+        };
+        
+        check(obj, is.object.matching({
+            num:is.number(),
+            str:is.string(),
+            bool:is.boolean(),
+            tr:is.defined()
+        }));
+
+        check(obj, is.object.matching({
+            num: is.greaterThan(0),
+            str:is.string.ending("ciao"),
+            bool:is.true(),
+            tr: is.true
+        }));
+    });
     /*
     it.skip('All the cases that should give compile error', () => {
         let obj = {a:1};
