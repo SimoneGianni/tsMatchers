@@ -260,6 +260,8 @@
 	}
 
 	export class ArrayEquals<T> extends BaseMatcher<T[]> implements Matcher<T[]> {
+		private failAt :number = 0;
+		private failMatcher :Matcher<any>;
 		constructor(private value:T[]) { super(); }
 		
 		matches(obj:T[]) {
@@ -267,14 +269,25 @@
 			if (obj.length != this.value.length) return false;
 			
 			for (var i = 0; i < this.value.length; ++i) {
-				if (this.value[i] !== obj[i]) return false;
+				let eq = equalTo(this.value[i]);
+				if (!eq.matches(obj[i])) {
+					this.failAt = i;
+					this.failMatcher = eq;
+					return false;
+				}
 			}
 			return true;
 		}
 		
 		describe(obj :any, msg :Appendable) {
-			msg.append(" an array of length " + this.value.length + " equal to ");
-			dump(this.value, msg);
+			if (obj.length != this.value.length) {
+				msg.append(" an array of length " + this.value.length + " (found has " + obj.length + ")");
+			} else {
+				msg.append(" an array equal to ");
+				dump(this.value, msg);
+				msg.append(" but at index " + this.failAt + " was expecting");
+				this.failMatcher.describe(obj[this.failAt],msg);
+			}
 			super.describe(obj,msg);
 		}
 		

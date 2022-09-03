@@ -41,7 +41,12 @@ describe("Array >", ()=>{
     it("Should match equal arrays", ()=>{
         check([1,2,3], equalTo([1,2,3]));
         check([1,2,3], [1,2,3]);
-        checkMessage([1,2,3], equalTo([1]), /an array of length 1.*\[ 1 \].*but was.*\[ 1, 2, 3 \]/);
+        checkMessage([1,2,3], equalTo([1]), /an array of length 1 \(found has 3\) but was \[ 1, 2, 3 \]/);
+    });
+
+    it("Should match nested equal arrays", ()=>{
+        check([1,[2],[3,[4],5]], [1,[2],[3,[4],5]]);
+        checkMessage([1,[2],[3,[4],5]], equalTo([1,[2],[7]]), /an array equal to .* but at index 2 was expecting an array of length 1/);
     });
 
     it("arrayMatching simple case", ()=>{
