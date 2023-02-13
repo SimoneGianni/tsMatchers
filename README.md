@@ -571,6 +571,7 @@ npm publish
 
 Release notes
 =============
+ * 4.0.12 : Fixed #21 and slightly improved #20 and array error messages
  * 4.0.11 : Fixed #20, nested arrays now are properly checked
  * 4.0.10 : Improved signatures for better compatibility
  * 4.0.9 : Fixed #19, improved `.or()` and `.and()`
