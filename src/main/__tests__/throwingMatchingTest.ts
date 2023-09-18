@@ -1,4 +1,4 @@
-import { assert, check, dumpInConsole, either, is, throwing } from '../index';
+import { assert, check, dumpInConsole, is, throwing } from '../index';
 import { checkMessage } from '../__utils__/testUtils';
 
 dumpInConsole(false);
@@ -18,7 +18,7 @@ describe('Throwing tests >', () => {
         assert("Check with object check", () => {throw new Error("test")}, is.throwing(is.object.matching({message: "test"})));
         assert("Check with message string", () => {throw new Error("test")}, is.throwing("test"));
         assert("Check with message regexp", () => {throw new Error("test")}, is.throwing(/te.*/));
-        assert("Check with type and object check", () => {throw new Error("test")}, is.throwing(either(is.instanceOf(Error)).and(is.object.matching({message: "test"}))));
+        assert("Check with type and object check", () => {throw new Error("test")}, is.throwing(is.instanceOf(Error).and.object.matching({message: "test"})));
         assert("Alternative syntax").check(() => {throw new Error("test")}).is(throwing(Error));
         check(() => {throw new Error("test")}).is(throwing(Error));
 

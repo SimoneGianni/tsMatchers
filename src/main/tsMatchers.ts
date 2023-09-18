@@ -38,8 +38,8 @@ export type MatcherFactory<T> = () => Matcher<T>;
 export interface Matcher<T> {
 	matches(obj: T): boolean | Promise<boolean>;
 	describe(obj: any, msg: Appendable): void;
-	or: ((other: Matcher<T>) => Matcher<T>) & IsInterface;
-	and: ((other: Matcher<T>) => Matcher<T>) & IsInterface;
+	or: ((other: Matcher<T>) => Matcher<T>) & OuterIs;
+	and: ((other: Matcher<T>) => Matcher<T>) & OuterIs;
 }
 
 export interface AsyncMatcher<T> extends Matcher<T> {
@@ -189,12 +189,12 @@ export abstract class BaseMatcher<T> implements Matcher<T> {
 		return either.innerAnd(m);
 	}
 
-	get or() {
-		return isContainer.createWrapper((m: Matcher<any>) => this.asEitherOr(m), false) as unknown as IsInterface;
+	get or() :((other: Matcher<T>) => Matcher<T>) & OuterIs {
+		return isContainer.createWrapper((m: Matcher<any>) => this.asEitherOr(m), false) as unknown as OuterIs;
 	}
 
-	get and() {
-		return isContainer.createWrapper((m: Matcher<any>) => this.asEitherAnd(m), false) as unknown as IsInterface;
+	get and() :((other: Matcher<T>) => Matcher<T>) & OuterIs {
+		return isContainer.createWrapper((m: Matcher<any>) => this.asEitherAnd(m), false) as unknown as OuterIs;
 	}
 }
 
@@ -638,23 +638,11 @@ export class CombineOr<T> extends CombineList<T> implements Matcher<T> {
 }
 
 
-export function either<T>(sub: Matcher<T>): Matcher<T>;
-export function either<T>(val: Value<T>): Matcher<T>;
-export function either<T>(x: any): Matcher<T> {
-	return new CombineEither<T>(matcherOrEquals(x));
-}
-
-// TODO create a wrapper for "or" and "and"
-
-
-isContainer.registerMatcher('either', either);
-
 export interface IsInterface extends MatcherContainer {
 	<T>(other: Matcher<T>): Matcher<T>;
 	equal: typeof equalTo;
 	exactly: typeof exactly;
 	equalTo: typeof equalTo;
-	either: typeof either;
 	looselyEqualTo: typeof looselyEqualTo;
 }
 

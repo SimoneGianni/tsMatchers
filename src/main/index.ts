@@ -7,6 +7,6 @@ export * from './retry';
 export * from './strictly';
 export * from './string';
 export * from './throwing';
-export { assert, check, dumpInConsole, either, equalTo, exactly, is, later, looselyEqualTo } from './tsMatchers';
+export { assert, check, dumpInConsole, equalTo, exactly, is, later, looselyEqualTo } from './tsMatchers';
 export * from './typing';
 

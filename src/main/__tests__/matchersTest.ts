@@ -8,6 +8,7 @@ import '../throwing';
 import { Appendable, assert, check, dump, dumpInConsole, equalTo, is, later, report } from '../tsMatchers';
 import '../typing';
 import { checkMessage } from '../__utils__/testUtils';
+import { aString } from '../string';
 
 dumpInConsole(false);
 
@@ -123,24 +124,6 @@ describe("Truthy and falsey, true and false", ()=>{
     });
 });
 
-describe("Either - and - or", ()=>{
-    it("Should combine on or", ()=>{
-        assert("Or combined", 1, is.either(is.greaterThan(5)).or(is.lessThan(4)));
-        assert("Or combined", 6, is.either(is.greaterThan(5)).or(is.lessThan(4)));
-        assert("Or combined", 6, is.either(is.greaterThan(5)).or(is.lessThan(4)).or(is.nan()));
-        checkMessage(4.5, is.either(is.greaterThan(5)).or(is.lessThan(4)), /a number greater than 5.*or a number less than 4.*but was 4.5/s);
-    });
-    it("Should combine on and", ()=>{
-        assert("And combined", 4.5, is.either(is.lessThan(5)).and(is.greaterThan(4)));
-        assert("And combined", 4.5, is.either(is.lessThan(5)).and(is.greaterThan(4)).and(is.finite()));
-        checkMessage(6, is.either(is.lessThan(5)).and(is.greaterThan(4)), /a number less than 5.*but was 6.*and a number greater than 4/s);
-    });
-    it("Not combined", ()=>{
-        assert<number>("And combined", 4.5, is.either(is.lessThan(5)));
-        checkMessage(6, is.either(is.lessThan(5)), /a number less than 5.*but was 6/s);
-    })
-});
-
 describe("Fluid and - or", ()=>{
     it("Should combine on or", ()=>{
         is.greaterThan(5).or.lessThan(4)
@@ -152,6 +135,12 @@ describe("Fluid and - or", ()=>{
     it("Should combine on and", ()=>{
         assert("And combined", 4.5, is.lessThan(5).and.greaterThan(4));
         assert("And combined", 4.5, is.lessThan(5).and.greaterThan(4).and.finite());
+        assert("And combined", 4.5, is.lessThan(5).and.not.greaterThan(4.7)); 
+        assert("And combined", "ma", is.string().and.not.number()); 
+        assert("And combined", "ma", is.not.string.containing("pippo")); 
+        // TODO #27
+        // assert("And combined", "ma", is.string().and.not.string.containing("pippo")); // Fails without not
+        // assert("And combined", "ma", aString.and.not.string.containing("pippo"));
         checkMessage(6, is.lessThan(5).and.greaterThan(4), /a number less than 5.*but was 6.*and a number greater than 4/s);
     });
 });

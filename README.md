@@ -36,7 +36,7 @@ Way more complex assertions are possible with a simpler syntax, for example :
 assert("Person matches").when(person).is(matchingObject({
   name: aString,
   surname: aString,
-  nick : either(aString).and(not(stringContains('!'))),
+  nick : aString.and(not(stringContains('!'))),
   friends : withLength(10)
 }));
 ```
@@ -236,16 +236,17 @@ check(s, is.not.equal("ciao"));
 Combining rules
 ---------------
 
-More complex expressions can be created using the `either(rule).or(rule).and(rule)` syntax :
+More complex expressions can be created using the `.or.` and `.and.` syntax :
 
 ```javascript
-check(x).is(either(aNumber).or(aBoolean));
-check(x).is(either(aNumber).and(equalTo(10));
+check(x).is(aNumber.or.aBoolean);
+check(x).is(aNumber.and.equalTo(10));
 ```
 
-This works also with the alternative compact syntax but it's bit more convoluted:
-```
-check(x, is.either(is.aNumber).or(is.aBoolean));
+This works also with the alternative compact syntax:
+
+```javascript
+check(x, is.number.or.boolean);
 ```
 
 Numbers
@@ -339,8 +340,8 @@ check(x).is(arrayContaining(equalTo(10)));
 check(x).is(arrayContaining(greaterThan(10));
 check(x).is(arrayEachItem(greaterThan(9)));
 
-// using either
-check(x).is(either(withLength(3)).and(arrayContaining(10)));
+// Or comibined
+check(x).is(withLength(3).and(arrayContaining(10)));
 ```
 All these assertions will pass.
 
@@ -406,7 +407,7 @@ var x = {a:10,b:'Test',c: {c1:100,c2:20}, d:'Other'};
 
 check(x).is(objectMatching({
   a: 10,
-  b: either(withLength(4)).and(stringContaining('est')),
+  b: withLength(4).and(stringContaining('est')),
   c: { // Sub-object-matching
     c1: between(0,100),
     c2: closeto(20,1)
@@ -571,6 +572,7 @@ npm publish
 
 Release notes
 =============
+ * 5.0.0 : Removed `either` and clarified interface and documentation about `.and` and `.or` syntax
  * 4.0.12 : Fixed #21 and slightly improved #20 and array error messages
  * 4.0.11 : Fixed #20, nested arrays now are properly checked
  * 4.0.10 : Improved signatures for better compatibility
