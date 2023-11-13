@@ -572,6 +572,7 @@ npm publish
 
 Release notes
 =============
+ * 5.0.1 : Fixed a rare issue with objects having a different prototype
  * 5.0.0 : Removed `either` and clarified interface and documentation about `.and` and `.or` syntax
  * 4.0.12 : Fixed #21 and slightly improved #20 and array error messages
  * 4.0.11 : Fixed #20, nested arrays now are properly checked

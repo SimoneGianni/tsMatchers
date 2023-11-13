@@ -311,7 +311,13 @@ export class OfType<T = any> extends BaseMatcher<T> implements Matcher<T> {
 	constructor(private type: string) { super(); }
 
 	matches(obj: any) {
-		return typeof obj === this.type && (this.type !== "object" || obj instanceof Object);
+		if (obj === null) {
+			return this.type === "null";
+		}
+		if (Array.isArray(obj)) {
+			return this.type === "array";
+		}
+    return typeof obj === this.type;		
 	}
 
 	describe(obj: any, msg: Appendable) {
