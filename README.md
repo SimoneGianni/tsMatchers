@@ -563,7 +563,20 @@ or
 npm run watch
 ```
 
-To publish a release
+You can use yalc to test locally before publishing:
+
+```
+npm i -g yalc
+yalc publish
+```
+
+Then in your project:
+
+```
+yalc add tsmatchers
+```
+
+To publish a release:
 
 ```
 npm run build
@@ -572,6 +585,7 @@ npm publish
 
 Release notes
 =============
+ * 5.0.2 : Fixed bug with arrays contained inside an is.object.matching
  * 5.0.1 : Fixed a rare issue with objects having a different prototype
  * 5.0.0 : Removed `either` and clarified interface and documentation about `.and` and `.or` syntax
  * 4.0.12 : Fixed #21 and slightly improved #20 and array error messages

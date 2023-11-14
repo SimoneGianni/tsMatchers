@@ -30,7 +30,7 @@ export class MatchObject<T> extends BaseMatcher<T> implements Matcher<T> {
         for (var k in defu) {
             try {
                 var m = defu[k];
-                if (!(m instanceof BaseMatcher) && typeof m === 'object' && m != null) {
+                if (!(m instanceof BaseMatcher) && typeof m === 'object' && m != null && !Array.isArray(m)) {
                     this.def[k] = new MatchObject(m, strict);
                 } else {
                     this.def[k] = matcherOrEquals(defu[k]);

@@ -129,6 +129,14 @@ describe("Object >", ()=>{
             tr: is.true
         }));
     });
+
+    it('should propagate to array', () => {
+        let obj = {
+            a:[1,2]
+        };
+        check(obj, is.object.matching({a:[1,2]}));
+    });
+    
     /*
     it.skip('All the cases that should give compile error', () => {
         let obj = {a:1};
