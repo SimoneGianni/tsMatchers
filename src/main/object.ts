@@ -160,4 +160,4 @@ isContainer.registerSub('object', objectContainer);
 var strictContainer = new ContainerObj();
 strictContainer.registerMatcher('matching', objectMatching);
 strictContainer.registerMatcher('withKeys', objectWithKeys);
-strictlyContainer.registerSub('object', strictContainer.createWrapper((m)=>(<MatchObject<any>>m).asStrict()));
+strictlyContainer.registerSub('object', strictContainer.createWrapper("rootStrictObject", (m)=>(<MatchObject<any>>m).asStrict()));

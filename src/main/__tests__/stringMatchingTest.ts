@@ -55,4 +55,24 @@ describe('String tests >', ()=>{
         checkMessage(n, is.string.matching("a"), /string matching.*but was 1/);
         checkMessage(null, is.string.matching("a"), /string matching.*but was null/);
     })
+    it('should match lowercase', ()=>{
+        assert("Lowercased string matches", "CIAO", is.string.lowercase.matching('ciao'));
+        assert("Lowercased string matches with regexp", "CIAO", is.string.lowercase.matching(/^c.*$/));
+        assert("Lowercased string matches with length", "CIAO", is.string.lowercase.withLength(4));
+        assert("Lowercased string matches with containing", "CIAO", is.string.lowercase.containing('ia'));
+        assert("Lowercased string matches with starting", "CIAO", is.string.lowercase.starting('ci'));
+        assert("Lowercased string matches with ending", "CIAO", is.string.lowercase.ending('ao'));
+        checkMessage("CIAO", is.string.lowercase.matching('ciz'), /lowercased string that is.*matching "\/ciz\/".*but was 'CIAO'/);
+        checkMessage("CIAO", is.string.lowercase.withLength(5), /lowercased string that is.*with length 5.*but was 'CIAO'/);
+    });
+    it('should match uppercase', ()=>{
+        assert("Uppercased string matches", "ciao", is.string.uppercase.matching('CIAO'));
+        assert("Uppercased string matches with regexp", "ciao", is.string.uppercase.matching(/^C.*$/));
+        assert("Uppercased string matches with length", "ciao", is.string.uppercase.withLength(4));
+        assert("Uppercased string matches with containing", "ciao", is.string.uppercase.containing('IA'));
+        assert("Uppercased string matches with starting", "ciao", is.string.uppercase.starting('CI'));
+        assert("Uppercased string matches with ending", "ciao", is.string.uppercase.ending('AO'));
+        checkMessage("ciao", is.string.uppercase.matching('CIZ'), /uppercased string that is.*matching "\/CIZ\/".*but was 'ciao'/);
+        checkMessage("ciao", is.string.uppercase.withLength(5), /uppercased string that is.*with length 5.*but was 'ciao'/);
+    });
 });

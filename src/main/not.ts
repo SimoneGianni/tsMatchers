@@ -20,7 +20,7 @@ export function not<T>(x: any): Matcher<T> {
     return new Not<T>(matcherOrEquals(x));
 }
 
-var notWrapper = isContainer.createWrapper((m) => not(m));
+var notWrapper = isContainer.createWrapper("rootNot", (m) => not(m));
 isContainer.registerSub('not', notWrapper);
 
 export interface NotInterface extends IsInterface {

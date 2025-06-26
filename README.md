@@ -396,6 +396,14 @@ check(x, is.starting('Tes'));
 check(x, is.ending('ing'));
 ```
 
+To make checks case insensitive, you can combine the `lowercase` or `uppercase` matchers with the others:
+
+```javascript
+var x = 'Testing';
+check(x, is.lowercase.starting('tes')); // Will pass, because x is converted to lowercase before the check
+check(x, is.uppercase.ending('ING')); // Will pass, because x is converted to uppercase before the check
+``` 
+
 Objects
 -------
 
@@ -585,6 +593,7 @@ npm publish
 
 Release notes
 =============
+ * 5.0.3 : Added string.lowercase and string.uppercase matchers, improved container flexibility
  * 5.0.2 : Fixed bug with arrays contained inside an is.object.matching
  * 5.0.1 : Fixed a rare issue with objects having a different prototype
  * 5.0.0 : Removed `either` and clarified interface and documentation about `.and` and `.or` syntax
@@ -614,8 +623,8 @@ Release notes
  * r2 : Fix on "aNaN", use specific matcher cause typeof is not reliable
  * r1 : Initial commit
 
- TODO
- ====
+TODO
+====
 
 More fluent interface
 ---------------------

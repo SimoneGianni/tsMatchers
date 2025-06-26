@@ -98,6 +98,36 @@ export class StringLength extends BaseMatcher<string> implements Matcher<string>
     }
 }
 
+export class StringLowercase extends BaseMatcher<string> implements Matcher<string> {
+    constructor(private other:Matcher<string>) {super();}
+
+    matches(obj:string) {
+        if (!obj) return false;
+        if (typeof obj !== 'string') return false;
+        return this.other.matches(obj.toLowerCase());
+    }
+
+    describe(obj :any, msg :Appendable) {
+        msg.append(" a lowercased string that is");
+        this.other.describe(obj, msg);
+    }
+}
+
+export class StringUppercase extends BaseMatcher<string> implements Matcher<string> {
+    constructor(private other:Matcher<string>) {super();}
+
+    matches(obj:string) {
+        if (!obj) return false;
+        if (typeof obj !== 'string') return false;
+        return this.other.matches(obj.toUpperCase());
+    }
+
+    describe(obj :any, msg :Appendable) {
+        msg.append(" an uppercased string that is");
+        this.other.describe(obj, msg);
+    }
+}
+
 
 export function stringContaining(...sub :string[]) :StringContaining {
     return new StringContaining(sub);
@@ -123,6 +153,14 @@ export function stringMatching(re:string|RegExp) :StringMatching {
     }
 }
 
+export function stringLowercase(other:Matcher<string>) :StringLowercase {
+    return new StringLowercase(other);
+}
+
+export function stringUppercase(other:Matcher<string>) :StringUppercase {
+    return new StringUppercase(other);
+}
+
 export var aString :Matcher<string> = ofType('string');
 
 
@@ -135,15 +173,20 @@ export interface StringInterface extends MatcherContainer {
     withLength: typeof stringLength;
 }
 
+export interface StringCasingInterface extends StringInterface {
+    lowercase: StringInterface;
+    uppercase: StringInterface;
+}
+
 declare module './tsMatchers' {
     export interface IsInterface {
-        string: StringInterface
+        string: StringCasingInterface
     }
 }
 
 declare module './not' {
     export interface NotInterface {
-        string: { (): Matcher<any>} & StringInterface;
+        string: { (): Matcher<any>} & StringCasingInterface;
     }
 }
 
@@ -154,5 +197,11 @@ stringContainer.registerMatcher('containing', stringContaining);
 stringContainer.registerMatcher('starting', stringStartingWith);
 stringContainer.registerMatcher('ending', stringEndingWith);
 stringContainer.registerMatcher('withLength', stringLength);
+
+var lcWrapper = stringContainer.createWrapper("rootLowercase", (m) => stringLowercase(m));
+var ucWrapper = stringContainer.createWrapper("rootUppercase", (m) => stringUppercase(m));
+
+stringContainer.registerSub('lowercase', lcWrapper);
+stringContainer.registerSub('uppercase', ucWrapper);
 
 isContainer.registerSub('string', stringContainer);

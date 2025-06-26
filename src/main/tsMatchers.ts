@@ -190,11 +190,11 @@ export abstract class BaseMatcher<T> implements Matcher<T> {
 	}
 
 	get or() :((other: Matcher<T>) => Matcher<T>) & OuterIs {
-		return isContainer.createWrapper((m: Matcher<any>) => this.asEitherOr(m), false) as unknown as OuterIs;
+		return isContainer.createWrapper("dynOr", (m: Matcher<any>) => this.asEitherOr(m), false) as unknown as OuterIs;
 	}
 
 	get and() :((other: Matcher<T>) => Matcher<T>) & OuterIs {
-		return isContainer.createWrapper((m: Matcher<any>) => this.asEitherAnd(m), false) as unknown as OuterIs;
+		return isContainer.createWrapper("dynAnd", (m: Matcher<any>) => this.asEitherAnd(m), false) as unknown as OuterIs;
 	}
 }
 
@@ -338,7 +338,8 @@ export interface MatcherContainer {
 var ContainerObjCnt = 1;
 
 export class ContainerObj {
-	_prog = ContainerObjCnt++;
+	_parent: string = "";
+	_prog = "n" + ContainerObjCnt++;
 	_externalWrappers: ContainerObj[] = [];
 
 	_wraps: ContainerObj;
@@ -418,7 +419,7 @@ export class ContainerObj {
 		});
 	}
 
-	registerSub(name: string, sub: ContainerObj, register = true) {
+	registerSub(name: string, sub: ContainerObj, register = true, stack: string[] = []) {
 		//console.log("Registering on " + this._prog + " the sub " + name + ":" + sub._prog);
 		this._subs[name] = sub;
 		Object.defineProperty(this, name, {
@@ -429,12 +430,12 @@ export class ContainerObj {
 		if (register) {
 			for (var i = 0; i < this._externalWrappers.length; i++) {
 				if (this._externalWrappers[i] === sub) continue;
-				this._externalWrappers[i].receiveWrappedSub(name, sub, register);
+				this._externalWrappers[i].receiveWrappedSub(name, sub, register, stack);
 			}
 		}
 	}
 
-	createWrapper(wrapFn: (M: Matcher<any>) => Matcher<any>, register = true) {
+	createWrapper(name: string, wrapFn: (M: Matcher<any>) => Matcher<any>, register = true, stack: string[] = []) {
 		//console.log("Creating wrapper on " + this._prog);
 		var ret: ContainerObj = null;
 		if ((<any>this).__matcherFunction) {
@@ -444,6 +445,8 @@ export class ContainerObj {
 		} else {
 			ret = new ContainerObj();
 		}
+		ret._parent = this._prog;
+		ret._prog = this._prog + "_" + name;
 		ret._wraps = this;
 		ret._wrapFn = wrapFn;
 		if (register) this._externalWrappers.push(ret);
@@ -464,17 +467,28 @@ export class ContainerObj {
 		}
 		for (var k in subs) {
 			if (subs[k] === this) continue;
-			ret.receiveWrappedSub(k, subs[k], register);
+			ret.receiveWrappedSub(k, subs[k], register, stack);
 		}
 
 		return ret;
 	}
 
-	receiveWrappedSub(name: string, sub: ContainerObj, register: boolean) {
+	receiveWrappedSub(name: string, sub: ContainerObj, register: boolean, stack: string[] = []) {
 		if (this[name]) return;
+		if (register && this._parent === sub._parent) {
+			//console.warn(this._prog + " and " + sub._prog + " are the same parent, not registering " + name);
+			return;
+		}
+		if (stack.indexOf(name) >= 0) {
+			console.warn("Circular reference detected in " + this._prog + " '" + name + "' receiving " + sub._prog + " via " + stack.join(" -> "));
+			return;
+		}
+		stack.push(name);
+
 		//console.log("Received a wrapped sub on " + this._prog + "." + name + ":" + sub._prog);
-		var wrapper = sub.createWrapper(this._wrapFn, register);
-		this.registerSub(name, wrapper, register);
+		var wrapper = sub.createWrapper("wrap-" + this._prog + "-" + name, this._wrapFn, true, stack);
+		this.registerSub(name, wrapper, true, stack);
+		stack.pop();
 	}
 }
 
