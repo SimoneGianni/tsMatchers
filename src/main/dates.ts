@@ -148,7 +148,7 @@ function makeADate(val: any) {
 	}
 }
 
-export function dateCloseTo(value: Date|string, range?: DateRanges) {
+export function dateCloseTo(value: Date|string, range?: DateRanges) : Matcher<Date> {
 	if (typeof value == "string" && !range) {
 		if (value.length == 4) {
 			range = "year";
@@ -168,19 +168,19 @@ export function dateCloseTo(value: Date|string, range?: DateRanges) {
 	}
 	return new DateCloseTo(makeADate(value), range);
 }
-export function dateAfter(value: Date|string, inclusive: boolean = false): DateBetween {
+export function dateAfter(value: Date|string, inclusive: boolean = false): Matcher<Date> {
 	var ret = new DateBetween();
 	ret.min = makeADate(value).getTime();
 	ret.minInc = inclusive;
 	return ret;
 }
-export function dateBefore(value: Date|string, inclusive: boolean = false): DateBetween {
+export function dateBefore(value: Date|string, inclusive: boolean = false): Matcher<Date> {
 	var ret = new DateBetween();
 	ret.max = makeADate(value).getTime();
 	ret.maxInc = inclusive;
 	return ret;
 }
-export function dateBetween(min: Date|string, max: Date|string): DateBetween {
+export function dateBetween(min: Date|string, max: Date|string): Matcher<Date> {
 	var ret = new DateBetween();
 	ret.min = makeADate(min).getTime();
 	ret.max = makeADate(max).getTime();
@@ -189,17 +189,17 @@ export function dateBetween(min: Date|string, max: Date|string): DateBetween {
 
 export var aDate = new IsValidDate() as Matcher<Date>;
 export var invalidDate = () => new IsValidDate(false) as Matcher<Date>;
-export var aISODateString = () => new IsISODate();
+export var aISODateString = () => new IsISODate() as Matcher<string>;
 
 export interface DateInterface extends MatcherContainer {
     ():typeof aDate;
     invalid: typeof invalidDate;
     isoString: typeof aISODateString;
     closeTo: typeof dateCloseTo;
-	same: typeof dateCloseTo;
+    same: typeof dateCloseTo;
     before: typeof dateBefore;
     after: typeof dateAfter;
-	between: typeof dateBetween;
+    between: typeof dateBetween;
 }
 
 declare module './tsMatchers' {

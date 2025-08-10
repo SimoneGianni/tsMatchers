@@ -1,13 +1,12 @@
 import { assert, check, dumpInConsole, is, objectMatching, objectWithKeys } from '../index';
-import { objectMatchingStrictly, OrigObj } from '../object';
-import { Matcher } from '../tsMatchers';
+import { objectMatchingStrictly } from '../object';
 import { checkMessage } from '../__utils__/testUtils';
 
 dumpInConsole(false);
 
 // Useful extraction types in case things go wrong and needs deugging
-type extractMatcher<Type> = Type extends Matcher<infer X> ? X : never
-type extractOrig<Type> = Type extends OrigObj<infer X> ? X : never
+//type extractMatcher<Type> = Type extends Matcher<infer X> ? X : never
+//type extractOrig<Type> = Type extends OrigObj<infer X> ? X : never
 
 describe("Object >", ()=>{
     let objA = {a:1};
@@ -98,7 +97,7 @@ describe("Object >", ()=>{
     });
     it("Should work with functions", ()=>{
         let obj :{[index:string] :(i:number)=>string} = {
-            a: (i:number) => "ciao"
+            a: () => "ciao"
         };
         check(obj, is.object.matching({a:is.function()}));
     });

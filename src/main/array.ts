@@ -139,24 +139,24 @@ export class ArrayMatching<T> extends BaseMatcher<T[]> implements Matcher<T[]> {
 }
 
 
-export function withLength(len: number): WithLength {
+export function withLength(len: number): Matcher<any[]> {
 	return new WithLength(len);
 }
 
-export function arrayContaining<T>(sub: Matcher<T> | Value<T> | MatcherFactory<T>): ArrayContaining<T>;
-export function arrayContaining<T>(x: any): ArrayContaining<T> {
+export function arrayContaining<T>(sub: Matcher<T> | Value<T> | MatcherFactory<T>): Matcher<T[]>;
+export function arrayContaining<T>(x: any): Matcher<T[]> {
 	return new ArrayContaining<T>(matcherOrEquals(x));
 }
 
-export function arrayEachItem<T>(sub: Matcher<T> | Value<T> | MatcherFactory<T>): ArrayEachItem<T>;
-export function arrayEachItem<T>(x: any): ArrayEachItem<T> {
+export function arrayEachItem<T>(sub: Matcher<T> | Value<T> | MatcherFactory<T>): Matcher<T[]>;
+export function arrayEachItem<T>(x: any): Matcher<T[]> {
 	return new ArrayEachItem<T>(matcherOrEquals(x));
 }
 
-export function arrayMatching<T>(allMatchers: (Matcher<T> | Value<T> | MatcherFactory<T>)[]): ArrayMatching<T> {
+export function arrayMatching<T>(allMatchers: (Matcher<T> | Value<T> | MatcherFactory<T>)[]): Matcher<T[]> {
 	return new ArrayMatching<T>(allMatchers.map(x => matcherOrEquals(x)));
 }
-export function arrayMatchingStrictly<T>(allMatchers: (Matcher<T> | Value<T> | MatcherFactory<T>)[]): ArrayMatching<T> {
+export function arrayMatchingStrictly<T>(allMatchers: (Matcher<T> | Value<T> | MatcherFactory<T>)[]): Matcher<T[]> {
 	return new ArrayMatching<T>(allMatchers.map(x => matcherOrEquals(x)), true);
 }
 

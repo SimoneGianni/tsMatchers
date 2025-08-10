@@ -12,5 +12,23 @@ export default {
   
     // The directory where Jest should output its coverage files
     coverageDirectory: "coverage",
+    
+    // Use ts-jest preset for TypeScript files
+    preset: 'ts-jest',
+    
+    // Set test environment
+    testEnvironment: 'node',
+    
+    // Transform files using ts-jest
+    extensionsToTreatAsEsm: ['.ts'],
+    
+    // Module file extensions
+    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+    
+    // Transform configuration
+    transform: {
+        '^.+\\.ts$': ['ts-jest', {
+            useESM: true
+        }]
+    }
 };
-  

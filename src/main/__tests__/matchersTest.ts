@@ -8,7 +8,6 @@ import '../throwing';
 import { Appendable, assert, check, dump, dumpInConsole, equalTo, is, later, report } from '../tsMatchers';
 import '../typing';
 import { checkMessage } from '../__utils__/testUtils';
-import { aString } from '../string';
 
 dumpInConsole(false);
 

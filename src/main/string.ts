@@ -129,23 +129,23 @@ export class StringUppercase extends BaseMatcher<string> implements Matcher<stri
 }
 
 
-export function stringContaining(...sub :string[]) :StringContaining {
+export function stringContaining(...sub :string[]) :Matcher<string> {
     return new StringContaining(sub);
 }
 
-export function stringStartingWith(sub:string) :StringStartsWith {
+export function stringStartingWith(sub:string) :Matcher<string> {
     return new StringStartsWith(sub);
 }
 
-export function stringEndingWith(sub:string) :StringEndsWith {
+export function stringEndingWith(sub:string) :Matcher<string> {
     return new StringEndsWith(sub);
 }
 
-export function stringLength(len:number|Matcher<number>) :StringLength {
+export function stringLength(len:number|Matcher<number>) :Matcher<string> {
     return new StringLength(len);
 }
 
-export function stringMatching(re:string|RegExp) :StringMatching {
+export function stringMatching(re:string|RegExp) :Matcher<string> {
     if (typeof(re) === 'string') {
         return new StringMatching(new RegExp(<string>re));
     } else {
@@ -153,11 +153,11 @@ export function stringMatching(re:string|RegExp) :StringMatching {
     }
 }
 
-export function stringLowercase(other:Matcher<string>) :StringLowercase {
+export function stringLowercase(other:Matcher<string>) :Matcher<string> {
     return new StringLowercase(other);
 }
 
-export function stringUppercase(other:Matcher<string>) :StringUppercase {
+export function stringUppercase(other:Matcher<string>) :Matcher<string> {
     return new StringUppercase(other);
 }
 

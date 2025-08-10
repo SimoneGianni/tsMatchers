@@ -7,12 +7,7 @@ describe('Retrying tests >', () => {
     function wait(milliseconds) {
         return new Promise(resolve => setTimeout(resolve, milliseconds));
     }    
-    async function getError() {
-        await wait(50);
-        throw new Error("Test exception");
-    }
     let tries = 0;
-    let logTries = false;
     function runTry() {
         tries++;
         if (tries < 10) {
@@ -105,7 +100,6 @@ describe('Retrying tests >', () => {
 
     it('Should retry throwing async', async ()=>{
         tries = 0;
-        logTries = true;
         await assert("Retries", asyncThrow, is.retrying().until(is.true));
         assert("It did retry 10 times", tries, 10);
     });

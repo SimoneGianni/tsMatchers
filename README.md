@@ -593,6 +593,8 @@ npm publish
 
 Release notes
 =============
+ * 6.0.1 : Fixed access to tsMatchers internals.
+ * 6.0.0 : Support both ESM and CommonJS, with proper imports and exports, also fixed some typings to better support new TypeScript versions
  * 5.0.3 : Added string.lowercase and string.uppercase matchers, improved container flexibility
  * 5.0.2 : Fixed bug with arrays contained inside an is.object.matching
  * 5.0.1 : Fixed a rare issue with objects having a different prototype

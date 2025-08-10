@@ -100,22 +100,22 @@ export class IsFinite extends BaseMatcher<number> implements Matcher<number> {
 }
 
 
-export function closeTo(value: number, range: number = 0.1): CloseTo {
+export function closeTo(value: number, range: number = 0.1): Matcher<number> {
 	return new CloseTo(value, range);
 }
-export function greaterThan(value: number, inclusive: boolean = false): Between {
+export function greaterThan(value: number, inclusive: boolean = false): Matcher<number> {
 	var ret = new Between();
 	ret.min = value;
 	ret.minInc = inclusive;
 	return ret;
 }
-export function lessThan(value: number, inclusive: boolean = false): Between {
+export function lessThan(value: number, inclusive: boolean = false): Matcher<number> {
 	var ret = new Between();
 	ret.max = value;
 	ret.maxInc = inclusive;
 	return ret;
 }
-export function between(min: number, max: number): Between {
+export function between(min: number, max: number): Matcher<number> {
 	var ret = new Between();
 	ret.min = min;
 	ret.max = max;

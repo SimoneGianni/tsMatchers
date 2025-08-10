@@ -30,7 +30,7 @@ export function ofType<N = any>(type: string): Matcher<N> {
 	return new OfType(type);
 }
 
-export function instanceOf(type: any): InstanceOf {
+export function instanceOf(type: any): Matcher<any> {
 	return new InstanceOf(type);
 }
 
@@ -45,10 +45,10 @@ export var aFunction = ofType<(... a:any[]) => any>('function');
 
 export var anArray = instanceOf(Array);
 
-export var aTruthy = new Truthy();
+export var aTruthy = new Truthy() as Matcher<any>;
 export var aFalsey: Matcher<any> = not(aTruthy);
-export var aTrue: Matcher<true> = exactly(true);
-export var aFalse: Matcher<false> = exactly(false);
+export var aTrue: Matcher<true> = exactly(true) as Matcher<true|boolean>;
+export var aFalse: Matcher<false> = exactly(false) as Matcher<false|boolean>;
 
 
 
